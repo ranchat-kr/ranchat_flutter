@@ -41,65 +41,88 @@ class _ChatScreen extends State<ChatScreen> {
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
-    return Scaffold(
-      backgroundColor: Colors.black,
-      appBar: AppBar(
+    return GestureDetector(
+      onTap: () {
+        FocusScope.of(context).requestFocus(FocusNode());
+      },
+      child: Scaffold(
         backgroundColor: Colors.black,
-        leading: IconButton(
-          icon: const Icon(
-            Icons.arrow_back,
-            color: Colors.white,
-          ),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
-        title: const Text(
-          'chat',
-          style: TextStyle(color: Colors.white),
-        ),
-        centerTitle: true,
-      ),
-      body: Column(
-        children: [
-          Expanded(
-            child: ListView.builder(
-              controller: _scrollController,
-              reverse: false,
-              itemCount: _messages.length,
-              itemBuilder: (context, index) {
-                return Padding(
-                  padding: const EdgeInsets.symmetric(
-                      vertical: 8.0, horizontal: 16.0),
-                  child: Text(
-                    _messages[index],
-                    style: const TextStyle(color: Colors.white),
-                  ),
-                );
-              },
+        appBar: AppBar(
+          backgroundColor: Colors.black,
+          leading: IconButton(
+            icon: const Icon(
+              Icons.arrow_back,
+              color: Colors.white,
             ),
+            onPressed: () {
+              Navigator.pop(context);
+            },
           ),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Row(
-              children: [
-                const Icon(
-                  Icons.keyboard_arrow_right,
-                  color: Colors.white,
-                ),
-                Expanded(
-                  child: TextField(
-                    focusNode: _focusNode,
-                    style: const TextStyle(color: Colors.white),
-                    controller: _textController,
-                    decoration: const InputDecoration(
-                        hintText: '입력하세요.',
-                        hintStyle: TextStyle(color: Colors.white60),
-                        border: InputBorder.none),
-                    cursorColor: Colors.white,
-                    cursorWidth: 1,
-                    cursorHeight: 12,
-                    onSubmitted: (value) {
+          title: const Text(
+            'chat',
+            style: TextStyle(color: Colors.white),
+          ),
+          centerTitle: true,
+        ),
+        body: Column(
+          children: [
+            Expanded(
+              child: ListView.builder(
+                controller: _scrollController,
+                reverse: false,
+                itemCount: _messages.length,
+                itemBuilder: (context, index) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 8.0, horizontal: 16.0),
+                    child: Text(
+                      _messages[index],
+                      style: const TextStyle(color: Colors.white),
+                    ),
+                  );
+                },
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Row(
+                children: [
+                  const Icon(
+                    Icons.keyboard_arrow_right,
+                    color: Colors.white,
+                  ),
+                  Expanded(
+                    child: TextField(
+                      focusNode: _focusNode,
+                      style: const TextStyle(color: Colors.white),
+                      controller: _textController,
+                      decoration: const InputDecoration(
+                          hintText: '입력하세요.',
+                          hintStyle: TextStyle(color: Colors.white60),
+                          border: InputBorder.none),
+                      cursorColor: Colors.white,
+                      cursorWidth: 1,
+                      cursorHeight: 12,
+                      onSubmitted: (value) {
+                        final message = _textController.text.trim();
+                        if (message.isNotEmpty) {
+                          setState(() {
+                            _messages.add(message);
+                            _textController.clear();
+                            _scrollController.animateTo(
+                                _scrollController.position.maxScrollExtent,
+                                duration: const Duration(milliseconds: 300),
+                                curve: Curves.fastEaseInToSlowEaseOut);
+                          });
+                          _sendMessage(message);
+                        }
+                        FocusScope.of(context).requestFocus(_focusNode);
+                      },
+                    ),
+                  ),
+                  const SizedBox(width: 16.0),
+                  ElevatedButton(
+                    onPressed: () {
                       final message = _textController.text.trim();
                       if (message.isNotEmpty) {
                         setState(() {
@@ -114,39 +137,21 @@ class _ChatScreen extends State<ChatScreen> {
                       }
                       FocusScope.of(context).requestFocus(_focusNode);
                     },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.transparent,
+                      foregroundColor: Colors.yellow,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(0.0),
+                          side: const BorderSide(
+                              color: Colors.yellow, width: 2.0)),
+                    ),
+                    child: const Text('보내기'),
                   ),
-                ),
-                const SizedBox(width: 16.0),
-                ElevatedButton(
-                  onPressed: () {
-                    final message = _textController.text.trim();
-                    if (message.isNotEmpty) {
-                      setState(() {
-                        _messages.add(message);
-                        _textController.clear();
-                        _scrollController.animateTo(
-                            _scrollController.position.maxScrollExtent,
-                            duration: const Duration(milliseconds: 300),
-                            curve: Curves.fastEaseInToSlowEaseOut);
-                      });
-                      _sendMessage(message);
-                    }
-                    FocusScope.of(context).requestFocus(_focusNode);
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.transparent,
-                    foregroundColor: Colors.yellow,
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(0.0),
-                        side:
-                            const BorderSide(color: Colors.yellow, width: 2.0)),
-                  ),
-                  child: const Text('보내기'),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
