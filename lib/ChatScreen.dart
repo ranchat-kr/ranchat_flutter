@@ -1,4 +1,4 @@
-import 'package:ranchat_flutter/main.dart';
+import 'package:ranchat_flutter/ConnectingService.dart';
 import 'package:flutter/material.dart';
 
 class ChatScreen extends StatefulWidget {
@@ -12,11 +12,30 @@ class _ChatScreen extends State<ChatScreen> {
   final _messages = <String>[];
   final _textController = TextEditingController();
   final _scrollController = ScrollController();
+  final _focusNode = FocusNode();
+  late Connectingservice _connectingservice;
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+    _focusNode.requestFocus();
+    _connectingservice = Connectingservice();
+    _connectingservice.connectToWebSocket();
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    _connectingservice.dispose();
+    _textController.dispose();
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _sendMessage(String message) {
+    print('chatScreen send message: $message');
+    _connectingservice.sendMessage(message);
   }
 
   @override
@@ -70,6 +89,7 @@ class _ChatScreen extends State<ChatScreen> {
                 ),
                 Expanded(
                   child: TextField(
+                    focusNode: _focusNode,
                     style: const TextStyle(color: Colors.white),
                     controller: _textController,
                     decoration: const InputDecoration(
@@ -79,6 +99,21 @@ class _ChatScreen extends State<ChatScreen> {
                     cursorColor: Colors.white,
                     cursorWidth: 1,
                     cursorHeight: 12,
+                    onSubmitted: (value) {
+                      final message = _textController.text.trim();
+                      if (message.isNotEmpty) {
+                        setState(() {
+                          _messages.add(message);
+                          _textController.clear();
+                          _scrollController.animateTo(
+                              _scrollController.position.maxScrollExtent,
+                              duration: const Duration(milliseconds: 300),
+                              curve: Curves.fastEaseInToSlowEaseOut);
+                        });
+                        _sendMessage(message);
+                      }
+                      FocusScope.of(context).requestFocus(_focusNode);
+                    },
                   ),
                 ),
                 const SizedBox(width: 16.0),
@@ -94,7 +129,9 @@ class _ChatScreen extends State<ChatScreen> {
                             duration: const Duration(milliseconds: 300),
                             curve: Curves.fastEaseInToSlowEaseOut);
                       });
+                      _sendMessage(message);
                     }
+                    FocusScope.of(context).requestFocus(_focusNode);
                   },
                   child: const Text('보내기'),
                 ),
