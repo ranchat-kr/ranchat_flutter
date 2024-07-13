@@ -28,13 +28,20 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Ranchat'),
-      ),
+          // title: const Text(
+          //   'Ranchat',
+          //   style: TextStyle(fontSize: 40.0),
+          // ),
+          ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Text('Ranchat'),
+            const Text(
+              'Ranchat',
+              style: TextStyle(fontSize: 80.0),
+            ),
+            const SizedBox(height: 30.0),
             ElevatedButton(
               onPressed: () {
                 Navigator.push(
@@ -42,7 +49,14 @@ class HomeScreen extends StatelessWidget {
                   MaterialPageRoute(builder: (context) => const ChatScreen()),
                 );
               },
-              child: const Text('채팅 시작!'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.white,
+                foregroundColor: Colors.black,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                    side: const BorderSide(color: Colors.black, width: 5.0)),
+              ),
+              child: const Text('채팅 시작!', style: TextStyle(fontSize: 18.0)),
             ),
           ],
         ),
