@@ -133,6 +133,14 @@ class _ChatScreen extends State<ChatScreen> {
                     }
                     FocusScope.of(context).requestFocus(_focusNode);
                   },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.transparent,
+                    foregroundColor: Colors.yellow,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(0.0),
+                        side:
+                            const BorderSide(color: Colors.yellow, width: 2.0)),
+                  ),
                   child: const Text('보내기'),
                 ),
               ],

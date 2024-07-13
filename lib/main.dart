@@ -10,9 +10,13 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
       title: 'Ranchat',
-      home: HomeScreen(),
+      theme: ThemeData(
+        fontFamily: 'DungGeunMo',
+      ),
+      themeMode: ThemeMode.system,
+      home: const HomeScreen(),
     );
   }
 }
