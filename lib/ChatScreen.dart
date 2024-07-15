@@ -1,5 +1,6 @@
 import 'package:ranchat_flutter/ConnectingService.dart';
 import 'package:flutter/material.dart';
+import 'Message.dart';
 
 class ChatScreen extends StatefulWidget {
   const ChatScreen({super.key});
@@ -9,11 +10,13 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreen extends State<ChatScreen> {
-  final _messages = <String>[];
+  final _messages = <Message>[];
   final _textController = TextEditingController();
   final _scrollController = ScrollController();
   final _focusNode = FocusNode();
   late Connectingservice _connectingservice;
+
+  var isMe = true;
 
   @override
   void initState() {
@@ -76,8 +79,8 @@ class _ChatScreen extends State<ChatScreen> {
                     padding: const EdgeInsets.symmetric(
                         vertical: 8.0, horizontal: 16.0),
                     child: Text(
-                      _messages[index],
-                      style: const TextStyle(color: Colors.white),
+                      _messages[index].message,
+                      style: TextStyle(color: _messages[index].color),
                     ),
                   );
                 },
@@ -87,9 +90,16 @@ class _ChatScreen extends State<ChatScreen> {
               padding: const EdgeInsets.all(16.0),
               child: Row(
                 children: [
-                  const Icon(
-                    Icons.keyboard_arrow_right,
-                    color: Colors.white,
+                  GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        isMe = !isMe;
+                      });
+                    },
+                    child: const Icon(
+                      Icons.keyboard_arrow_right,
+                      color: Colors.white,
+                    ),
                   ),
                   Expanded(
                     child: TextField(
@@ -107,14 +117,16 @@ class _ChatScreen extends State<ChatScreen> {
                         final message = _textController.text.trim();
                         if (message.isNotEmpty) {
                           setState(() {
-                            _messages.add(message);
+                            _messages.add(Message(
+                                message: message,
+                                color: isMe ? Colors.yellow : Colors.white));
                             _textController.clear();
                             _scrollController.animateTo(
                                 _scrollController.position.maxScrollExtent,
                                 duration: const Duration(milliseconds: 300),
                                 curve: Curves.fastEaseInToSlowEaseOut);
                           });
-                          _sendMessage(message);
+                          //_sendMessage(message);
                         }
                         FocusScope.of(context).requestFocus(_focusNode);
                       },
@@ -126,14 +138,16 @@ class _ChatScreen extends State<ChatScreen> {
                       final message = _textController.text.trim();
                       if (message.isNotEmpty) {
                         setState(() {
-                          _messages.add(message);
+                          _messages.add(Message(
+                              message: message,
+                              color: isMe ? Colors.yellow : Colors.white));
                           _textController.clear();
                           _scrollController.animateTo(
                               _scrollController.position.maxScrollExtent,
                               duration: const Duration(milliseconds: 300),
                               curve: Curves.fastEaseInToSlowEaseOut);
                         });
-                        _sendMessage(message);
+                        //_sendMessage(message);
                       }
                       FocusScope.of(context).requestFocus(_focusNode);
                     },
