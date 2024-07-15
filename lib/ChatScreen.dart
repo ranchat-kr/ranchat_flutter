@@ -96,8 +96,10 @@ class _ChatScreen extends State<ChatScreen> {
                         isMe = !isMe;
                       });
                     },
-                    child: const Icon(
-                      Icons.keyboard_arrow_right,
+                    child: Icon(
+                      isMe
+                          ? Icons.keyboard_arrow_right
+                          : Icons.keyboard_arrow_left,
                       color: Colors.white,
                     ),
                   ),
