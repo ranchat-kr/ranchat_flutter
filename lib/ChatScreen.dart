@@ -59,7 +59,7 @@ class _ChatScreen extends State<ChatScreen> {
             },
           ),
           title: const Text(
-            'chat',
+            'Chat',
             style: TextStyle(color: Colors.white),
           ),
           centerTitle: true,
