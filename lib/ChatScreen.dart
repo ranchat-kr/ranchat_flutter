@@ -113,8 +113,8 @@ class _ChatScreen extends State<ChatScreen> {
                           hintStyle: TextStyle(color: Colors.white60),
                           border: InputBorder.none),
                       cursorColor: Colors.white,
-                      cursorWidth: 1,
-                      cursorHeight: 12,
+                      cursorWidth: 8.0,
+                      cursorRadius: Radius.zero,
                       onSubmitted: (value) {
                         final message = _textController.text.trim();
                         if (message.isNotEmpty) {
@@ -128,7 +128,7 @@ class _ChatScreen extends State<ChatScreen> {
                                 duration: const Duration(milliseconds: 300),
                                 curve: Curves.fastEaseInToSlowEaseOut);
                           });
-                          //_sendMessage(message);
+                          _sendMessage(message);
                         }
                         FocusScope.of(context).requestFocus(_focusNode);
                       },
@@ -149,7 +149,7 @@ class _ChatScreen extends State<ChatScreen> {
                               duration: const Duration(milliseconds: 300),
                               curve: Curves.fastEaseInToSlowEaseOut);
                         });
-                        //_sendMessage(message);
+                        _sendMessage(message);
                       }
                       FocusScope.of(context).requestFocus(_focusNode);
                     },

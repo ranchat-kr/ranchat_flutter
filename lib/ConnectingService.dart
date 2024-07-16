@@ -6,7 +6,7 @@ import 'package:stomp_dart_client/stomp_frame.dart';
 
 class Connectingservice {
   StompClient? _stompClient;
-  final domain = "52.79.209.187:8080";
+  final domain = "52.78.91.184:8080";
 
   void connectToWebSocket() {
     _stompClient = StompClient(
