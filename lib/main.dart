@@ -38,6 +38,7 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
           // title: const Text(
           //   'Ranchat',
@@ -53,7 +54,7 @@ class HomeScreen extends StatelessWidget {
                 _showLoadingDialog(context);
               },
               child: const Text(
-                'Ranchat',
+                'Ran-chat',
                 style: TextStyle(fontSize: 80.0),
               ),
             ),
@@ -68,11 +69,10 @@ class HomeScreen extends StatelessWidget {
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.white,
                 foregroundColor: Colors.black,
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                    side: const BorderSide(color: Colors.black, width: 5.0)),
+                shape: const RoundedRectangleBorder(
+                    side: BorderSide(color: Colors.black, width: 5.0)),
               ),
-              child: const Text('채팅 시작!', style: TextStyle(fontSize: 18.0)),
+              child: const Text('START!', style: TextStyle(fontSize: 30.0)),
             ),
           ],
         ),

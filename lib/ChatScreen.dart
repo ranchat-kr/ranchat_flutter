@@ -49,6 +49,7 @@ class _ChatScreen extends State<ChatScreen> {
         FocusScope.of(context).requestFocus(FocusNode());
       },
       child: Scaffold(
+        resizeToAvoidBottomInset: false,
         backgroundColor: Colors.black,
         appBar: AppBar(
           backgroundColor: Colors.black,
@@ -109,7 +110,7 @@ class _ChatScreen extends State<ChatScreen> {
                       style: const TextStyle(color: Colors.white),
                       controller: _textController,
                       decoration: const InputDecoration(
-                          hintText: '입력하세요.',
+                          hintText: ' 입력하세요.',
                           hintStyle: TextStyle(color: Colors.white60),
                           border: InputBorder.none),
                       cursorColor: Colors.white,
