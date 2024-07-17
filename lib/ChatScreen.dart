@@ -97,7 +97,7 @@ class _ChatScreen extends State<ChatScreen> {
                     padding: const EdgeInsets.symmetric(
                         vertical: 8.0, horizontal: 16.0),
                     child: Text(
-                      _messageDatas[_messageDatas.length - index - 1].content,
+                      "${_messageDatas[_messageDatas.length - index - 1].participantName}: ${_messageDatas[_messageDatas.length - index - 1].content}",
                       style: TextStyle(
                           color: _connectingservice.userId1 ==
                                   _messageDatas[
