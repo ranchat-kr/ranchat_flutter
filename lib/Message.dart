@@ -1,8 +1,26 @@
-import 'package:flutter/material.dart';
+import 'package:ranchat_flutter/MessageData.dart';
 
 class Message {
-  String message;
-  Color color;
+  final String status;
+  final String message;
+  final String serverDatetime;
+  final MessageData messageData;
 
-  Message({required this.message, required this.color});
+  Message({
+    required this.status,
+    required this.message,
+    required this.serverDatetime,
+    required this.messageData,
+  });
+
+  factory Message.fromJson(Map<String, dynamic> json) {
+    print('Message.fromJson: $json');
+    print(json['data']);
+    return Message(
+      status: json['status'],
+      message: json['message'],
+      serverDatetime: json['serverDatetime'],
+      messageData: MessageData.fromJson(json['data']),
+    );
+  }
 }

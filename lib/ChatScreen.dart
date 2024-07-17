@@ -1,5 +1,6 @@
 import 'package:ranchat_flutter/ConnectingService.dart';
 import 'package:flutter/material.dart';
+import 'package:ranchat_flutter/MessageData.dart';
 import 'Message.dart';
 
 class ChatScreen extends StatefulWidget {
@@ -10,7 +11,7 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreen extends State<ChatScreen> {
-  final _messages = <Message>[];
+  final _messageDatas = <MessageData>[];
   final _textController = TextEditingController();
   final _scrollController = ScrollController();
   final _focusNode = FocusNode();
@@ -23,7 +24,9 @@ class _ChatScreen extends State<ChatScreen> {
     // TODO: implement initState
     super.initState();
     _focusNode.requestFocus();
-    _connectingservice = Connectingservice();
+    _connectingservice = Connectingservice(
+      onMessageReceivedCallback: _onMessageReceived,
+    );
     _connectingservice.connectToWebSocket();
   }
 
@@ -39,6 +42,17 @@ class _ChatScreen extends State<ChatScreen> {
   void _sendMessage(String message) {
     print('chatScreen send message: $message');
     _connectingservice.sendMessage(message);
+  }
+
+  void _onMessageReceived(MessageData messageData) {
+    print('chatScreen onMessageReceived: $messageData');
+
+    setState(() {
+      _messageDatas.add(messageData);
+      _scrollController.animateTo(_scrollController.position.minScrollExtent,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.fastEaseInToSlowEaseOut);
+    });
   }
 
   @override
@@ -77,14 +91,20 @@ class _ChatScreen extends State<ChatScreen> {
                 controller: _scrollController,
                 shrinkWrap: true,
                 reverse: true,
-                itemCount: _messages.length,
+                itemCount: _messageDatas.length,
                 itemBuilder: (context, index) {
                   return Padding(
                     padding: const EdgeInsets.symmetric(
                         vertical: 8.0, horizontal: 16.0),
                     child: Text(
-                      _messages[_messages.length - index - 1].message,
-                      style: TextStyle(color: _messages[index].color),
+                      _messageDatas[_messageDatas.length - index - 1].content,
+                      style: TextStyle(
+                          color: _connectingservice.userId1 ==
+                                  _messageDatas[
+                                          _messageDatas.length - index - 1]
+                                      .userId
+                              ? Colors.yellow
+                              : Colors.white),
                     ),
                   );
                 },
@@ -96,14 +116,11 @@ class _ChatScreen extends State<ChatScreen> {
                 children: [
                   GestureDetector(
                     onTap: () {
-                      setState(() {
-                        isMe = !isMe;
-                      });
+                      print('now user : ${_connectingservice.userId}');
+                      _connectingservice.changeUser();
                     },
-                    child: Icon(
-                      isMe
-                          ? Icons.keyboard_arrow_right
-                          : Icons.keyboard_arrow_left,
+                    child: const Icon(
+                      Icons.keyboard_arrow_right,
                       color: Colors.white,
                     ),
                   ),
@@ -123,9 +140,9 @@ class _ChatScreen extends State<ChatScreen> {
                         final message = _textController.text.trim();
                         if (message.isNotEmpty) {
                           setState(() {
-                            _messages.add(Message(
-                                message: message,
-                                color: isMe ? Colors.yellow : Colors.white));
+                            // _messageDatas.add(MessageData(
+                            //     message: message,
+                            //     color: isMe ? Colors.yellow : Colors.white));
                             _textController.clear();
                             _scrollController.animateTo(
                                 _scrollController.position.minScrollExtent,
@@ -144,9 +161,9 @@ class _ChatScreen extends State<ChatScreen> {
                       final message = _textController.text.trim();
                       if (message.isNotEmpty) {
                         setState(() {
-                          _messages.add(Message(
-                              message: message,
-                              color: isMe ? Colors.yellow : Colors.white));
+                          // _messages.add(Message(
+                          //     message: message,
+                          //     color: isMe ? Colors.yellow : Colors.white));
                           _textController.clear();
                           _scrollController.animateTo(
                               _scrollController.position.minScrollExtent,
