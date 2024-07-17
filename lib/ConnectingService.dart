@@ -27,7 +27,7 @@ class Connectingservice {
     print('Connected: ${frame.body}');
 
     _stompClient!.subscribe(
-        destination: '/topic/v1/room/1/messages/new',
+        destination: '/topic/v1/rooms/1/messages/new',
         callback: _onMessageReceived);
   }
 
@@ -37,7 +37,7 @@ class Connectingservice {
 
   void sendMessage(String content) {
     _stompClient!.send(
-        destination: '/v1/room/1/message/send',
+        destination: '/v1/rooms/1/messages/send',
         body: jsonEncode({
           "userId": "0190964c-af3f-7486-8ac3-d3ff10cc1470",
           "content": content,

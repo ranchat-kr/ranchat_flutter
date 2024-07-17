@@ -49,7 +49,7 @@ class _ChatScreen extends State<ChatScreen> {
         FocusScope.of(context).requestFocus(FocusNode());
       },
       child: Scaffold(
-        resizeToAvoidBottomInset: false,
+        resizeToAvoidBottomInset: true,
         backgroundColor: Colors.black,
         appBar: AppBar(
           backgroundColor: Colors.black,
@@ -71,22 +71,25 @@ class _ChatScreen extends State<ChatScreen> {
         body: Column(
           children: [
             Expanded(
+                child: Align(
+              alignment: Alignment.topCenter,
               child: ListView.builder(
                 controller: _scrollController,
-                reverse: false,
+                shrinkWrap: true,
+                reverse: true,
                 itemCount: _messages.length,
                 itemBuilder: (context, index) {
                   return Padding(
                     padding: const EdgeInsets.symmetric(
                         vertical: 8.0, horizontal: 16.0),
                     child: Text(
-                      _messages[index].message,
+                      _messages[_messages.length - index - 1].message,
                       style: TextStyle(color: _messages[index].color),
                     ),
                   );
                 },
               ),
-            ),
+            )),
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: Row(
@@ -125,7 +128,7 @@ class _ChatScreen extends State<ChatScreen> {
                                 color: isMe ? Colors.yellow : Colors.white));
                             _textController.clear();
                             _scrollController.animateTo(
-                                _scrollController.position.maxScrollExtent,
+                                _scrollController.position.minScrollExtent,
                                 duration: const Duration(milliseconds: 300),
                                 curve: Curves.fastEaseInToSlowEaseOut);
                           });
@@ -146,7 +149,7 @@ class _ChatScreen extends State<ChatScreen> {
                               color: isMe ? Colors.yellow : Colors.white));
                           _textController.clear();
                           _scrollController.animateTo(
-                              _scrollController.position.maxScrollExtent,
+                              _scrollController.position.minScrollExtent,
                               duration: const Duration(milliseconds: 300),
                               curve: Curves.fastEaseInToSlowEaseOut);
                         });
