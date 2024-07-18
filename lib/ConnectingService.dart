@@ -86,7 +86,7 @@ class Connectingservice {
   }
 
   /// API
-  Future<List<MessageData>> getMessages({int page = 1, int size = 20}) async {
+  Future<List<MessageData>> getMessages({int page = 0, int size = 20}) async {
     final response = await http.get(Uri.parse(
         'http://$_domain/v1/rooms/$roomId/messages?page=$page&size=$size'));
     if (response.statusCode == 200) {

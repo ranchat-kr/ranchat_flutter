@@ -17,6 +17,8 @@ class _ChatScreen extends State<ChatScreen> {
   late Connectingservice _connectingservice;
 
   var isMe = true;
+  var _isLoading = false;
+  var _page = 0;
 
   @override
   void initState() {
@@ -28,6 +30,13 @@ class _ChatScreen extends State<ChatScreen> {
     );
     _connectingservice.connectToWebSocket();
     _getMessages();
+    _scrollController.addListener(() {
+      if (_scrollController.position.pixels ==
+              _scrollController.position.maxScrollExtent &&
+          !_isLoading) {
+        _fetchItems();
+      }
+    });
   }
 
   @override
@@ -48,7 +57,7 @@ class _ChatScreen extends State<ChatScreen> {
     print('chatScreen onMessageReceived: $messageData');
 
     setState(() {
-      _messageDatas.add(messageData);
+      _messageDatas.insert(0, messageData);
       _scrollController.animateTo(_scrollController.position.minScrollExtent,
           duration: const Duration(milliseconds: 300),
           curve: Curves.fastEaseInToSlowEaseOut);
@@ -60,6 +69,17 @@ class _ChatScreen extends State<ChatScreen> {
     setState(() {
       _messageDatas = messages;
     });
+    _page++;
+  }
+
+  Future<void> _fetchItems() async {
+    final messages =
+        await _connectingservice.getMessages(page: _page++, size: 20);
+    setState(() {
+      _isLoading = true;
+      _messageDatas.addAll(messages);
+      _isLoading = false;
+    });
   }
 
   @override
@@ -70,133 +90,140 @@ class _ChatScreen extends State<ChatScreen> {
         FocusScope.of(context).requestFocus(FocusNode());
       },
       child: Scaffold(
-        resizeToAvoidBottomInset: true,
-        backgroundColor: Colors.black,
-        appBar: AppBar(
+          resizeToAvoidBottomInset: true,
           backgroundColor: Colors.black,
-          leading: IconButton(
-            icon: const Icon(
-              Icons.arrow_back,
-              color: Colors.white,
-            ),
-            onPressed: () {
-              Navigator.pop(context);
-            },
-          ),
-          title: const Text(
-            'Chat',
-            style: TextStyle(color: Colors.white),
-          ),
-          centerTitle: true,
-        ),
-        body: Column(
-          children: [
-            Expanded(
-                child: Align(
-              alignment: Alignment.topCenter,
-              child: ListView.builder(
-                controller: _scrollController,
-                shrinkWrap: true,
-                reverse: true,
-                itemCount: _messageDatas.length,
-                itemBuilder: (context, index) {
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 8.0, horizontal: 16.0),
-                    child: Text(
-                      "${_messageDatas[_messageDatas.length - index - 1].participantName}: ${_messageDatas[_messageDatas.length - index - 1].content}",
-                      style: TextStyle(
-                          color: _connectingservice.userId1 ==
-                                  _messageDatas[
-                                          _messageDatas.length - index - 1]
-                                      .userId
-                              ? Colors.yellow
-                              : Colors.white),
-                    ),
-                  );
-                },
+          appBar: AppBar(
+            backgroundColor: Colors.black,
+            leading: IconButton(
+              icon: const Icon(
+                Icons.arrow_back,
+                color: Colors.white,
               ),
-            )),
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Row(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+            ),
+            title: const Text(
+              'Chat',
+              style: TextStyle(color: Colors.white),
+            ),
+            centerTitle: true,
+          ),
+          body: Stack(
+            children: [
+              Column(
                 children: [
-                  GestureDetector(
-                    onTap: () {
-                      print('now user : ${_connectingservice.userId}');
-                      _connectingservice.changeUser();
-                    },
-                    child: const Icon(
-                      Icons.keyboard_arrow_right,
-                      color: Colors.white,
-                    ),
-                  ),
                   Expanded(
-                    child: TextField(
-                      focusNode: _focusNode,
-                      style: const TextStyle(color: Colors.white),
-                      controller: _textController,
-                      decoration: const InputDecoration(
-                          hintText: ' 입력하세요.',
-                          hintStyle: TextStyle(color: Colors.white60),
-                          border: InputBorder.none),
-                      cursorColor: Colors.white,
-                      cursorWidth: 8.0,
-                      cursorRadius: Radius.zero,
-                      onSubmitted: (value) {
-                        final message = _textController.text.trim();
-                        if (message.isNotEmpty) {
-                          setState(() {
-                            // _messageDatas.add(MessageData(
-                            //     message: message,
-                            //     color: isMe ? Colors.yellow : Colors.white));
-                            _textController.clear();
-                            _scrollController.animateTo(
-                                _scrollController.position.minScrollExtent,
-                                duration: const Duration(milliseconds: 300),
-                                curve: Curves.fastEaseInToSlowEaseOut);
-                          });
-                          _sendMessage(message);
-                        }
-                        FocusScope.of(context).requestFocus(_focusNode);
+                      child: Align(
+                    alignment: Alignment.topCenter,
+                    child: ListView.builder(
+                      controller: _scrollController,
+                      shrinkWrap: true,
+                      reverse: true,
+                      itemCount: _messageDatas.length,
+                      itemBuilder: (context, index) {
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 8.0, horizontal: 16.0),
+                          child: Text(
+                            "${_messageDatas[index].participantName}: ${_messageDatas[index].content}",
+                            style: TextStyle(
+                                color: _connectingservice.userId1 ==
+                                        _messageDatas[index].userId
+                                    ? Colors.yellow
+                                    : Colors.white),
+                          ),
+                        );
                       },
                     ),
-                  ),
-                  const SizedBox(width: 16.0),
-                  ElevatedButton(
-                    onPressed: () {
-                      final message = _textController.text.trim();
-                      if (message.isNotEmpty) {
-                        setState(() {
-                          // _messages.add(Message(
-                          //     message: message,
-                          //     color: isMe ? Colors.yellow : Colors.white));
-                          _textController.clear();
-                          _scrollController.animateTo(
-                              _scrollController.position.minScrollExtent,
-                              duration: const Duration(milliseconds: 300),
-                              curve: Curves.fastEaseInToSlowEaseOut);
-                        });
-                        _sendMessage(message);
-                      }
-                      FocusScope.of(context).requestFocus(_focusNode);
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.transparent,
-                      foregroundColor: Colors.yellow,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(0.0),
-                          side: const BorderSide(
-                              color: Colors.yellow, width: 2.0)),
+                  )),
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Row(
+                      children: [
+                        GestureDetector(
+                          onTap: () {
+                            print('now user : ${_connectingservice.userId}');
+                            _connectingservice.changeUser();
+                          },
+                          child: const Icon(
+                            Icons.keyboard_arrow_right,
+                            color: Colors.white,
+                          ),
+                        ),
+                        Expanded(
+                          child: TextField(
+                            focusNode: _focusNode,
+                            style: const TextStyle(color: Colors.white),
+                            controller: _textController,
+                            decoration: const InputDecoration(
+                                hintText: ' 입력하세요.',
+                                hintStyle: TextStyle(color: Colors.white60),
+                                border: InputBorder.none),
+                            cursorColor: Colors.white,
+                            cursorWidth: 8.0,
+                            cursorRadius: Radius.zero,
+                            onSubmitted: (value) {
+                              final message = _textController.text.trim();
+                              if (message.isNotEmpty) {
+                                setState(() {
+                                  // _messageDatas.add(MessageData(
+                                  //     message: message,
+                                  //     color: isMe ? Colors.yellow : Colors.white));
+                                  _textController.clear();
+                                  _scrollController.animateTo(
+                                      _scrollController
+                                          .position.minScrollExtent,
+                                      duration:
+                                          const Duration(milliseconds: 300),
+                                      curve: Curves.fastEaseInToSlowEaseOut);
+                                });
+                                _sendMessage(message);
+                              }
+                              FocusScope.of(context).requestFocus(_focusNode);
+                            },
+                          ),
+                        ),
+                        const SizedBox(width: 16.0),
+                        ElevatedButton(
+                          onPressed: () {
+                            final message = _textController.text.trim();
+                            if (message.isNotEmpty) {
+                              setState(() {
+                                // _messages.add(Message(
+                                //     message: message,
+                                //     color: isMe ? Colors.yellow : Colors.white));
+                                _textController.clear();
+                                _scrollController.animateTo(
+                                    _scrollController.position.minScrollExtent,
+                                    duration: const Duration(milliseconds: 300),
+                                    curve: Curves.fastEaseInToSlowEaseOut);
+                              });
+                              _sendMessage(message);
+                            }
+                            FocusScope.of(context).requestFocus(_focusNode);
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.transparent,
+                            foregroundColor: Colors.yellow,
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(0.0),
+                                side: const BorderSide(
+                                    color: Colors.yellow, width: 2.0)),
+                          ),
+                          child: const Text('보내기'),
+                        ),
+                      ],
                     ),
-                    child: const Text('보내기'),
                   ),
                 ],
               ),
-            ),
-          ],
-        ),
-      ),
+              if (_isLoading)
+                const Center(
+                  child: CircularProgressIndicator(),
+                ),
+            ],
+          )),
     );
   }
 }
