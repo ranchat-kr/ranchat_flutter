@@ -11,6 +11,7 @@ class ChatScreen extends StatefulWidget {
 
 class _ChatScreen extends State<ChatScreen> {
   late List<MessageData> _messageDatas = <MessageData>[];
+  late List<MessageData> _tempMessageDatas = <MessageData>[];
   final _textController = TextEditingController();
   final _scrollController = ScrollController();
   final _focusNode = FocusNode();
@@ -31,9 +32,12 @@ class _ChatScreen extends State<ChatScreen> {
     _connectingservice.connectToWebSocket();
     _getMessages();
     _scrollController.addListener(() {
-      if (_scrollController.position.pixels ==
-              _scrollController.position.maxScrollExtent &&
+      print(
+          'pixels : ${_scrollController.position.pixels}, max : ${_scrollController.position.maxScrollExtent}');
+      if (_scrollController.position.pixels >=
+              _scrollController.position.maxScrollExtent - 20 &&
           !_isLoading) {
+        _messageDatas.addAll(_tempMessageDatas);
         _fetchItems();
       }
     });
@@ -65,19 +69,20 @@ class _ChatScreen extends State<ChatScreen> {
   }
 
   void _getMessages() async {
-    final messages = await _connectingservice.getMessages();
+    final messages =
+        await _connectingservice.getMessages(page: _page++, size: 40);
     setState(() {
-      _messageDatas = messages;
+      _messageDatas = messages.sublist(0, 20);
+      _tempMessageDatas = messages.sublist(20);
     });
-    _page++;
   }
 
   Future<void> _fetchItems() async {
     final messages =
-        await _connectingservice.getMessages(page: _page++, size: 20);
+        await _connectingservice.getMessages(page: ++_page, size: 20);
     setState(() {
       _isLoading = true;
-      _messageDatas.addAll(messages);
+      _tempMessageDatas = messages;
       _isLoading = false;
     });
   }
