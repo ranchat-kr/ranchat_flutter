@@ -1,7 +1,6 @@
 import 'package:ranchat_flutter/ConnectingService.dart';
 import 'package:flutter/material.dart';
-import 'package:ranchat_flutter/MessageData.dart';
-import 'Message.dart';
+import 'package:ranchat_flutter/Model/MessageData.dart';
 
 class ChatScreen extends StatefulWidget {
   const ChatScreen({super.key});
@@ -11,7 +10,7 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreen extends State<ChatScreen> {
-  final _messageDatas = <MessageData>[];
+  late List<MessageData> _messageDatas = <MessageData>[];
   final _textController = TextEditingController();
   final _scrollController = ScrollController();
   final _focusNode = FocusNode();
@@ -28,6 +27,7 @@ class _ChatScreen extends State<ChatScreen> {
       onMessageReceivedCallback: _onMessageReceived,
     );
     _connectingservice.connectToWebSocket();
+    _getMessages();
   }
 
   @override
@@ -52,6 +52,13 @@ class _ChatScreen extends State<ChatScreen> {
       _scrollController.animateTo(_scrollController.position.minScrollExtent,
           duration: const Duration(milliseconds: 300),
           curve: Curves.fastEaseInToSlowEaseOut);
+    });
+  }
+
+  void _getMessages() async {
+    final messages = await _connectingservice.getMessages();
+    setState(() {
+      _messageDatas = messages;
     });
   }
 

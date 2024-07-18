@@ -1,10 +1,13 @@
 import 'dart:convert';
 
-import 'package:ranchat_flutter/Message.dart';
-import 'package:ranchat_flutter/MessageData.dart';
+import 'package:ranchat_flutter/Model/Message.dart';
+import 'package:ranchat_flutter/Model/MessageList.dart';
 import 'package:stomp_dart_client/stomp.dart';
 import 'package:stomp_dart_client/stomp_config.dart';
 import 'package:stomp_dart_client/stomp_frame.dart';
+import 'package:http/http.dart' as http;
+
+import 'Model/MessageData.dart';
 
 class Connectingservice {
   StompClient? _stompClient;
@@ -19,6 +22,7 @@ class Connectingservice {
     _onMessageReceivedCallback = onMessageReceivedCallback;
   }
 
+  ///WebSocket server
   void connectToWebSocket() {
     _stompClient = StompClient(
       config: StompConfig(
@@ -79,5 +83,18 @@ class Connectingservice {
 
   void dispose() {
     _stompClient!.deactivate();
+  }
+
+  /// API
+  Future<List<MessageData>> getMessages({int page = 1, int size = 20}) async {
+    final response = await http.get(Uri.parse(
+        'http://$_domain/v1/rooms/$roomId/messages?page=$page&size=$size'));
+    if (response.statusCode == 200) {
+      final messageList = MessageList.fromJson(jsonDecode(response.body));
+      print('API getMessages: $messageList');
+      return messageList.items;
+    } else {
+      return [];
+    }
   }
 }
