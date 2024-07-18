@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 class MessageData {
   final int id;
   final int roomId;

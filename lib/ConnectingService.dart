@@ -90,7 +90,8 @@ class Connectingservice {
     final response = await http.get(Uri.parse(
         'http://$_domain/v1/rooms/$roomId/messages?page=$page&size=$size'));
     if (response.statusCode == 200) {
-      final messageList = MessageList.fromJson(jsonDecode(response.body));
+      final responseData = jsonDecode(utf8.decode(response.bodyBytes));
+      final messageList = MessageList.fromJson(responseData);
       print('API getMessages: $messageList');
       return messageList.items;
     } else {
