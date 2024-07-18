@@ -7,7 +7,7 @@ import 'package:stomp_dart_client/stomp_config.dart';
 import 'package:stomp_dart_client/stomp_frame.dart';
 import 'package:http/http.dart' as http;
 
-import 'Model/MessageData.dart';
+import '../Model/MessageData.dart';
 
 class Connectingservice {
   StompClient? _stompClient;

@@ -1,4 +1,4 @@
-import 'package:ranchat_flutter/ConnectingService.dart';
+import 'package:ranchat_flutter/ViewModel/ConnectingService.dart';
 import 'package:flutter/material.dart';
 import 'package:ranchat_flutter/Model/MessageData.dart';
 

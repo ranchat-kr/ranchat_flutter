@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:ranchat_flutter/chatScreen.dart';
+import 'package:ranchat_flutter/View/ChatScreen.dart';
 
 void main() {
   runApp(const MyApp());
