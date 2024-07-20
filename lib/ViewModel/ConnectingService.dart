@@ -17,6 +17,17 @@ class Connectingservice {
   final String userId2 = "0190964c-ee3a-7e81-a1f8-231b5d97c2a1";
   late String userId = userId1;
   Function(MessageData)? _onMessageReceivedCallback;
+  MessageList messageList = MessageList(
+    status: '',
+    message: '',
+    serverDateTime: '',
+    items: [],
+    page: 0,
+    size: 0,
+    totalCount: 0,
+    totalPage: 0,
+    empty: false,
+  );
 
   Connectingservice({Function(MessageData)? onMessageReceivedCallback}) {
     _onMessageReceivedCallback = onMessageReceivedCallback;
@@ -91,8 +102,7 @@ class Connectingservice {
         'http://$_domain/v1/rooms/$roomId/messages?page=$page&size=$size'));
     if (response.statusCode == 200) {
       final responseData = jsonDecode(utf8.decode(response.bodyBytes));
-      final messageList = MessageList.fromJson(responseData);
-      print('API getMessages: $messageList');
+      messageList = MessageList.fromJson(responseData);
       return messageList.items;
     } else {
       return [];

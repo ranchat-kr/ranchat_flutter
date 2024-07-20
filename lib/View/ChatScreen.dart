@@ -11,7 +11,7 @@ class ChatScreen extends StatefulWidget {
 
 class _ChatScreen extends State<ChatScreen> {
   late List<MessageData> _messageDatas = <MessageData>[];
-  late List<MessageData> _tempMessageDatas = <MessageData>[];
+  //late List<MessageData> _tempMessageDatas = <MessageData>[];
   final _textController = TextEditingController();
   final _scrollController = ScrollController();
   final _focusNode = FocusNode();
@@ -20,11 +20,13 @@ class _ChatScreen extends State<ChatScreen> {
   var isMe = true;
   var _isLoading = false;
   var _page = 0;
+  final _pageSize = 20;
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+    print('_meesageDatas length: ${_messageDatas.length}');
     _focusNode.requestFocus();
     _connectingservice = Connectingservice(
       onMessageReceivedCallback: _onMessageReceived,
@@ -32,13 +34,14 @@ class _ChatScreen extends State<ChatScreen> {
     _connectingservice.connectToWebSocket();
     _getMessages();
     _scrollController.addListener(() {
-      print(
-          'pixels : ${_scrollController.position.pixels}, max : ${_scrollController.position.maxScrollExtent}');
       if (_scrollController.position.pixels >=
               _scrollController.position.maxScrollExtent - 20 &&
           !_isLoading) {
-        _messageDatas.addAll(_tempMessageDatas);
-        _fetchItems();
+        print('messageDatas length : ${_messageDatas.length}, page : $_page');
+        if (_messageDatas.length == (_page + 1) * _pageSize &&
+            _messageDatas.length < _connectingservice.messageList.totalCount) {
+          _fetchItems();
+        }
       }
     });
   }
@@ -69,20 +72,22 @@ class _ChatScreen extends State<ChatScreen> {
   }
 
   void _getMessages() async {
-    final messages =
-        await _connectingservice.getMessages(page: _page++, size: 40);
+    final messages = await _connectingservice.getMessages(
+        page: _page++, size: _pageSize * 2);
+
     setState(() {
-      _messageDatas = messages.sublist(0, 20);
-      _tempMessageDatas = messages.sublist(20);
+      print('page : $_page');
+      _messageDatas = messages;
     });
   }
 
   Future<void> _fetchItems() async {
     final messages =
-        await _connectingservice.getMessages(page: ++_page, size: 20);
+        await _connectingservice.getMessages(page: ++_page, size: _pageSize);
     setState(() {
+      print('page : $_page');
       _isLoading = true;
-      _tempMessageDatas = messages;
+      _messageDatas.addAll(messages);
       _isLoading = false;
     });
   }
@@ -125,7 +130,12 @@ class _ChatScreen extends State<ChatScreen> {
                       controller: _scrollController,
                       shrinkWrap: true,
                       reverse: true,
-                      itemCount: _messageDatas.length,
+                      itemCount: _messageDatas.isEmpty
+                          ? 0
+                          : _messageDatas.length ==
+                                  _connectingservice.messageList.totalCount
+                              ? _messageDatas.length
+                              : _messageDatas.length - _pageSize,
                       itemBuilder: (context, index) {
                         return Padding(
                           padding: const EdgeInsets.symmetric(
