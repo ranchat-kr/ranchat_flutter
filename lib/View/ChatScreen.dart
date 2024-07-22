@@ -147,6 +147,31 @@ class _ChatScreen extends State<ChatScreen> {
         });
   }
 
+  void _showOutDialog() {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('나가기'),
+            content: const Text('채팅방을 나가시겠습니까?'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: const Text('취소'),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.popUntil(context, (route) => route.isFirst);
+                },
+                child: const Text('나가기'),
+              )
+            ],
+          );
+        });
+  }
+
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
@@ -193,6 +218,7 @@ class _ChatScreen extends State<ChatScreen> {
                 ),
                 onPressed: () {
                   print('out');
+                  _showOutDialog();
                 },
                 highlightColor: Colors.grey,
               ),
