@@ -112,12 +112,35 @@ class _ChatScreen extends State<ChatScreen> {
               onPressed: () {
                 Navigator.pop(context);
               },
+              highlightColor: Colors.grey,
             ),
             title: const Text(
               'Chat',
               style: TextStyle(color: Colors.white),
             ),
             centerTitle: true,
+            actions: <Widget>[
+              IconButton(
+                icon: const Icon(
+                  Icons.report,
+                  color: Colors.white,
+                ),
+                onPressed: () {
+                  print('report');
+                },
+                highlightColor: Colors.grey,
+              ),
+              IconButton(
+                icon: const Icon(
+                  Icons.logout,
+                  color: Colors.white,
+                ),
+                onPressed: () {
+                  print('out');
+                },
+                highlightColor: Colors.grey,
+              ),
+            ],
           ),
           body: Stack(
             children: [
