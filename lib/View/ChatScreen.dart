@@ -150,6 +150,7 @@ class _ChatScreen extends State<ChatScreen> {
                       child: Align(
                     alignment: Alignment.topCenter,
                     child: ListView.builder(
+                      padding: const EdgeInsets.only(bottom: 0.0),
                       controller: _scrollController,
                       shrinkWrap: true,
                       reverse: true,
@@ -166,10 +167,11 @@ class _ChatScreen extends State<ChatScreen> {
                           child: Text(
                             "${_connectingservice.userId == _messageDatas[index].userId ? '나' : '상대방'}: ${_messageDatas[index].content}",
                             style: TextStyle(
-                                color: _connectingservice.userId1 ==
-                                        _messageDatas[index].userId
-                                    ? Colors.yellow
-                                    : Colors.white),
+                              color: _connectingservice.userId1 ==
+                                      _messageDatas[index].userId
+                                  ? Colors.yellow
+                                  : Colors.white,
+                            ),
                           ),
                         );
                       },
