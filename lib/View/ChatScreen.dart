@@ -92,6 +92,61 @@ class _ChatScreen extends State<ChatScreen> {
     });
   }
 
+  void _showReportDialog() {
+    final List<String> reportReasons = [
+      '스팸',
+      '욕설 및 비방',
+      '허위 정보',
+      '저작권 침해',
+      '기타',
+    ];
+    String? selectedReason;
+
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('신고'),
+            content: DropdownButtonFormField(
+              value: selectedReason,
+              items: reportReasons.map((reason) {
+                return DropdownMenuItem(
+                  value: reason,
+                  child: Text(reason),
+                );
+              }).toList(),
+              onChanged: (String? newValue) {
+                setState(() {
+                  selectedReason = newValue;
+                });
+              },
+              decoration: const InputDecoration(
+                labelText: '신고 사유 선택',
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: const Text('취소'),
+              ),
+              TextButton(
+                onPressed: () {
+                  if (selectedReason == null) {
+                    return;
+                  } else {
+                    print('신고 완료. $selectedReason');
+                    Navigator.pop(context);
+                  }
+                },
+                child: const Text('신고'),
+              )
+            ],
+          );
+        });
+  }
+
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
@@ -127,6 +182,7 @@ class _ChatScreen extends State<ChatScreen> {
                 ),
                 onPressed: () {
                   print('report');
+                  _showReportDialog();
                 },
                 highlightColor: Colors.grey,
               ),
