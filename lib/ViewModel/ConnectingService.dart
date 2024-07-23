@@ -11,7 +11,7 @@ import '../Model/MessageData.dart';
 
 class Connectingservice {
   StompClient? _stompClient;
-  final _domain = "52.78.91.184:8080";
+  final _domain = "dev-api.ranchat.net:8080";
   final String roomId = "1";
   final String userId1 = "0190964c-af3f-7486-8ac3-d3ff10cc1470";
   final String userId2 = "0190964c-ee3a-7e81-a1f8-231b5d97c2a1";
