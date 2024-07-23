@@ -275,6 +275,8 @@ class _ChatScreen extends State<ChatScreen> {
                         ),
                         Expanded(
                           child: TextField(
+                            minLines: 1,
+                            maxLines: 3,
                             focusNode: _focusNode,
                             style: const TextStyle(color: Colors.white),
                             controller: _textController,
