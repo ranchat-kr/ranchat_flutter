@@ -38,6 +38,7 @@ class Connectingservice {
     _stompClient = StompClient(
       config: StompConfig(
         url: 'ws://$_domain/endpoint',
+        stompConnectHeaders: {'userId': userId},
         onConnect: (StompFrame frame) => _onConnected(frame, roomId),
         onWebSocketError: (dynamic error) => print(error.toString()),
         onWebSocketDone: () => print('WebSocket connect done.'),
