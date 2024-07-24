@@ -58,9 +58,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
     Future.delayed(const Duration(seconds: 8), () {
       if (!_isLoading) return;
+      _connectingservice.cancelMatching();
       Navigator.of(context).pop();
       _isLoading = false;
-      _connectingservice.cancelMatching();
 
       Fluttertoast.showToast(
         msg: '매칭에 실패하였습니다.',
@@ -176,10 +176,10 @@ class _LoadingDialogState extends State<LoadingDialog> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                _buildStep(_currentStep > 0),
-                _buildStep(_currentStep > 1),
-                _buildStep(_currentStep > 2),
-                _buildStep(_currentStep > 3),
+                _buildStep(_currentStep % 5 == 0),
+                _buildStep(_currentStep % 5 == 1),
+                _buildStep(_currentStep % 5 == 2),
+                _buildStep(_currentStep % 5 == 3),
               ],
             )
           ],
