@@ -118,6 +118,17 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               child: const Text('START!', style: TextStyle(fontSize: 30.0)),
             ),
+            const SizedBox(height: 10.0),
+            ElevatedButton(
+              onPressed: () {},
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.white,
+                foregroundColor: Colors.black,
+                shape: const RoundedRectangleBorder(
+                    side: BorderSide(color: Colors.black, width: 5.0)),
+              ),
+              child: const Text('CONTINUE!', style: TextStyle(fontSize: 30.0)),
+            ),
           ],
         ),
       ),
