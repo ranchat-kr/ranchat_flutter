@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:ranchat_flutter/View/RoomListScreen.dart';
 import 'package:ranchat_flutter/ViewModel/ConnectingService.dart';
 import 'package:ranchat_flutter/View/ChatScreen.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -120,7 +121,13 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             const SizedBox(height: 10.0),
             ElevatedButton(
-              onPressed: () {},
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const Roomlistscreen()),
+                );
+              },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.white,
                 foregroundColor: Colors.black,
