@@ -1,11 +1,12 @@
 import 'dart:convert';
 
-import 'package:ranchat_flutter/Model/Message.dart';
-import 'package:ranchat_flutter/Model/MessageList.dart';
+import 'package:http/http.dart' as http;
 import 'package:stomp_dart_client/stomp.dart';
 import 'package:stomp_dart_client/stomp_config.dart';
 import 'package:stomp_dart_client/stomp_frame.dart';
-import 'package:http/http.dart' as http;
+
+import 'package:ranchat_flutter/Model/Message.dart';
+import 'package:ranchat_flutter/Model/MessageList.dart';
 
 import '../Model/MessageData.dart';
 
@@ -17,6 +18,7 @@ class Connectingservice {
   final String userId2 = "0190964c-ee3a-7e81-a1f8-231b5d97c2a1";
   late String userId = userId1;
   Function(MessageData)? _onMessageReceivedCallback;
+  Function(Map<String, dynamic>)? _onMatchingSuccessCallback;
   MessageList messageList = MessageList(
     status: '',
     message: '',
@@ -29,9 +31,15 @@ class Connectingservice {
     empty: false,
   );
 
-  Connectingservice({Function(MessageData)? onMessageReceivedCallback}) {
+  Connectingservice(
+      {Function(MessageData)? onMessageReceivedCallback,
+      Function(dynamic response)? onMatchingSuccess}) {
     _onMessageReceivedCallback = onMessageReceivedCallback;
+    _onMatchingSuccessCallback = onMatchingSuccess;
   }
+
+  set onMessageReceivedCallback(
+      void Function(MessageData messageData) onMessageReceivedCallback) {}
 
   ///WebSocket server
   void connectToWebSocket() {
@@ -57,7 +65,12 @@ class Connectingservice {
         destination: '/topic/v1/rooms/$roomId/messages/new',
         callback: _onMessageReceived);
 
-    _enterRoom();
+    _stompClient!.subscribe(
+      destination: '/user/$userId/queue/v1/matching/success',
+      callback: _onMatchingSuccess,
+    );
+
+    //_enterRoom();
   }
 
   void _onMessageReceived(StompFrame frame) {
@@ -66,6 +79,14 @@ class Connectingservice {
       final message = Message.fromJson(jsonDecode(frame.body ?? ''));
 
       _onMessageReceivedCallback!(message.messageData);
+    }
+  }
+
+  void _onMatchingSuccess(StompFrame frame) {
+    print('Matching Success: ${frame.body}');
+    if (_onMatchingSuccessCallback != null) {
+      final matchingSuccess = jsonDecode(frame.body ?? '');
+      _onMatchingSuccessCallback!(matchingSuccess);
     }
   }
 
@@ -87,6 +108,20 @@ class Connectingservice {
         body: jsonEncode({
           "userId": userId,
         }));
+  }
+
+  void requestMatching() {
+    _stompClient!.send(
+      destination: '/v1/matching/apply',
+      body: jsonEncode({"userId": userId}),
+    );
+  }
+
+  void cancelMatching() {
+    _stompClient!.send(
+      destination: 'v1/matching/cancel',
+      body: jsonEncode({"userId": userId}),
+    );
   }
 
   void changeUser() {

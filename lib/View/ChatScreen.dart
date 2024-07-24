@@ -1,9 +1,15 @@
-import 'package:ranchat_flutter/ViewModel/ConnectingService.dart';
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:flutter/material.dart';
+
 import 'package:ranchat_flutter/Model/MessageData.dart';
+import 'package:ranchat_flutter/ViewModel/ConnectingService.dart';
 
 class ChatScreen extends StatefulWidget {
-  const ChatScreen({super.key});
+  final Connectingservice connectingservice;
+  const ChatScreen({
+    super.key,
+    required this.connectingservice,
+  });
 
   @override
   _ChatScreen createState() => _ChatScreen();
@@ -27,16 +33,21 @@ class _ChatScreen extends State<ChatScreen> {
     // TODO: implement initState
     super.initState();
     print('_meesageDatas length: ${_messageDatas.length}');
+    _connectingservice = widget.connectingservice;
     _focusNode.requestFocus();
     _connectingservice = Connectingservice(
       onMessageReceivedCallback: _onMessageReceived,
+      onMatchingSuccess: (response) {},
     );
+    _connectingservice.onMessageReceivedCallback = _onMessageReceived;
     _connectingservice.connectToWebSocket();
     _getMessages();
     _scrollController.addListener(() {
-      if (_scrollController.position.pixels >=
-              _scrollController.position.maxScrollExtent - 20 &&
+      if (_scrollController.position.pixels ==
+              _scrollController.position.maxScrollExtent &&
           !_isLoading) {
+        print(
+            '_scrollController.position.pixels: ${_scrollController.position.pixels}, _scrollController.position.maxScrollExtent: ${_scrollController.position.maxScrollExtent}');
         print('messageDatas length : ${_messageDatas.length}, page : $_page');
         if (_messageDatas.length == (_page + 1) * _pageSize &&
             _messageDatas.length < _connectingservice.messageList.totalCount) {

@@ -1,5 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:ranchat_flutter/ViewModel/ConnectingService.dart';
 import 'package:ranchat_flutter/View/ChatScreen.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 void main() {
   runApp(const MyApp());
@@ -21,18 +25,65 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
+  @override
+  _HomeScreenState createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  late Connectingservice _connectingservice;
+  var _isLoading = false;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _connectingservice =
+        Connectingservice(onMatchingSuccess: _onMatchingSuccess);
+    _connectingservice.connectToWebSocket();
+  }
+
   void _showLoadingDialog(BuildContext context) {
+    _isLoading = true;
     showDialog(
         context: context,
         barrierDismissible: false,
         builder: (BuildContext context) {
-          return const Center(
-            child: CircularProgressIndicator(),
+          return Center(
+            child: _isLoading ? const LoadingDialog() : null,
           );
         });
+
+    Future.delayed(const Duration(seconds: 8), () {
+      if (!_isLoading) return;
+      Navigator.of(context).pop();
+      _isLoading = false;
+      _connectingservice.cancelMatching();
+
+      Fluttertoast.showToast(
+        msg: '매칭에 실패하였습니다.',
+        toastLength: Toast.LENGTH_LONG,
+        gravity: ToastGravity.CENTER,
+        timeInSecForIosWeb: 2,
+        backgroundColor: Colors.grey,
+        textColor: Colors.white,
+        fontSize: 16.0,
+      );
+    });
+  }
+
+  void _onMatchingSuccess(dynamic response) {
+    Navigator.of(context).pop();
+    _isLoading = false;
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (context) =>
+              ChatScreen(connectingservice: _connectingservice)),
+    );
+    print('chatScreen onMessageReceived: $response');
   }
 
   @override
@@ -49,22 +100,15 @@ class HomeScreen extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            GestureDetector(
-              onLongPress: () {
-                _showLoadingDialog(context);
-              },
-              child: const Text(
-                'Ran-chat',
-                style: TextStyle(fontSize: 80.0),
-              ),
+            const Text(
+              'Ran-chat',
+              style: TextStyle(fontSize: 80.0),
             ),
             const SizedBox(height: 30.0),
             ElevatedButton(
               onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const ChatScreen()),
-                );
+                _connectingservice.requestMatching();
+                _showLoadingDialog(context);
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.white,
@@ -75,6 +119,83 @@ class HomeScreen extends StatelessWidget {
               child: const Text('START!', style: TextStyle(fontSize: 30.0)),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class LoadingDialog extends StatefulWidget {
+  const LoadingDialog({super.key});
+
+  @override
+  _LoadingDialogState createState() => _LoadingDialogState();
+}
+
+class _LoadingDialogState extends State<LoadingDialog> {
+  int _currentStep = 0;
+  Timer? _timer;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _startTimer();
+  }
+
+  void _startTimer() {
+    _timer = Timer.periodic(const Duration(milliseconds: 500), (timer) {
+      print('startTimer');
+      setState(() {
+        _currentStep = (_currentStep + 1) % 5;
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    _timer?.cancel();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(Radius.circular(10.0)),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            const Text('매칭 중', style: TextStyle(fontSize: 30.0)),
+            const SizedBox(height: 20.0),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                _buildStep(_currentStep > 0),
+                _buildStep(_currentStep > 1),
+                _buildStep(_currentStep > 2),
+                _buildStep(_currentStep > 3),
+              ],
+            )
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStep(bool active) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 4.0),
+      child: Container(
+        width: 20,
+        height: 20,
+        decoration: BoxDecoration(
+          color: active ? Colors.black : Colors.grey,
         ),
       ),
     );

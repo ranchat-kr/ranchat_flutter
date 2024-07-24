@@ -38,6 +38,7 @@ dependencies:
   http: ^0.13.3
   web_socket_channel: ^2.2.0
   stomp_dart_client: ^0.4.4
+  fluttertoast: ^8.2.1
 
 dev_dependencies:
   flutter_test:
