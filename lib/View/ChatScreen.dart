@@ -16,46 +16,25 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreen extends State<ChatScreen> {
-  late List<MessageData> _messageDatas = <MessageData>[];
+  late List<MessageData> _messageDatas = <MessageData>[]; // 메시지 데이터
   //late List<MessageData> _tempMessageDatas = <MessageData>[];
-  final _textController = TextEditingController();
-  final _dialogTextController = TextEditingController();
-  final _scrollController = ScrollController();
-  final _focusNode = FocusNode();
-  late Connectingservice _connectingservice;
+  final _textController = TextEditingController(); // 채팅 텍스트 컨트롤러
+  final _dialogTextController = TextEditingController(); // 다이얼로그 텍스트 컨트롤러
+  final _scrollController = ScrollController(); // 채팅 스크롤 컨트롤러
+  final _focusNode = FocusNode(); // 포커스 노드 (텍스트 필드 포커스 관리를 위한 변수)
+  late Connectingservice
+      _connectingservice; // API, WebSocket 연결을 위한 객체 (main에서 받아옴)
 
-  var isMe = true;
-  var _isLoading = false;
-  var _page = 0;
-  final _pageSize = 20;
+  var _isLoading = false; // 로딩 중인지 확인하는 변수
+  var _currentPage = 0; // 현재 페이지 (메시지 데이터)
+  final _pageSize = 20; // 메시지 데이터 페이지 사이즈
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    print('_meesageDatas length: ${_messageDatas.length}');
-    _connectingservice = widget.connectingservice;
-    _focusNode.requestFocus();
-    _connectingservice = Connectingservice(
-      onMessageReceivedCallback: _onMessageReceived,
-      onMatchingSuccess: (response) {},
-    );
-    _connectingservice.onMessageReceivedCallback = _onMessageReceived;
-    _connectingservice.connectToWebSocket();
+    _setServer();
     _getMessages();
-    _scrollController.addListener(() {
-      print(
-          '_scrollController.position.pixels: ${_scrollController.position.pixels}, _scrollController.position.maxScrollExtent: ${_scrollController.position.maxScrollExtent}');
-      if (_scrollController.position.pixels <=
-              _scrollController.position.maxScrollExtent - 30 &&
-          !_isLoading) {
-        print('messageDatas length : ${_messageDatas.length}, page : $_page');
-        if (_messageDatas.length >= (_page + 1) * _pageSize &&
-            _messageDatas.length < _connectingservice.messageList.totalCount) {
-          _fetchItems();
-        }
-      }
-    });
   }
 
   @override
@@ -67,43 +46,82 @@ class _ChatScreen extends State<ChatScreen> {
     super.dispose();
   }
 
+  // #region first setting
+  // 웹소켓 설정
+  void _setServer() {
+    _connectingservice = widget.connectingservice;
+    _connectingservice.onMessageReceivedCallback = _onMessageReceived;
+    _connectingservice.connectToWebSocket();
+  }
+
+  // UI 설정
+  void _setUI() {
+    _focusNode.requestFocus(); // 텍스트 필드 포커스 설정
+    _scrollController.addListener(() {
+      // 스크롤 컨트롤러 설정
+      print(
+          '_scrollController.position.pixels: ${_scrollController.position.pixels}, _scrollController.position.maxScrollExtent: ${_scrollController.position.maxScrollExtent}');
+      if (_scrollController.position.pixels <=
+              _scrollController.position.maxScrollExtent - 30 &&
+          !_isLoading) {
+        // 스크롤이 끝에서 -30에 도달하면
+        print(
+            'messageDatas length : ${_messageDatas.length}, page : $_currentPage');
+        if (_messageDatas.length >= (_currentPage + 1) * _pageSize &&
+            _messageDatas.length < _connectingservice.messageList.totalCount) {
+          // 기준 데이터에 맞으면 업데이트
+          _fetchItems();
+        }
+      }
+    });
+  }
+  // #endregion
+
+  // #region communicate with server
+  // 메시지 전송
   void _sendMessage(String message) {
     print('chatScreen send message: $message');
     _connectingservice.sendMessage(message);
   }
 
+  // 메시지 수신 (구독한 것에서)
   void _onMessageReceived(MessageData messageData) {
     print('chatScreen onMessageReceived: $messageData');
 
     setState(() {
-      _messageDatas.insert(0, messageData);
+      _messageDatas.insert(0, messageData); // 맨 앞에 데이터 추가
       _scrollController.animateTo(_scrollController.position.minScrollExtent,
           duration: const Duration(milliseconds: 300),
           curve: Curves.fastEaseInToSlowEaseOut);
     });
   }
 
+  // 메시지 데이터 가져오기 (화면 처음 열릴 때)
   void _getMessages() async {
     final messages = await _connectingservice.getMessages(
-        page: _page++, size: _pageSize * 2);
+        page: _currentPage++, size: _pageSize * 2);
 
     setState(() {
-      print('page : $_page');
+      print('page : $_currentPage');
       _messageDatas = messages;
     });
   }
 
+  // 메시지 데이터 추가 가져오기 (스크롤이 끝에 도달할 때) (API) [페이지네이션]
   Future<void> _fetchItems() async {
-    final messages =
-        await _connectingservice.getMessages(page: ++_page, size: _pageSize);
+    final messages = await _connectingservice.getMessages(
+        page: ++_currentPage, size: _pageSize);
     setState(() {
-      print('page : $_page');
+      print('page : $_currentPage');
       _isLoading = true;
       _messageDatas.addAll(messages);
       _isLoading = false;
     });
   }
+  // #endregion
 
+  // #region dialog
+  // 신고 다이얼로그
   void _showReportDialog() {
     final List<String> reportReasons = [
       '스팸',
@@ -185,6 +203,7 @@ class _ChatScreen extends State<ChatScreen> {
         });
   }
 
+  // 나가기 다이얼로그
   void _showOutDialog() {
     showDialog(
         context: context,
@@ -201,7 +220,8 @@ class _ChatScreen extends State<ChatScreen> {
               ),
               TextButton(
                 onPressed: () {
-                  Navigator.popUntil(context, (route) => route.isFirst);
+                  Navigator.popUntil(
+                      context, (route) => route.isFirst); // 처음 화면으로 이동
                 },
                 child: const Text('나가기'),
               )
@@ -209,7 +229,9 @@ class _ChatScreen extends State<ChatScreen> {
           );
         });
   }
+  // #endregion
 
+  // #region UI
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
@@ -389,3 +411,4 @@ class _ChatScreen extends State<ChatScreen> {
     );
   }
 }
+// #endregion

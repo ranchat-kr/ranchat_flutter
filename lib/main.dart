@@ -35,22 +35,31 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen>
     with SingleTickerProviderStateMixin {
-  late Connectingservice _connectingservice;
-  var _isLoading = false;
-  var _isAnimationEnd = false;
+  late Connectingservice _connectingservice; // API, WebSocket 연결을 위한 객체
+  var _isLoading = false; // 매칭 중 로딩을 위한 변수
+  var _isAnimationEnd = false; // 애니메이션 종료를 위한 변수
 
-  late AnimationController _animationController;
-  late Animation<Offset> _animation;
+  late AnimationController _animationController; // 애니메이션 컨트롤러
+  late Animation<Offset> _animation; // 애니메이션
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+    _setAnimation(); // 애니메이션 설정
+    _setServer(); // 서버 설정
+  }
+
+  // #region first setting
+  // 애니메이션 설정
+  void _setAnimation() {
     _animationController = AnimationController(
+      // 애니메이션 컨트롤러 설정 (2초)
       vsync: this,
       duration: const Duration(seconds: 2),
     );
     _animation = Tween<Offset>(
+      // 애니메이션 설정 (위에서 아래로)
       begin: const Offset(0.0, -1.0),
       end: const Offset(0.0, 0.0),
     ).animate(CurvedAnimation(
@@ -58,20 +67,27 @@ class _HomeScreenState extends State<HomeScreen>
       curve: Curves.fastOutSlowIn,
     ));
     _animationController.addStatusListener((status) {
+      // 애니메이션 종료 시
       if (status == AnimationStatus.completed) {
         setState(() {
-          _isAnimationEnd = true;
+          _isAnimationEnd = true; // 애니메이션이 종료되었음을 알림
         });
       }
     });
 
-    _animationController.forward();
-
-    _connectingservice =
-        Connectingservice(onMatchingSuccess: _onMatchingSuccess);
-    _connectingservice.connectToWebSocket();
+    _animationController.forward(); // 애니메이션 시작
   }
 
+  void _setServer() {
+    // 서버 설정
+    _connectingservice = Connectingservice(
+        onMatchingSuccess: _onMatchingSuccess); // API, WebSocket 연결을 위한 객체 생성
+    _connectingservice.connectToWebSocket(); // WebSocket 연결
+  }
+  // #endregion
+
+  // #region dialog
+  // 매칭 중 로딩 다이얼로그
   void _showLoadingDialog(BuildContext context) {
     _isLoading = true;
     showDialog(
@@ -79,14 +95,16 @@ class _HomeScreenState extends State<HomeScreen>
         barrierDismissible: false,
         builder: (BuildContext context) {
           return Center(
-            child: _isLoading ? const LoadingDialog() : null,
+            child:
+                _isLoading ? const LoadingDialog() : null, // 로딩 중이면 로딩 다이얼로그 출력
           );
         });
 
     Future.delayed(const Duration(seconds: 8), () {
-      if (!_isLoading) return;
-      _connectingservice.cancelMatching();
-      Navigator.of(context).pop();
+      // 8초 후에 매칭 실패 구현
+      if (!_isLoading) return; // 로딩 중이 아니면 return
+      _connectingservice.cancelMatching(); // 매칭 취소 요청
+      Navigator.of(context).pop(); // 다이얼로그 종료
       _isLoading = false;
 
       Fluttertoast.showToast(
@@ -100,7 +118,10 @@ class _HomeScreenState extends State<HomeScreen>
       );
     });
   }
+  // #endregion
 
+  // #region callback
+  // 매칭 성공 시
   void _onMatchingSuccess(dynamic response) {
     Navigator.of(context).pop();
     _isLoading = false;
@@ -112,7 +133,9 @@ class _HomeScreenState extends State<HomeScreen>
     );
     print('chatScreen onMessageReceived: $response');
   }
+  // #endregion
 
+  // #region UI
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -124,6 +147,7 @@ class _HomeScreenState extends State<HomeScreen>
             // ),
             ),
         body: SlideTransition(
+          // 애니메이션 적용
           position: _animation,
           child: Center(
             child: Column(
@@ -136,14 +160,17 @@ class _HomeScreenState extends State<HomeScreen>
                 const SizedBox(height: 30.0),
                 !_isAnimationEnd
                     ? const SizedBox(
+                        // 애니메이션이 종료되지 않았을 때
                         height: 50.0,
                       )
                     : ElevatedButton(
+                        // 애니메이션이 종료되었을 때
                         onPressed: () {
                           // _connectingservice.requestMatching();
                           // _showLoadingDialog(context);
 
                           Navigator.push(
+                            // 채팅 화면으로 이동
                             context,
                             MaterialPageRoute(
                                 builder: (context) => ChatScreen(
@@ -168,14 +195,17 @@ class _HomeScreenState extends State<HomeScreen>
                 const SizedBox(height: 10.0),
                 !_isAnimationEnd
                     ? const SizedBox(
+                        // 애니메이션이 종료되지 않았을 때
                         height: 50.0,
                       )
                     : ElevatedButton(
+                        // 애니메이션이 종료되었을 때
                         onPressed: () {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => const Roomlistscreen()),
+                                builder: (context) =>
+                                    const Roomlistscreen()), // 채팅방 목록 화면으로 이동
                           );
                         },
                         style: ElevatedButton.styleFrom(
@@ -198,8 +228,10 @@ class _HomeScreenState extends State<HomeScreen>
           ),
         ));
   }
+  // #endregion
 }
 
+// #region loading dialog
 class LoadingDialog extends StatefulWidget {
   const LoadingDialog({super.key});
 
@@ -208,21 +240,23 @@ class LoadingDialog extends StatefulWidget {
 }
 
 class _LoadingDialogState extends State<LoadingDialog> {
-  int _currentStep = 0;
-  Timer? _timer;
+  int _currentStep = 0; // 로딩 다이얼로그의 현재 단계
+  Timer? _timer; // 타이머
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    _startTimer();
+    _startTimer(); // 타이머 시작
   }
 
+  // 타이머 시작
   void _startTimer() {
     _timer = Timer.periodic(const Duration(milliseconds: 500), (timer) {
+      // 0.5초마다
       print('startTimer');
       setState(() {
-        _currentStep = (_currentStep + 1) % 5;
+        _currentStep = (_currentStep + 1) % 5; // 다음 단계로 이동
       });
     });
   }
@@ -251,6 +285,7 @@ class _LoadingDialogState extends State<LoadingDialog> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
+                // 로딩 단계 표시
                 _buildStep(_currentStep % 5 == 0),
                 _buildStep(_currentStep % 5 == 1),
                 _buildStep(_currentStep % 5 == 2),

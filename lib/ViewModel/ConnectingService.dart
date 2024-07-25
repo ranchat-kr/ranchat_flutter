@@ -11,7 +11,7 @@ import 'package:ranchat_flutter/Model/MessageList.dart';
 import '../Model/MessageData.dart';
 
 class Connectingservice {
-  StompClient? _stompClient;
+  StompClient? _stompClient; // WebSocket client
   final _domain = "dev-api.ranchat.net:8080";
   final String roomId = "1";
   final String userId1 = "0190964c-af3f-7486-8ac3-d3ff10cc1470";
@@ -41,7 +41,9 @@ class Connectingservice {
   set onMessageReceivedCallback(
       void Function(MessageData messageData) onMessageReceivedCallback) {}
 
-  ///WebSocket server
+  // #region WebSocket
+  // #region first setting
+  //WebSocket server
   void connectToWebSocket() {
     _stompClient = StompClient(
       config: StompConfig(
@@ -58,6 +60,7 @@ class Connectingservice {
     _stompClient!.activate();
   }
 
+  // 웹소켓 구독
   void _onConnected(StompFrame frame, String roomId) {
     print('Connected: ${frame.body}');
 
@@ -72,7 +75,10 @@ class Connectingservice {
 
     //_enterRoom();
   }
+  // #endregion
 
+  // #region recieve
+  // 메시지 수신
   void _onMessageReceived(StompFrame frame) {
     print('Received: ${frame.body}');
     if (_onMessageReceivedCallback != null) {
@@ -82,6 +88,7 @@ class Connectingservice {
     }
   }
 
+  // 매칭 성공
   void _onMatchingSuccess(StompFrame frame) {
     print('Matching Success: ${frame.body}');
     if (_onMatchingSuccessCallback != null) {
@@ -89,7 +96,10 @@ class Connectingservice {
       _onMatchingSuccessCallback!(matchingSuccess);
     }
   }
+  // #endregion
 
+  // #region send
+  // 메시지 전송
   void sendMessage(String content) {
     print('send message');
     _stompClient!.send(
@@ -101,6 +111,7 @@ class Connectingservice {
         }));
   }
 
+  // 방 입장
   void _enterRoom() {
     print('enter room');
     _stompClient!.send(
@@ -110,6 +121,7 @@ class Connectingservice {
         }));
   }
 
+  // 매칭 요청
   void requestMatching() {
     _stompClient!.send(
       destination: '/v1/matching/apply',
@@ -117,12 +129,15 @@ class Connectingservice {
     );
   }
 
+  // 매칭 취소
   void cancelMatching() {
     _stompClient!.send(
       destination: 'v1/matching/cancel',
       body: jsonEncode({"userId": userId}),
     );
   }
+  // #endregion
+  // #endregion
 
   void changeUser() {
     userId = userId == userId1 ? userId2 : userId1;
@@ -132,7 +147,8 @@ class Connectingservice {
     _stompClient!.deactivate();
   }
 
-  /// API
+  // #region HTTP
+  // 메시지 목록 조회
   Future<List<MessageData>> getMessages({int page = 0, int size = 20}) async {
     final response = await http.get(Uri.parse(
         'http://$_domain/v1/rooms/$roomId/messages?page=$page&size=$size'));
@@ -144,4 +160,5 @@ class Connectingservice {
       return [];
     }
   }
+  // #endregion
 }

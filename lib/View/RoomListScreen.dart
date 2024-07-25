@@ -10,10 +10,11 @@ class Roomlistscreen extends StatefulWidget {
 
 class _RoomlistscreenState extends State<Roomlistscreen> {
   List<RoomItem> roomItems = [
-    const RoomItem('Room 1', '진문장은 이제 커플이다.', '2024-07-23T18:00:00'),
-    const RoomItem('Room 2', '자라 보고 놀란 가슴... 더 놀란다..', '2024-07-11T13:00:00'),
+    const RoomItem('Room 1', '오늘 날씨는 미쳤다..', '2024-07-25T13:00:00'),
+    const RoomItem('Room 2', '진문장은 이제 커플이다.', '2024-07-24T18:00:00'),
+    const RoomItem('Room 3', '자라 보고 놀란 가슴... 더 놀란다..', '2024-07-11T13:00:00'),
     const RoomItem(
-        'Room 3', '멕시칸은 고향으로 돌아가고 싶어한다. 하지만 돌아갈 수 없다.', '2024-07-21T07:00:00'),
+        'Room 4', '멕시칸은 고향으로 돌아가고 싶어한다. 하지만 돌아갈 수 없다.', '2023-07-21T07:00:00'),
   ];
 
   @override
@@ -56,21 +57,82 @@ class RoomItem extends StatefulWidget {
   _RoomItemState createState() => _RoomItemState();
 }
 
+enum TimeFormatState {
+  today,
+  yesterday,
+  thisYear,
+  anotherYear,
+  none,
+}
+
 class _RoomItemState extends State<RoomItem> {
-  String? date;
-  String? time;
-  String? year;
-  String? month;
-  String? day;
+  // format : 2024-07-23T23:00:00
+  String date = '';
+  String year = '';
+  String month = '';
+  String day = '';
+  String time = '';
+  String hour = '';
+  String minute = '';
+  String second = '';
+  String nowDate = DateTime.now().toString().split('.')[0].split(' ')[0];
+  String nowYear = '';
+  String nowMonth = '';
+  String nowDay = '';
+  String nowTime = DateTime.now().toString().split('.')[0].split(' ')[1];
+  String nowHour = '';
+  String nowMinute = '';
+  String nowSecond = '';
+
+  String timeFormat = '';
+  TimeFormatState _timeFormatState = TimeFormatState.none;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    date = widget.latestSendAt.split('T')[0];
+    time = widget.latestSendAt.split('T')[1];
+    year = date.split('-')[0];
+    month = date.split('-')[1];
+    day = date.split('-')[2];
+    hour = time.split(':')[0];
+    minute = time.split(':')[1];
+    second = time.split(':')[2];
+
+    nowYear = nowDate.split('-')[0];
+    nowMonth = nowDate.split('-')[1];
+    nowDay = nowDate.split('-')[2];
+    nowHour = nowTime.split(':')[0];
+    nowMinute = nowTime.split(':')[1];
+    nowSecond = nowTime.split(':')[2];
+
+    final now =
+        int.parse(nowYear) * 365 + int.parse(nowMonth) * 30 + int.parse(nowDay);
+    final data = int.parse(year) * 365 + int.parse(month) * 30 + int.parse(day);
+
+    if (year == nowYear && month == nowMonth && day == nowDay) {
+      if (int.parse(hour) >= 0 && int.parse(hour) < 12) {
+        timeFormat = '오전 $hour:$minute';
+      } else {
+        timeFormat = '오후 ${int.parse(hour) - 12}:$minute';
+      }
+      _timeFormatState = TimeFormatState.today;
+    } else if (now - data == 1) {
+      timeFormat = '어제';
+      _timeFormatState = TimeFormatState.yesterday;
+    } else if (year == nowYear) {
+      timeFormat = '$month월 $day일';
+      _timeFormatState = TimeFormatState.thisYear;
+    } else {
+      timeFormat =
+          '$year. ${month.length == 1 ? '0$month' : month}. ${day.length == 1 ? '0$day' : day}.';
+      _timeFormatState = TimeFormatState.anotherYear;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    date = widget.latestSendAt.split('T')[0];
-    time = widget.latestSendAt.split('T')[1];
-    year = date!.split('-')[0];
-    month = date!.split('-')[1];
-    day = date!.split('-')[2];
-
     return Container(
       padding: const EdgeInsets.all(8.0),
       child: Column(
@@ -82,27 +144,32 @@ class _RoomItemState extends State<RoomItem> {
                 style: const TextStyle(fontSize: 20.0),
               ),
               const Spacer(),
-              Text(
-                '$year-$month-$day',
-                style: const TextStyle(fontSize: 15.0),
-              ),
+              Align(
+                alignment: Alignment.bottomRight,
+                child: Text(
+                  timeFormat,
+                  style: TextStyle(
+                      fontSize: _timeFormatState == TimeFormatState.today ||
+                              _timeFormatState == TimeFormatState.thisYear
+                          ? 13.0
+                          : _timeFormatState == TimeFormatState.yesterday
+                              ? 15.0
+                              : _timeFormatState == TimeFormatState.anotherYear
+                                  ? 12.5
+                                  : 0.0),
+                ),
+              )
             ],
           ),
-          Row(
-            children: [
-              Text(
-                widget.latestMessage.length > 20
-                    ? '${widget.latestMessage.substring(0, 20)}...'
-                    : widget.latestMessage,
-                style: const TextStyle(fontSize: 15.0),
-              ),
-              const Spacer(),
-              Text(
-                time!,
-                style: const TextStyle(fontSize: 15.0),
-              ),
-            ],
-          ),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Text(
+              widget.latestMessage,
+              style: const TextStyle(fontSize: 12.0),
+              softWrap: true,
+              overflow: TextOverflow.ellipsis,
+            ),
+          )
         ],
       ),
     );
