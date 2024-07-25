@@ -38,8 +38,9 @@ class Connectingservice {
     _onMatchingSuccessCallback = onMatchingSuccess;
   }
 
-  set onMessageReceivedCallback(
-      void Function(MessageData messageData) onMessageReceivedCallback) {}
+  void setOnMessageReceivedCallback(Function(MessageData) callback) {
+    _onMessageReceivedCallback = callback;
+  }
 
   // #region WebSocket
   // #region first setting

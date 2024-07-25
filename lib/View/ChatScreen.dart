@@ -51,8 +51,7 @@ class _ChatScreen extends State<ChatScreen> {
   // 웹소켓 설정
   void _setServer() {
     _connectingservice = widget.connectingservice;
-    _connectingservice.onMessageReceivedCallback = _onMessageReceived;
-    _connectingservice.connectToWebSocket();
+    _connectingservice.setOnMessageReceivedCallback(_onMessageReceived);
   }
 
   // UI 설정
