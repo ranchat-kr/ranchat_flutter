@@ -37,6 +37,7 @@ class _HomeScreenState extends State<HomeScreen>
     with SingleTickerProviderStateMixin {
   late Connectingservice _connectingservice;
   var _isLoading = false;
+  var _isAnimationEnd = false;
 
   late AnimationController _animationController;
   late Animation<Offset> _animation;
@@ -56,6 +57,14 @@ class _HomeScreenState extends State<HomeScreen>
       parent: _animationController,
       curve: Curves.fastOutSlowIn,
     ));
+    _animationController.addStatusListener((status) {
+      if (status == AnimationStatus.completed) {
+        setState(() {
+          _isAnimationEnd = true;
+        });
+      }
+    });
+
     _animationController.forward();
 
     _connectingservice =
@@ -125,44 +134,65 @@ class _HomeScreenState extends State<HomeScreen>
                   style: TextStyle(fontSize: 80.0),
                 ),
                 const SizedBox(height: 30.0),
-                ElevatedButton(
-                  onPressed: () {
-                    // _connectingservice.requestMatching();
-                    // _showLoadingDialog(context);
+                !_isAnimationEnd
+                    ? const SizedBox(
+                        height: 50.0,
+                      )
+                    : ElevatedButton(
+                        onPressed: () {
+                          // _connectingservice.requestMatching();
+                          // _showLoadingDialog(context);
 
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => ChatScreen(
-                              connectingservice: _connectingservice)),
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    foregroundColor: Colors.black,
-                    shape: const RoundedRectangleBorder(
-                        side: BorderSide(color: Colors.black, width: 5.0)),
-                  ),
-                  child: const Text('START!', style: TextStyle(fontSize: 30.0)),
-                ),
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => ChatScreen(
+                                    connectingservice: _connectingservice)),
+                          );
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.white,
+                          foregroundColor: Colors.black,
+                          shape: const RoundedRectangleBorder(
+                              side:
+                                  BorderSide(color: Colors.black, width: 5.0)),
+                        ),
+                        child: const SizedBox(
+                            width: 150.0,
+                            height: 50.0,
+                            child: Align(
+                              alignment: Alignment.center,
+                              child: Text('START!',
+                                  style: TextStyle(fontSize: 30.0)),
+                            ))),
                 const SizedBox(height: 10.0),
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const Roomlistscreen()),
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    foregroundColor: Colors.black,
-                    shape: const RoundedRectangleBorder(
-                        side: BorderSide(color: Colors.black, width: 5.0)),
-                  ),
-                  child:
-                      const Text('CONTINUE!', style: TextStyle(fontSize: 30.0)),
-                ),
+                !_isAnimationEnd
+                    ? const SizedBox(
+                        height: 50.0,
+                      )
+                    : ElevatedButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const Roomlistscreen()),
+                          );
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.white,
+                          foregroundColor: Colors.black,
+                          shape: const RoundedRectangleBorder(
+                              side:
+                                  BorderSide(color: Colors.black, width: 5.0)),
+                        ),
+                        child: const SizedBox(
+                            width: 150.0,
+                            height: 50.0,
+                            child: Align(
+                              alignment: Alignment.center,
+                              child: Text('CONTINUE!',
+                                  style: TextStyle(fontSize: 30.0)),
+                            ))),
               ],
             ),
           ),
