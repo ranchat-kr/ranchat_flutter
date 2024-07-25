@@ -19,6 +19,7 @@ class _ChatScreen extends State<ChatScreen> {
   late List<MessageData> _messageDatas = <MessageData>[];
   //late List<MessageData> _tempMessageDatas = <MessageData>[];
   final _textController = TextEditingController();
+  final _dialogTextController = TextEditingController();
   final _scrollController = ScrollController();
   final _focusNode = FocusNode();
   late Connectingservice _connectingservice;
@@ -118,22 +119,40 @@ class _ChatScreen extends State<ChatScreen> {
         builder: (BuildContext context) {
           return AlertDialog(
             title: const Text('신고'),
-            content: DropdownButtonFormField(
-              value: selectedReason,
-              items: reportReasons.map((reason) {
-                return DropdownMenuItem(
-                  value: reason,
-                  child: Text(reason),
-                );
-              }).toList(),
-              onChanged: (String? newValue) {
-                setState(() {
-                  selectedReason = newValue;
-                });
-              },
-              decoration: const InputDecoration(
-                labelText: '신고 사유 선택',
-              ),
+            scrollable: true,
+            content: Column(
+              children: [
+                DropdownButtonFormField(
+                  value: selectedReason,
+                  items: reportReasons.map((reason) {
+                    return DropdownMenuItem(
+                      value: reason,
+                      child: Text(reason),
+                    );
+                  }).toList(),
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      selectedReason = newValue;
+                    });
+                  },
+                  decoration: const InputDecoration(
+                    labelText: '신고 사유 선택',
+                  ),
+                ),
+                TextField(
+                  minLines: 1,
+                  maxLines: 3,
+                  style: const TextStyle(color: Colors.black),
+                  controller: _dialogTextController,
+                  decoration: const InputDecoration(
+                      hintText: ' 신고 내용을 입력하세요.',
+                      hintStyle: TextStyle(color: Colors.grey),
+                      border: InputBorder.none),
+                  cursorColor: Colors.grey,
+                  cursorWidth: 8.0,
+                  cursorRadius: Radius.zero,
+                ),
+              ],
             ),
             actions: [
               TextButton(
@@ -147,7 +166,9 @@ class _ChatScreen extends State<ChatScreen> {
                   if (selectedReason == null) {
                     return;
                   } else {
-                    print('신고 완료. $selectedReason');
+                    final report = _dialogTextController.text.trim();
+
+                    print('신고 완료. $selectedReason / $report');
                     Navigator.pop(context);
                   }
                 },
