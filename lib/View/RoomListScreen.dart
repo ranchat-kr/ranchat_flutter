@@ -20,15 +20,35 @@ class _RoomlistscreenState extends State<Roomlistscreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.black,
       appBar: AppBar(
-        title: const Text('Continue'),
+        backgroundColor: Colors.black,
+        leading: IconButton(
+          icon: const Icon(
+            Icons.arrow_back,
+            color: Colors.white,
+          ),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          highlightColor: Colors.grey,
+        ),
+        title: const Text(
+          'Continue',
+          style: TextStyle(color: Colors.white),
+        ),
+        centerTitle: true,
+        actions: const <Widget>[],
       ),
       body: Center(
         child: ListView.separated(
           itemCount: roomItems.length,
           itemBuilder: (context, index) {
-            return GestureDetector(
-              onTap: () {},
+            return InkWell(
+              onTap: () {
+                print('Room ${index + 1} is clicked');
+              },
+              highlightColor: Colors.grey,
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: roomItems[index],
@@ -141,7 +161,7 @@ class _RoomItemState extends State<RoomItem> {
             children: [
               Text(
                 widget.title,
-                style: const TextStyle(fontSize: 20.0),
+                style: const TextStyle(fontSize: 20.0, color: Colors.pink),
               ),
               const Spacer(),
               Align(
@@ -156,7 +176,8 @@ class _RoomItemState extends State<RoomItem> {
                               ? 15.0
                               : _timeFormatState == TimeFormatState.anotherYear
                                   ? 12.5
-                                  : 0.0),
+                                  : 0.0,
+                      color: Colors.grey),
                 ),
               )
             ],
@@ -165,7 +186,7 @@ class _RoomItemState extends State<RoomItem> {
             alignment: Alignment.centerLeft,
             child: Text(
               widget.latestMessage,
-              style: const TextStyle(fontSize: 12.0),
+              style: const TextStyle(fontSize: 12.0, color: Colors.white),
               softWrap: true,
               overflow: TextOverflow.ellipsis,
             ),
