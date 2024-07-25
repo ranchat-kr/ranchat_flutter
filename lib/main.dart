@@ -108,8 +108,15 @@ class _HomeScreenState extends State<HomeScreen> {
             const SizedBox(height: 30.0),
             ElevatedButton(
               onPressed: () {
-                _connectingservice.requestMatching();
-                _showLoadingDialog(context);
+                // _connectingservice.requestMatching();
+                // _showLoadingDialog(context);
+
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          ChatScreen(connectingservice: _connectingservice)),
+                );
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.white,

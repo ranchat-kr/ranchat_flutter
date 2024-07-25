@@ -43,13 +43,13 @@ class _ChatScreen extends State<ChatScreen> {
     _connectingservice.connectToWebSocket();
     _getMessages();
     _scrollController.addListener(() {
-      if (_scrollController.position.pixels ==
-              _scrollController.position.maxScrollExtent &&
+      print(
+          '_scrollController.position.pixels: ${_scrollController.position.pixels}, _scrollController.position.maxScrollExtent: ${_scrollController.position.maxScrollExtent}');
+      if (_scrollController.position.pixels <=
+              _scrollController.position.maxScrollExtent - 30 &&
           !_isLoading) {
-        print(
-            '_scrollController.position.pixels: ${_scrollController.position.pixels}, _scrollController.position.maxScrollExtent: ${_scrollController.position.maxScrollExtent}');
         print('messageDatas length : ${_messageDatas.length}, page : $_page');
-        if (_messageDatas.length == (_page + 1) * _pageSize &&
+        if (_messageDatas.length >= (_page + 1) * _pageSize &&
             _messageDatas.length < _connectingservice.messageList.totalCount) {
           _fetchItems();
         }
@@ -249,7 +249,7 @@ class _ChatScreen extends State<ChatScreen> {
                       reverse: true,
                       itemCount: _messageDatas.isEmpty
                           ? 0
-                          : _messageDatas.length ==
+                          : _messageDatas.length >=
                                   _connectingservice.messageList.totalCount
                               ? _messageDatas.length
                               : _messageDatas.length - _pageSize,
