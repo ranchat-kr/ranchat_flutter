@@ -34,6 +34,7 @@ class _ChatScreen extends State<ChatScreen> {
     // TODO: implement initState
     super.initState();
     _setServer();
+    _setUI();
     _getMessages();
   }
 
