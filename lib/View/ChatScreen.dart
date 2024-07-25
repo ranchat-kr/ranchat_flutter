@@ -325,25 +325,25 @@ class _ChatScreen extends State<ChatScreen> {
                             cursorColor: Colors.white,
                             cursorWidth: 8.0,
                             cursorRadius: Radius.zero,
-                            onSubmitted: (value) {
-                              final message = _textController.text.trim();
-                              if (message.isNotEmpty) {
-                                setState(() {
-                                  // _messageDatas.add(MessageData(
-                                  //     message: message,
-                                  //     color: isMe ? Colors.yellow : Colors.white));
-                                  _textController.clear();
-                                  _scrollController.animateTo(
-                                      _scrollController
-                                          .position.minScrollExtent,
-                                      duration:
-                                          const Duration(milliseconds: 300),
-                                      curve: Curves.fastEaseInToSlowEaseOut);
-                                });
-                                _sendMessage(message);
-                              }
-                              FocusScope.of(context).requestFocus(_focusNode);
-                            },
+                            // onSubmitted: (value) {
+                            //   final message = _textController.text.trim();
+                            //   if (message.isNotEmpty) {
+                            //     setState(() {
+                            //       // _messageDatas.add(MessageData(
+                            //       //     message: message,
+                            //       //     color: isMe ? Colors.yellow : Colors.white));
+                            //       _textController.clear();
+                            //       _scrollController.animateTo(
+                            //           _scrollController
+                            //               .position.minScrollExtent,
+                            //           duration:
+                            //               const Duration(milliseconds: 300),
+                            //           curve: Curves.fastEaseInToSlowEaseOut);
+                            //     });
+                            //     _sendMessage(message);
+                            //   }
+                            //   FocusScope.of(context).requestFocus(_focusNode);
+                            // },
                           ),
                         ),
                         const SizedBox(width: 16.0),

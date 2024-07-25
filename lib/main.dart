@@ -33,14 +33,31 @@ class HomeScreen extends StatefulWidget {
   _HomeScreenState createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen>
+    with SingleTickerProviderStateMixin {
   late Connectingservice _connectingservice;
   var _isLoading = false;
+
+  late AnimationController _animationController;
+  late Animation<Offset> _animation;
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 2),
+    );
+    _animation = Tween<Offset>(
+      begin: const Offset(0.0, -1.0),
+      end: const Offset(0.0, 0.0),
+    ).animate(CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.fastOutSlowIn,
+    ));
+    _animationController.forward();
+
     _connectingservice =
         Connectingservice(onMatchingSuccess: _onMatchingSuccess);
     _connectingservice.connectToWebSocket();
@@ -90,63 +107,66 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      resizeToAvoidBottomInset: false,
-      appBar: AppBar(
-          // title: const Text(
-          //   'Ranchat',
-          //   style: TextStyle(fontSize: 40.0),
-          // ),
-          ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Text(
-              'Ran-chat',
-              style: TextStyle(fontSize: 80.0),
+        resizeToAvoidBottomInset: false,
+        appBar: AppBar(
+            // title: const Text(
+            //   'Ranchat',
+            //   style: TextStyle(fontSize: 40.0),
+            // ),
             ),
-            const SizedBox(height: 30.0),
-            ElevatedButton(
-              onPressed: () {
-                // _connectingservice.requestMatching();
-                // _showLoadingDialog(context);
+        body: SlideTransition(
+          position: _animation,
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text(
+                  'Ran-chat',
+                  style: TextStyle(fontSize: 80.0),
+                ),
+                const SizedBox(height: 30.0),
+                ElevatedButton(
+                  onPressed: () {
+                    // _connectingservice.requestMatching();
+                    // _showLoadingDialog(context);
 
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) =>
-                          ChatScreen(connectingservice: _connectingservice)),
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.white,
-                foregroundColor: Colors.black,
-                shape: const RoundedRectangleBorder(
-                    side: BorderSide(color: Colors.black, width: 5.0)),
-              ),
-              child: const Text('START!', style: TextStyle(fontSize: 30.0)),
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => ChatScreen(
+                              connectingservice: _connectingservice)),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    foregroundColor: Colors.black,
+                    shape: const RoundedRectangleBorder(
+                        side: BorderSide(color: Colors.black, width: 5.0)),
+                  ),
+                  child: const Text('START!', style: TextStyle(fontSize: 30.0)),
+                ),
+                const SizedBox(height: 10.0),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const Roomlistscreen()),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    foregroundColor: Colors.black,
+                    shape: const RoundedRectangleBorder(
+                        side: BorderSide(color: Colors.black, width: 5.0)),
+                  ),
+                  child:
+                      const Text('CONTINUE!', style: TextStyle(fontSize: 30.0)),
+                ),
+              ],
             ),
-            const SizedBox(height: 10.0),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => const Roomlistscreen()),
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.white,
-                foregroundColor: Colors.black,
-                shape: const RoundedRectangleBorder(
-                    side: BorderSide(color: Colors.black, width: 5.0)),
-              ),
-              child: const Text('CONTINUE!', style: TextStyle(fontSize: 30.0)),
-            ),
-          ],
-        ),
-      ),
-    );
+          ),
+        ));
   }
 }
 
