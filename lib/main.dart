@@ -40,7 +40,8 @@ class _HomeScreenState extends State<HomeScreen>
   var _isAnimationEnd = false; // 애니메이션 종료를 위한 변수
 
   late AnimationController _animationController; // 애니메이션 컨트롤러
-  late Animation<Offset> _animation; // 애니메이션
+  late Animation<Offset> _logoAnimation;
+  late Animation<double> _buttonAnimation; // 애니메이션
 
   @override
   void initState() {
@@ -56,9 +57,9 @@ class _HomeScreenState extends State<HomeScreen>
     _animationController = AnimationController(
       // 애니메이션 컨트롤러 설정 (2초)
       vsync: this,
-      duration: const Duration(seconds: 2),
+      duration: const Duration(milliseconds: 1500),
     );
-    _animation = Tween<Offset>(
+    _logoAnimation = Tween<Offset>(
       // 애니메이션 설정 (위에서 아래로)
       begin: const Offset(0.0, -1.0),
       end: const Offset(0.0, 0.0),
@@ -66,6 +67,12 @@ class _HomeScreenState extends State<HomeScreen>
       parent: _animationController,
       curve: Curves.fastOutSlowIn,
     ));
+
+    _buttonAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(
+        CurvedAnimation(parent: _animationController, curve: Curves.easeIn));
     _animationController.addStatusListener((status) {
       // 애니메이션 종료 시
       if (status == AnimationStatus.completed) {
@@ -100,13 +107,18 @@ class _HomeScreenState extends State<HomeScreen>
           );
         });
 
-    Future.delayed(const Duration(seconds: 8), () {
-      // 8초 후에 매칭 실패 구현
-      if (!_isLoading) return; // 로딩 중이 아니면 return
-      _connectingservice.cancelMatching(); // 매칭 취소 요청
-      Navigator.of(context).pop(); // 다이얼로그 종료
-      _isLoading = false;
+    _closeLoadingDialog(); // 8초 뒤에 매칭 실패 시 다이얼로그 종료
+  }
 
+  // 8초 뒤에 매칭 실패 시 다이얼로그 종료
+  void _closeLoadingDialog() async {
+    await Future.delayed(const Duration(seconds: 8));
+    if (!_isLoading) {
+      return;
+    } else {
+      _connectingservice.cancelMatching();
+      Navigator.of(context).pop();
+      _isLoading = false;
       Fluttertoast.showToast(
         msg: '매칭에 실패하였습니다.',
         toastLength: Toast.LENGTH_LONG,
@@ -116,21 +128,41 @@ class _HomeScreenState extends State<HomeScreen>
         textColor: Colors.white,
         fontSize: 16.0,
       );
-    });
+    }
   }
   // #endregion
 
   // #region callback
   // 매칭 성공 시
   void _onMatchingSuccess(dynamic response) {
-    Navigator.of(context).pop();
-    _isLoading = false;
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-          builder: (context) =>
-              ChatScreen(connectingservice: _connectingservice)),
-    );
+    final responseJson = response as Map<String, dynamic>;
+    if (responseJson['status'] != 'SUCCESS') {
+      // 매칭 실패 시
+      Fluttertoast.showToast(
+        msg: '매칭에 실패하였습니다.',
+        toastLength: Toast.LENGTH_LONG,
+        gravity: ToastGravity.CENTER,
+        timeInSecForIosWeb: 2,
+        backgroundColor: Colors.grey,
+        textColor: Colors.white,
+        fontSize: 16.0,
+      );
+      return;
+    } else {
+      // 매칭 성공 시
+      final roomId = responseJson['data']['roomId'];
+      print('matching success! roomId : $roomId');
+      _connectingservice.setRoomId(roomId.toString());
+      _connectingservice.enterRoom();
+      Navigator.of(context).pop();
+      _isLoading = false;
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) =>
+                ChatScreen(connectingservice: _connectingservice)),
+      );
+    }
     print('chatScreen onMessageReceived: $response');
   }
   // #endregion
@@ -148,14 +180,19 @@ class _HomeScreenState extends State<HomeScreen>
             ),
         body: SlideTransition(
           // 애니메이션 적용
-          position: _animation,
+          position: _logoAnimation,
           child: Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Text(
-                  'Ran-chat',
-                  style: TextStyle(fontSize: 80.0),
+                GestureDetector(
+                  onTap: () {
+                    _connectingservice.tempRequestMatching();
+                  },
+                  child: const Text(
+                    'Ran-chat',
+                    style: TextStyle(fontSize: 80.0),
+                  ),
                 ),
                 const SizedBox(height: 30.0),
                 !_isAnimationEnd
@@ -166,16 +203,16 @@ class _HomeScreenState extends State<HomeScreen>
                     : ElevatedButton(
                         // 애니메이션이 종료되었을 때
                         onPressed: () {
-                          // _connectingservice.requestMatching();
-                          // _showLoadingDialog(context);
+                          _connectingservice.requestMatching();
+                          _showLoadingDialog(context);
 
-                          Navigator.push(
-                            // 채팅 화면으로 이동
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => ChatScreen(
-                                    connectingservice: _connectingservice)),
-                          );
+                          // Navigator.push(
+                          //   // 채팅 화면으로 이동
+                          //   context,
+                          //   MaterialPageRoute(
+                          //       builder: (context) => ChatScreen(
+                          //           connectingservice: _connectingservice)),
+                          // );
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.white,
@@ -252,20 +289,25 @@ class _LoadingDialogState extends State<LoadingDialog> {
 
   // 타이머 시작
   void _startTimer() {
-    _timer = Timer.periodic(const Duration(milliseconds: 500), (timer) {
-      // 0.5초마다
-      print('startTimer');
-      setState(() {
-        _currentStep = (_currentStep + 1) % 5; // 다음 단계로 이동
+    try {
+      _timer = Timer.periodic(const Duration(milliseconds: 500), (timer) {
+        // 0.5초마다
+        print('startTimer');
+        setState(() {
+          _currentStep = (_currentStep + 1) % 5; // 다음 단계로 이동
+          print('_currentStep: $_currentStep');
+        });
       });
-    });
+    } catch (e) {
+      print('startTimer error: $e');
+    }
   }
 
   @override
   void dispose() {
     // TODO: implement dispose
-    super.dispose();
     _timer?.cancel();
+    super.dispose();
   }
 
   @override
