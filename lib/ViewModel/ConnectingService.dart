@@ -38,11 +38,11 @@ class Connectingservice {
     _onMatchingSuccessCallback = onMatchingSuccess;
   }
 
-  void setOnMessageReceivedCallback(Function(MessageData) callback) {
+  void setOnMessageReceivedCallback(Function(MessageData) callback) async {
     _onMessageReceivedCallback = callback;
   }
 
-  void setRoomId(String roomId) {
+  void setRoomId(String roomId) async {
     print('set room id: $roomId');
     _roomId = roomId;
   }
@@ -50,7 +50,7 @@ class Connectingservice {
   // #region WebSocket
   // #region first setting
   //WebSocket server
-  void connectToWebSocket() {
+  void connectToWebSocket() async {
     try {
       _stompClient = StompClient(
         config: StompConfig(
@@ -73,7 +73,7 @@ class Connectingservice {
   }
 
   // 웹소켓 매칭 성공 구독
-  void subscribeToMatchingSuceess(StompFrame frame) {
+  void subscribeToMatchingSuceess(StompFrame frame) async {
     print('subscribe to matching success');
     _stompClient?.subscribe(
       destination: '/user/$userId/queue/v1/matching/success',
@@ -82,7 +82,7 @@ class Connectingservice {
   }
 
   // 웹소켓 메시지 받기 구독
-  void subscribeToRecieveMessage() {
+  void subscribeToRecieveMessage() async {
     _stompClient?.subscribe(
       destination: '/topic/v1/rooms/$_roomId/messages/new',
       callback: onMessageReceived,
@@ -92,7 +92,7 @@ class Connectingservice {
 
   // #region recieve
   // 메시지 수신
-  void onMessageReceived(StompFrame frame) {
+  void onMessageReceived(StompFrame frame) async {
     print('Received: ${frame.body}');
     if (_onMessageReceivedCallback != null) {
       final message = Message.fromJson(jsonDecode(frame.body ?? ''));
@@ -102,7 +102,7 @@ class Connectingservice {
   }
 
   // 매칭 성공
-  void onMatchingSuccess(StompFrame frame) {
+  void onMatchingSuccess(StompFrame frame) async {
     print('Matching Success: ${frame.body}');
     if (_onMatchingSuccessCallback != null) {
       final matchingSuccess = jsonDecode(frame.body ?? '');
@@ -113,7 +113,7 @@ class Connectingservice {
 
   // #region send
   // 메시지 전송
-  void sendMessage(String content) {
+  void sendMessage(String content) async {
     print('send message');
     if (_stompClient!.connected) {
       try {
@@ -133,7 +133,7 @@ class Connectingservice {
   }
 
   // 방 입장
-  void enterRoom() {
+  void enterRoom() async {
     print('enter room');
     if (_stompClient!.connected) {
       try {
@@ -153,7 +153,7 @@ class Connectingservice {
   }
 
   // 매칭 요청
-  void requestMatching() {
+  void requestMatching() async {
     if (_stompClient!.connected) {
       try {
         _stompClient?.send(
@@ -169,7 +169,7 @@ class Connectingservice {
   }
 
   // 임시로 쓰는 매칭 함수
-  void tempRequestMatching() {
+  void tempRequestMatching() async {
     if (_stompClient!.connected) {
       try {
         _stompClient?.send(
@@ -185,7 +185,7 @@ class Connectingservice {
   }
 
   // 매칭 취소
-  void cancelMatching() {
+  void cancelMatching() async {
     print('cancel matching');
     if (_stompClient!.connected) {
       try {
