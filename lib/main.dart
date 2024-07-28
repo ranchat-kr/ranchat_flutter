@@ -242,7 +242,7 @@ class _HomeScreenState extends State<HomeScreen>
                             context,
                             MaterialPageRoute(
                                 builder: (context) =>
-                                    const Roomlistscreen()), // 채팅방 목록 화면으로 이동
+                                    const RoomListScreen()), // 채팅방 목록 화면으로 이동
                           );
                         },
                         style: ElevatedButton.styleFrom(

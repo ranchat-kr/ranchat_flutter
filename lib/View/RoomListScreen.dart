@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
-class Roomlistscreen extends StatefulWidget {
-  const Roomlistscreen({super.key});
+class RoomListScreen extends StatefulWidget {
+  const RoomListScreen({super.key});
 
   @override
-  _RoomlistscreenState createState() => _RoomlistscreenState();
+  _RoomListScreenState createState() => _RoomListScreenState();
 }
 
-class _RoomlistscreenState extends State<Roomlistscreen> {
+class _RoomListScreenState extends State<RoomListScreen> {
   List<RoomItem> roomItems = [
     const RoomItem('Room 1', '오늘 날씨는 미쳤다..', '2024-07-25T13:00:00'),
     const RoomItem('Room 2', '진문장은 이제 커플이다.', '2024-07-24T18:00:00'),
@@ -111,14 +111,14 @@ class _RoomItemState extends State<RoomItem> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    date = widget.latestSendAt.split('T')[0];
-    time = widget.latestSendAt.split('T')[1];
-    year = date.split('-')[0];
-    month = date.split('-')[1];
-    day = date.split('-')[2];
-    hour = time.split(':')[0];
-    minute = time.split(':')[1];
-    second = time.split(':')[2];
+    date = widget.latestSendAt.split('T')[0]; // 2024-07-23
+    time = widget.latestSendAt.split('T')[1]; // 23:00:00
+    year = date.split('-')[0]; // 2024
+    month = date.split('-')[1]; // 07
+    day = date.split('-')[2]; // 23
+    hour = time.split(':')[0]; // 23
+    minute = time.split(':')[1]; // 00
+    second = time.split(':')[2]; // 00
 
     nowYear = nowDate.split('-')[0];
     nowMonth = nowDate.split('-')[1];
