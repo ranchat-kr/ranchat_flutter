@@ -1,21 +1,37 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:ranchat_flutter/ViewModel/ConnectingService.dart';
 
 class RoomListScreen extends StatefulWidget {
-  const RoomListScreen({super.key});
+  final Connectingservice connectingservice;
+  const RoomListScreen({super.key, required this.connectingservice});
 
   @override
   _RoomListScreenState createState() => _RoomListScreenState();
 }
 
 class _RoomListScreenState extends State<RoomListScreen> {
-  List<RoomItem> roomItems = [
-    const RoomItem('Room 1', '오늘 날씨는 미쳤다..', '2024-07-25T13:00:00'),
-    const RoomItem('Room 2', '진문장은 이제 커플이다.', '2024-07-24T18:00:00'),
-    const RoomItem('Room 3', '자라 보고 놀란 가슴... 더 놀란다..', '2024-07-11T13:00:00'),
-    const RoomItem(
-        'Room 4', '멕시칸은 고향으로 돌아가고 싶어한다. 하지만 돌아갈 수 없다.', '2023-07-21T07:00:00'),
-  ];
+  final List<RoomItem> _roomItems = [];
+  late Connectingservice _connectingservice;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _connectingservice = widget.connectingservice;
+    getRooms();
+  }
+
+  void getRooms() async {
+    final rooms = await _connectingservice.getRooms();
+    print('Rooms: $rooms');
+    setState(() {
+      for (var room in rooms) {
+        _roomItems.add(
+            RoomItem(room.title, room.latestMessage, room.latestMessageAt));
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +58,7 @@ class _RoomListScreenState extends State<RoomListScreen> {
       ),
       body: Center(
         child: ListView.separated(
-          itemCount: roomItems.length,
+          itemCount: _roomItems.length,
           itemBuilder: (context, index) {
             return InkWell(
               onTap: () {
@@ -51,7 +67,7 @@ class _RoomListScreenState extends State<RoomListScreen> {
               highlightColor: Colors.grey,
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: roomItems[index],
+                child: _roomItems[index],
               ),
             );
           },
@@ -162,10 +178,12 @@ class _RoomItemState extends State<RoomItem> {
               Text(
                 widget.title,
                 style: const TextStyle(fontSize: 20.0, color: Colors.pink),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
               const Spacer(),
               Align(
-                alignment: Alignment.bottomRight,
+                alignment: Alignment.topRight,
                 child: Text(
                   timeFormat,
                   style: TextStyle(
@@ -178,6 +196,8 @@ class _RoomItemState extends State<RoomItem> {
                                   ? 12.5
                                   : 0.0,
                       color: Colors.grey),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               )
             ],

@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
+import 'package:ranchat_flutter/Model/RoomData.dart';
 import 'package:stomp_dart_client/stomp.dart';
 import 'package:stomp_dart_client/stomp_config.dart';
 import 'package:stomp_dart_client/stomp_frame.dart';
@@ -9,6 +10,7 @@ import 'package:ranchat_flutter/Model/Message.dart';
 import 'package:ranchat_flutter/Model/MessageList.dart';
 
 import '../Model/MessageData.dart';
+import '../Model/RoomList.dart';
 
 class Connectingservice {
   StompClient? _stompClient; // WebSocket client
@@ -220,6 +222,19 @@ class Connectingservice {
       final responseData = jsonDecode(utf8.decode(response.bodyBytes));
       messageList = MessageList.fromJson(responseData);
       return messageList.items;
+    } else {
+      return [];
+    }
+  }
+
+  // 방 목록 조회
+  Future<List<RoomData>> getRooms({int page = 0, int size = 5}) async {
+    final response = await http.get(Uri.parse(
+        'http://$_domain/v1/rooms?page=$page&size=$size&userId=$userId'));
+    if (response.statusCode == 200) {
+      final responseData = jsonDecode(utf8.decode(response.bodyBytes));
+      final roomList = RoomList.fromJson(responseData);
+      return roomList.items;
     } else {
       return [];
     }
