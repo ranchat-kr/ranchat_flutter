@@ -228,7 +228,7 @@ class Connectingservice {
   }
 
   // 방 목록 조회
-  Future<List<RoomData>> getRooms({int page = 0, int size = 5}) async {
+  Future<List<RoomData>> getRooms({int page = 0, int size = 10}) async {
     final response = await http.get(Uri.parse(
         'http://$_domain/v1/rooms?page=$page&size=$size&userId=$userId'));
     if (response.statusCode == 200) {

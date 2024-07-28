@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:ranchat_flutter/ViewModel/ConnectingService.dart';
@@ -13,6 +14,8 @@ class RoomListScreen extends StatefulWidget {
 class _RoomListScreenState extends State<RoomListScreen> {
   final List<RoomItem> _roomItems = [];
   late Connectingservice _connectingservice;
+  final ScrollController _scrollController = ScrollController();
+  int _roomPage = 0;
 
   @override
   void initState() {
@@ -20,10 +23,24 @@ class _RoomListScreenState extends State<RoomListScreen> {
     super.initState();
     _connectingservice = widget.connectingservice;
     getRooms();
+    _scrollController.addListener(() {
+      if (_scrollController.position.pixels ==
+          _scrollController.position.maxScrollExtent) {
+        getRooms();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    _scrollController.dispose();
   }
 
   void getRooms() async {
-    final rooms = await _connectingservice.getRooms();
+    final rooms =
+        await _connectingservice.getRooms(page: _roomPage++, size: 10);
     print('Rooms: $rooms');
     setState(() {
       for (var room in rooms) {
@@ -58,6 +75,7 @@ class _RoomListScreenState extends State<RoomListScreen> {
       ),
       body: Center(
         child: ListView.separated(
+          controller: _scrollController,
           itemCount: _roomItems.length,
           itemBuilder: (context, index) {
             return InkWell(

@@ -41,7 +41,6 @@ class _ChatScreen extends State<ChatScreen> {
   @override
   void dispose() {
     // TODO: implement dispose
-    _connectingservice.dispose();
     _textController.dispose();
     _scrollController.dispose();
     super.dispose();
