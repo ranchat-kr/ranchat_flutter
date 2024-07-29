@@ -4,6 +4,8 @@ import 'package:flutter/widgets.dart';
 import 'package:ranchat_flutter/Model/RoomData.dart';
 import 'package:ranchat_flutter/ViewModel/ConnectingService.dart';
 
+import 'ChatScreen.dart';
+
 class RoomListScreen extends StatefulWidget {
   final Connectingservice connectingservice;
   const RoomListScreen({super.key, required this.connectingservice});
@@ -63,6 +65,29 @@ class _RoomListScreenState extends State<RoomListScreen> {
     }
   }
 
+  void enterRoom(int index) {
+    setState(() {
+      _isLoading = true;
+    });
+    try {
+      _connectingservice.setRoomId(_roomItems[index].room.id.toString());
+      _connectingservice.enterRoom();
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ChatScreen(
+            connectingservice: _connectingservice,
+          ),
+        ),
+      );
+    } catch (e) {
+      print('enterRoom error: $e');
+    }
+    setState(() {
+      _isLoading = false;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -95,7 +120,7 @@ class _RoomListScreenState extends State<RoomListScreen> {
                 itemBuilder: (context, index) {
                   return InkWell(
                     onTap: () {
-                      print('Room ${index + 1} is clicked');
+                      enterRoom(index);
                     },
                     highlightColor: Colors.grey,
                     child: Padding(
