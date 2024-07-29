@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:ranchat_flutter/Model/RoomData.dart';
 import 'package:ranchat_flutter/ViewModel/ConnectingService.dart';
 
 class RoomListScreen extends StatefulWidget {
@@ -50,8 +51,7 @@ class _RoomListScreenState extends State<RoomListScreen> {
       print('Rooms: $rooms');
       setState(() {
         for (var room in rooms) {
-          _roomItems.add(
-              RoomItem(room.title, room.latestMessage, room.latestMessageAt));
+          _roomItems.add(RoomItem(room));
         }
         _isLoading = false;
       });
@@ -124,11 +124,8 @@ class _RoomListScreenState extends State<RoomListScreen> {
 }
 
 class RoomItem extends StatefulWidget {
-  const RoomItem(this.title, this.latestMessage, this.latestSendAt,
-      {super.key});
-  final String title;
-  final String latestMessage;
-  final String latestSendAt;
+  RoomItem(this.room, {super.key});
+  RoomData room;
 
   @override
   _RoomItemState createState() => _RoomItemState();
@@ -169,9 +166,9 @@ class _RoomItemState extends State<RoomItem> {
     // TODO: implement initState
     super.initState();
 
-    if (widget.latestSendAt.isNotEmpty) {
-      date = widget.latestSendAt.split('T')[0]; // 2024-07-23
-      time = widget.latestSendAt.split('T')[1]; // 23:00:00
+    if (widget.room.latestMessageAt.isNotEmpty) {
+      date = widget.room.latestMessageAt.split('T')[0]; // 2024-07-23
+      time = widget.room.latestMessageAt.split('T')[1]; // 23:00:00
       year = date.split('-')[0]; // 2024
       month = date.split('-')[1]; // 07
       day = date.split('-')[2]; // 23
@@ -221,11 +218,13 @@ class _RoomItemState extends State<RoomItem> {
         children: [
           Row(
             children: [
-              Text(
-                widget.title,
-                style: const TextStyle(fontSize: 20.0, color: Colors.pink),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
+              Expanded(
+                child: Text(
+                  widget.room.title,
+                  style: const TextStyle(fontSize: 20.0, color: Colors.pink),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
               const Spacer(),
               Align(
@@ -251,7 +250,7 @@ class _RoomItemState extends State<RoomItem> {
           Align(
             alignment: Alignment.centerLeft,
             child: Text(
-              widget.latestMessage,
+              widget.room.latestMessage,
               style: const TextStyle(fontSize: 12.0, color: Colors.white),
               softWrap: true,
               overflow: TextOverflow.ellipsis,
