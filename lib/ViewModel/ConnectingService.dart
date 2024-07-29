@@ -14,7 +14,7 @@ import '../Model/RoomList.dart';
 
 class Connectingservice {
   StompClient? _stompClient; // WebSocket client
-  final _domain = "dev-api.ranchat.net:8080";
+  final _domain = "dev-api.ranchat.net";
   String _roomId = "1";
   final String userId1 = "0190964c-af3f-7486-8ac3-d3ff10cc1470";
   final String userId2 = "0190964c-ee3a-7e81-a1f8-231b5d97c2a1";
@@ -217,7 +217,7 @@ class Connectingservice {
   // 메시지 목록 조회
   Future<List<MessageData>> getMessages({int page = 0, int size = 20}) async {
     final response = await http.get(Uri.parse(
-        'http://$_domain/v1/rooms/$_roomId/messages?page=$page&size=$size'));
+        'https://$_domain/v1/rooms/$_roomId/messages?page=$page&size=$size'));
     if (response.statusCode == 200) {
       final responseData = jsonDecode(utf8.decode(response.bodyBytes));
       messageList = MessageList.fromJson(responseData);
@@ -230,7 +230,8 @@ class Connectingservice {
   // 방 목록 조회
   Future<List<RoomData>> getRooms({int page = 0, int size = 10}) async {
     final response = await http.get(Uri.parse(
-        'http://$_domain/v1/rooms?page=$page&size=$size&userId=$userId'));
+        'https://$_domain/v1/rooms?page=$page&size=$size&userId=$userId'));
+    print('response: ${response.body}');
     if (response.statusCode == 200) {
       final responseData = jsonDecode(utf8.decode(response.bodyBytes));
       final roomList = RoomList.fromJson(responseData);
