@@ -17,6 +17,8 @@ class _RoomListScreenState extends State<RoomListScreen> {
   final ScrollController _scrollController = ScrollController();
   int _roomPage = 0;
 
+  bool _isLoading = false;
+
   @override
   void initState() {
     // TODO: implement initState
@@ -39,64 +41,85 @@ class _RoomListScreenState extends State<RoomListScreen> {
   }
 
   void getRooms() async {
-    final rooms =
-        await _connectingservice.getRooms(page: _roomPage++, size: 10);
-    print('Rooms: $rooms');
     setState(() {
-      for (var room in rooms) {
-        _roomItems.add(
-            RoomItem(room.title, room.latestMessage, room.latestMessageAt));
-      }
+      _isLoading = true;
     });
+    try {
+      final rooms =
+          await _connectingservice.getRooms(page: _roomPage++, size: 10);
+      print('Rooms: $rooms');
+      setState(() {
+        for (var room in rooms) {
+          _roomItems.add(
+              RoomItem(room.title, room.latestMessage, room.latestMessageAt));
+        }
+        _isLoading = false;
+      });
+    } catch (e) {
+      print('getRooms error: $e');
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
-      appBar: AppBar(
         backgroundColor: Colors.black,
-        leading: IconButton(
-          icon: const Icon(
-            Icons.arrow_back,
-            color: Colors.white,
+        appBar: AppBar(
+          backgroundColor: Colors.black,
+          leading: IconButton(
+            icon: const Icon(
+              Icons.arrow_back,
+              color: Colors.white,
+            ),
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            highlightColor: Colors.grey,
           ),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-          highlightColor: Colors.grey,
+          title: const Text(
+            'Continue',
+            style: TextStyle(color: Colors.white),
+          ),
+          centerTitle: true,
+          actions: const <Widget>[],
         ),
-        title: const Text(
-          'Continue',
-          style: TextStyle(color: Colors.white),
-        ),
-        centerTitle: true,
-        actions: const <Widget>[],
-      ),
-      body: Center(
-        child: ListView.separated(
-          controller: _scrollController,
-          itemCount: _roomItems.length,
-          itemBuilder: (context, index) {
-            return InkWell(
-              onTap: () {
-                print('Room ${index + 1} is clicked');
-              },
-              highlightColor: Colors.grey,
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: _roomItems[index],
+        body: Stack(
+          children: [
+            Center(
+              child: ListView.separated(
+                controller: _scrollController,
+                itemCount: _roomItems.length,
+                itemBuilder: (context, index) {
+                  return InkWell(
+                    onTap: () {
+                      print('Room ${index + 1} is clicked');
+                    },
+                    highlightColor: Colors.grey,
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: _roomItems[index],
+                    ),
+                  );
+                },
+                separatorBuilder: (context, index) {
+                  return const Divider(
+                    color: Colors.grey,
+                  );
+                },
               ),
-            );
-          },
-          separatorBuilder: (context, index) {
-            return const Divider(
-              color: Colors.grey,
-            );
-          },
-        ),
-      ),
-    );
+            ),
+            Center(
+              child: _isLoading
+                  ? const CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                    )
+                  : const SizedBox.shrink(),
+            ),
+          ],
+        ));
   }
 }
 
@@ -145,43 +168,48 @@ class _RoomItemState extends State<RoomItem> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    date = widget.latestSendAt.split('T')[0]; // 2024-07-23
-    time = widget.latestSendAt.split('T')[1]; // 23:00:00
-    year = date.split('-')[0]; // 2024
-    month = date.split('-')[1]; // 07
-    day = date.split('-')[2]; // 23
-    hour = time.split(':')[0]; // 23
-    minute = time.split(':')[1]; // 00
-    second = time.split(':')[2]; // 00
 
-    nowYear = nowDate.split('-')[0];
-    nowMonth = nowDate.split('-')[1];
-    nowDay = nowDate.split('-')[2];
-    nowHour = nowTime.split(':')[0];
-    nowMinute = nowTime.split(':')[1];
-    nowSecond = nowTime.split(':')[2];
+    if (widget.latestSendAt.isNotEmpty) {
+      date = widget.latestSendAt.split('T')[0]; // 2024-07-23
+      time = widget.latestSendAt.split('T')[1]; // 23:00:00
+      year = date.split('-')[0]; // 2024
+      month = date.split('-')[1]; // 07
+      day = date.split('-')[2]; // 23
+      hour = time.split(':')[0]; // 23
+      minute = time.split(':')[1]; // 00
+      second = time.split(':')[2]; // 00
 
-    final now =
-        int.parse(nowYear) * 365 + int.parse(nowMonth) * 30 + int.parse(nowDay);
-    final data = int.parse(year) * 365 + int.parse(month) * 30 + int.parse(day);
+      nowYear = nowDate.split('-')[0];
+      nowMonth = nowDate.split('-')[1];
+      nowDay = nowDate.split('-')[2];
+      nowHour = nowTime.split(':')[0];
+      nowMinute = nowTime.split(':')[1];
+      nowSecond = nowTime.split(':')[2];
 
-    if (year == nowYear && month == nowMonth && day == nowDay) {
-      if (int.parse(hour) >= 0 && int.parse(hour) < 12) {
-        timeFormat = '오전 $hour:$minute';
+      final now = int.parse(nowYear) * 365 +
+          int.parse(nowMonth) * 30 +
+          int.parse(nowDay);
+      final data =
+          int.parse(year) * 365 + int.parse(month) * 30 + int.parse(day);
+
+      if (year == nowYear && month == nowMonth && day == nowDay) {
+        if (int.parse(hour) >= 0 && int.parse(hour) < 12) {
+          timeFormat = '오전 $hour:$minute';
+        } else {
+          timeFormat = '오후 ${int.parse(hour) - 12}:$minute';
+        }
+        _timeFormatState = TimeFormatState.today;
+      } else if (now - data == 1) {
+        timeFormat = '어제';
+        _timeFormatState = TimeFormatState.yesterday;
+      } else if (year == nowYear) {
+        timeFormat = '$month월 $day일';
+        _timeFormatState = TimeFormatState.thisYear;
       } else {
-        timeFormat = '오후 ${int.parse(hour) - 12}:$minute';
+        timeFormat =
+            '$year. ${month.length == 1 ? '0$month' : month}. ${day.length == 1 ? '0$day' : day}.';
+        _timeFormatState = TimeFormatState.anotherYear;
       }
-      _timeFormatState = TimeFormatState.today;
-    } else if (now - data == 1) {
-      timeFormat = '어제';
-      _timeFormatState = TimeFormatState.yesterday;
-    } else if (year == nowYear) {
-      timeFormat = '$month월 $day일';
-      _timeFormatState = TimeFormatState.thisYear;
-    } else {
-      timeFormat =
-          '$year. ${month.length == 1 ? '0$month' : month}. ${day.length == 1 ? '0$day' : day}.';
-      _timeFormatState = TimeFormatState.anotherYear;
     }
   }
 

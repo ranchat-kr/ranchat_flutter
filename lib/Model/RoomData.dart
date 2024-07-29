@@ -17,8 +17,8 @@ class RoomData {
       id: json['id'],
       title: json['title'],
       type: json['type'],
-      latestMessage: json['latestMessage'],
-      latestMessageAt: json['latestMessageAt'],
+      latestMessage: json['latestMessage'] ?? '',
+      latestMessageAt: json['latestMessageAt'] ?? '',
     );
   }
 }
