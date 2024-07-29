@@ -65,7 +65,7 @@ class _RoomListScreenState extends State<RoomListScreen> {
     }
   }
 
-  void enterRoom(int index) {
+  void _enterRoom(int index) {
     setState(() {
       _isLoading = true;
     });
@@ -120,7 +120,7 @@ class _RoomListScreenState extends State<RoomListScreen> {
                 itemBuilder: (context, index) {
                   return InkWell(
                     onTap: () {
-                      enterRoom(index);
+                      _enterRoom(index);
                     },
                     highlightColor: Colors.grey,
                     child: Padding(
