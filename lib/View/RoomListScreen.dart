@@ -80,7 +80,13 @@ class _RoomListScreenState extends State<RoomListScreen> {
             connectingservice: _connectingservice,
           ),
         ),
-      );
+      ).then((_) {
+        setState(() {
+          _roomItems.clear();
+          _roomPage = 0;
+          getRooms();
+        });
+      });
     } catch (e) {
       print('enterRoom error: $e');
     }
