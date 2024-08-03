@@ -240,5 +240,39 @@ class Connectingservice {
       return [];
     }
   }
+
+  // 회원 생성
+  Future<void> createUser() async {
+    final response = await http.post(Uri.parse('https://$_domain/v1/users'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode({
+          "userId": userId,
+          "name": "SIUSIUSIU",
+        }));
+    if (response.statusCode == 200) {
+      print('createUser : $response');
+    } else {
+      print('create user error');
+    }
+  }
+
+  // 회원 이름 수정
+  Future<void> updateUserName(String name) async {
+    final response = await http.put(
+      Uri.parse('https://$_domain/v1/users/$userId'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode({"name": name}),
+    );
+    print('response: ${response.body}');
+    if (response.statusCode == 200) {
+      print('updateUserName : $response');
+    } else {
+      print('update user name error : $response');
+    }
+  }
   // #endregion
 }
