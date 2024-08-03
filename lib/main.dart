@@ -120,14 +120,20 @@ class _HomeScreenState extends State<HomeScreen>
       _connectingservice.cancelMatching();
       Navigator.of(context).pop();
       _isLoading = false;
-      Fluttertoast.showToast(
-        msg: '매칭에 실패하였습니다.',
-        toastLength: Toast.LENGTH_LONG,
-        gravity: ToastGravity.CENTER,
-        timeInSecForIosWeb: 2,
-        backgroundColor: Colors.grey,
-        textColor: Colors.white,
-        fontSize: 16.0,
+      // Fluttertoast.showToast(
+      //   msg: '매칭에 실패하였습니다.',
+      //   toastLength: Toast.LENGTH_LONG,
+      //   gravity: ToastGravity.CENTER,
+      //   timeInSecForIosWeb: 2,
+      //   backgroundColor: Colors.grey,
+      //   textColor: Colors.white,
+      //   fontSize: 16.0,
+      // );
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('매칭에 실패하였습니다.'),
+          duration: Duration(seconds: 2),
+        ),
       );
     }
   }
@@ -139,14 +145,20 @@ class _HomeScreenState extends State<HomeScreen>
     final responseJson = response as Map<String, dynamic>;
     if (responseJson['status'] != 'SUCCESS') {
       // 매칭 실패 시
-      Fluttertoast.showToast(
-        msg: '매칭에 실패하였습니다.',
-        toastLength: Toast.LENGTH_LONG,
-        gravity: ToastGravity.CENTER,
-        timeInSecForIosWeb: 2,
-        backgroundColor: Colors.grey,
-        textColor: Colors.white,
-        fontSize: 16.0,
+      // Fluttertoast.showToast(
+      //   msg: '매칭에 실패하였습니다.',
+      //   toastLength: Toast.LENGTH_LONG,
+      //   gravity: ToastGravity.CENTER,
+      //   timeInSecForIosWeb: 2,
+      //   backgroundColor: Colors.grey,
+      //   textColor: Colors.white,
+      //   fontSize: 16.0,
+      // );
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('매칭에 실패하였습니다.'),
+          duration: Duration(seconds: 2),
+        ),
       );
       return;
     } else {
