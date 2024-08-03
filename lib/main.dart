@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:ranchat_flutter/View/RoomListScreen.dart';
+import 'package:ranchat_flutter/View/SettingScreen.dart';
 import 'package:ranchat_flutter/ViewModel/ConnectingService.dart';
 import 'package:ranchat_flutter/View/ChatScreen.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -171,100 +172,134 @@ class _HomeScreenState extends State<HomeScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        resizeToAvoidBottomInset: false,
-        appBar: AppBar(
-            // title: const Text(
-            //   'Ranchat',
-            //   style: TextStyle(fontSize: 40.0),
-            // ),
+      backgroundColor: Colors.black,
+      resizeToAvoidBottomInset: false,
+      appBar: AppBar(
+        backgroundColor: Colors.black,
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 8),
+            child: IconButton(
+              icon: const Icon(
+                Icons.settings,
+                color: Colors.white,
+                size: 36.0,
+              ),
+              highlightColor: Colors.grey,
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => Settingscreen(
+                          connectingservice:
+                              _connectingservice)), // Replace 'SettingScreen' with an existing class or define the 'SettingScreen' class.
+                );
+              },
             ),
-        body: SlideTransition(
-          // 애니메이션 적용
-          position: _logoAnimation,
-          child: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                GestureDetector(
-                  onTap: () {
-                    _connectingservice.tempRequestMatching();
-                  },
-                  child: const Text(
-                    'Ran-chat',
-                    style: TextStyle(fontSize: 80.0),
-                  ),
+          )
+        ],
+        // title: const Text(
+        //   'Ranchat',
+        //   style: TextStyle(fontSize: 40.0),
+        // ),
+      ),
+      body: SlideTransition(
+        // 애니메이션 적용
+        position: _logoAnimation,
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              GestureDetector(
+                onTap: () {
+                  _connectingservice.tempRequestMatching();
+                },
+                child: const Text(
+                  'Ran-Chat',
+                  style: TextStyle(fontSize: 80.0, color: Colors.white),
                 ),
-                const SizedBox(height: 30.0),
-                !_isAnimationEnd
-                    ? const SizedBox(
-                        // 애니메이션이 종료되지 않았을 때
-                        height: 50.0,
-                      )
-                    : ElevatedButton(
-                        // 애니메이션이 종료되었을 때
-                        onPressed: () {
-                          _connectingservice.requestMatching();
-                          _showLoadingDialog(context);
+              ),
+              const SizedBox(height: 30.0),
+              !_isAnimationEnd
+                  ? const SizedBox(
+                      // 애니메이션이 종료되지 않았을 때
+                      height: 50.0,
+                    )
+                  : ElevatedButton(
+                      // 애니메이션이 종료되었을 때
+                      onPressed: () {
+                        _connectingservice.requestMatching();
+                        _showLoadingDialog(context);
 
-                          // Navigator.push(
-                          //   // 채팅 화면으로 이동
-                          //   context,
-                          //   MaterialPageRoute(
-                          //       builder: (context) => ChatScreen(
-                          //           connectingservice: _connectingservice)),
-                          // );
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.white,
-                          foregroundColor: Colors.black,
-                          shape: const RoundedRectangleBorder(
-                              side:
-                                  BorderSide(color: Colors.black, width: 5.0)),
-                        ),
-                        child: const SizedBox(
-                            width: 150.0,
-                            height: 50.0,
-                            child: Align(
-                              alignment: Alignment.center,
-                              child: Text('START!',
-                                  style: TextStyle(fontSize: 30.0)),
-                            ))),
-                const SizedBox(height: 10.0),
-                !_isAnimationEnd
-                    ? const SizedBox(
-                        // 애니메이션이 종료되지 않았을 때
+                        // Navigator.push(
+                        //   // 채팅 화면으로 이동
+                        //   context,
+                        //   MaterialPageRoute(
+                        //       builder: (context) => ChatScreen(
+                        //           connectingservice: _connectingservice)),
+                        // );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.black,
+                        foregroundColor: Colors.white,
+                        shape: const RoundedRectangleBorder(
+                            side: BorderSide(color: Colors.white, width: 5.0)),
+                      ),
+                      child: const SizedBox(
+                          width: 150.0,
+                          height: 50.0,
+                          child: Align(
+                            alignment: Alignment.center,
+                            child: Text('START!',
+                                style: TextStyle(fontSize: 30.0)),
+                          ))),
+              const SizedBox(height: 10.0),
+              !_isAnimationEnd
+                  ? const SizedBox(
+                      // 애니메이션이 종료되지 않았을 때
+                      height: 50.0,
+                    )
+                  : ElevatedButton(
+                      // 애니메이션이 종료되었을 때
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => RoomListScreen(
+                                  connectingservice:
+                                      _connectingservice)), // 채팅방 목록 화면으로 이동
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.black,
+                        foregroundColor: Colors.white,
+                        shape: const RoundedRectangleBorder(
+                            side: BorderSide(color: Colors.white, width: 5.0)),
+                      ),
+                      child: const SizedBox(
+                        width: 150.0,
                         height: 50.0,
-                      )
-                    : ElevatedButton(
-                        // 애니메이션이 종료되었을 때
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => RoomListScreen(
-                                    connectingservice:
-                                        _connectingservice)), // 채팅방 목록 화면으로 이동
-                          );
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.white,
-                          foregroundColor: Colors.black,
-                          shape: const RoundedRectangleBorder(
-                              side:
-                                  BorderSide(color: Colors.black, width: 5.0)),
+                        child: Align(
+                          alignment: Alignment.center,
+                          child: Text('CONTINUE!',
+                              style: TextStyle(fontSize: 30.0)),
                         ),
-                        child: const SizedBox(
-                            width: 150.0,
-                            height: 50.0,
-                            child: Align(
-                              alignment: Alignment.center,
-                              child: Text('CONTINUE!',
-                                  style: TextStyle(fontSize: 30.0)),
-                            ))),
-              ],
-            ),
+                      ),
+                    ),
+            ],
           ),
-        ));
+        ),
+      ),
+      bottomNavigationBar: const BottomAppBar(
+        color: Colors.black,
+        child: Center(
+          child: Text(
+            'Copyright © KJI Corp. 2024 All Rights Reserved.',
+            style: TextStyle(color: Colors.white, fontSize: 12),
+          ),
+        ),
+      ),
+    );
   }
   // #endregion
 }
