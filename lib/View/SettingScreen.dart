@@ -49,59 +49,64 @@ class _SettingscreenState extends State<Settingscreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.black,
-      appBar: AppBar(
-        title: const Text('Settings'),
+    return GestureDetector(
+      onTap: () {
+        _focusNode.unfocus();
+      },
+      child: Scaffold(
         backgroundColor: Colors.black,
-        foregroundColor: Colors.white,
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              '기존 닉네임',
-              style: TextStyle(fontSize: 24, color: Colors.white),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(15.0),
-              child: TextField(
-                focusNode: _focusNode,
-                controller: _nicknameController,
-                style: const TextStyle(color: Colors.white),
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  labelText: '닉네임',
-                  hintText: '바꿀 닉네임을 입력해주세요.',
-                  hintStyle: TextStyle(color: Colors.blueGrey),
+        appBar: AppBar(
+          title: const Text('Settings'),
+          backgroundColor: Colors.black,
+          foregroundColor: Colors.white,
+        ),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              const Text(
+                '기존 닉네임',
+                style: TextStyle(fontSize: 24, color: Colors.white),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(15.0),
+                child: TextField(
+                  focusNode: _focusNode,
+                  controller: _nicknameController,
+                  style: const TextStyle(color: Colors.white),
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(),
+                    labelText: '닉네임',
+                    hintText: '바꿀 닉네임을 입력해주세요.',
+                    hintStyle: TextStyle(color: Colors.blueGrey),
+                  ),
                 ),
               ),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                final message = _nicknameController.text.trim();
-                if (message.isNotEmpty) {
-                  setState(() {
-                    // _messages.add(Message(
-                    //     message: message,
-                    //     color: isMe ? Colors.yellow : Colors.white));
-                    _nicknameController.clear();
-                  });
-                  _showReQuestionDialog();
-                }
-                FocusScope.of(context).requestFocus(_focusNode);
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.transparent,
-                foregroundColor: Colors.red,
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(0.0),
-                    side: const BorderSide(color: Colors.red, width: 2.0)),
+              ElevatedButton(
+                onPressed: () {
+                  final message = _nicknameController.text.trim();
+                  if (message.isNotEmpty) {
+                    setState(() {
+                      // _messages.add(Message(
+                      //     message: message,
+                      //     color: isMe ? Colors.yellow : Colors.white));
+                      _nicknameController.clear();
+                    });
+                    _showReQuestionDialog();
+                  }
+                  FocusScope.of(context).requestFocus(_focusNode);
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.transparent,
+                  foregroundColor: Colors.red,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(0.0),
+                      side: const BorderSide(color: Colors.red, width: 2.0)),
+                ),
+                child: const Text('변경하기'),
               ),
-              child: const Text('변경하기'),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
