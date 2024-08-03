@@ -119,14 +119,65 @@ class _RoomListScreenState extends State<RoomListScreen> {
                 controller: _scrollController,
                 itemCount: _roomItems.length,
                 itemBuilder: (context, index) {
-                  return InkWell(
-                    onTap: () {
-                      _enterRoom(index);
+                  return Dismissible(
+                    key: Key(_roomItems[index].room.id.toString()),
+                    confirmDismiss: (direction) async {
+                      return await showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            title: const Text('방 나가기'),
+                            content: const Text('이 방에서 나가시겠습니까?'),
+                            actions: [
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.pop(context, false);
+                                },
+                                child: const Text('취소'),
+                              ),
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.pop(context, true);
+                                },
+                                child: const Text('나가기'),
+                              )
+                            ],
+                          );
+                        },
+                      );
                     },
-                    highlightColor: Colors.grey,
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: _roomItems[index],
+                    onDismissed: (direction) {
+                      setState(() {
+                        _roomItems.removeAt(index);
+                      });
+
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('방에서 나갔습니다.'),
+                          duration: Duration(seconds: 2),
+                        ),
+                      );
+                    },
+                    background: Container(
+                      color: Colors.red,
+                      alignment: Alignment.centerRight,
+                      child: const Padding(
+                        padding: EdgeInsets.only(right: 16.0),
+                        child: Text(
+                          '나가기',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ),
+                    ),
+                    child: InkWell(
+                      onTap: () {
+                        _enterRoom(index);
+                      },
+                      highlightColor: Colors.grey,
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: _roomItems[index],
+                      ),
                     ),
                   );
                 },
