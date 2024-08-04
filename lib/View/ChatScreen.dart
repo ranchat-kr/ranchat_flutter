@@ -27,7 +27,7 @@ class _ChatScreen extends State<ChatScreen> {
 
   var _isLoading = false; // 로딩 중인지 확인하는 변수
   var _currentPage = 0; // 현재 페이지 (메시지 데이터)
-  final _pageSize = 20; // 메시지 데이터 페이지 사이즈
+  final _pageSize = 50; // 메시지 데이터 페이지 사이즈
 
   @override
   void initState() {
