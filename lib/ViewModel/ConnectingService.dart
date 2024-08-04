@@ -265,9 +265,10 @@ class Connectingservice {
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
-      body: jsonEncode({"name": name}),
+      body: jsonEncode({'name': name}),
     );
-    print('response: ${response.body}');
+    final responseData = jsonDecode(utf8.decode(response.bodyBytes));
+    print('response: $responseData');
     if (response.statusCode == 200) {
       print('updateUserName : $response');
     } else {
