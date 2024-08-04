@@ -136,66 +136,73 @@ class _ChatScreen extends State<ChatScreen> {
         builder: (BuildContext context) {
           return StatefulBuilder(
             builder: (context, setState) {
-              return AlertDialog(
-                title: const Text('신고'),
-                scrollable: true,
-                content: Column(
-                  children: [
-                    DropdownButtonFormField(
-                      value: selectedReason,
-                      items: reportReasons.map((reason) {
-                        return DropdownMenuItem(
-                          value: reason,
-                          child: Text(reason),
-                        );
-                      }).toList(),
-                      onChanged: (String? newValue) {
-                        setState(() {
-                          selectedReason = newValue;
-                        });
-                      },
-                      decoration: const InputDecoration(
-                        labelText: '신고 사유 선택',
+              return GestureDetector(
+                onTap: () {
+                  FocusScope.of(context).requestFocus(FocusNode());
+                },
+                child: AlertDialog(
+                  title: const Text('신고'),
+                  scrollable: true,
+                  content: Column(
+                    children: [
+                      DropdownButtonFormField(
+                        value: selectedReason,
+                        items: reportReasons.map((reason) {
+                          return DropdownMenuItem(
+                            value: reason,
+                            child: Text(reason),
+                          );
+                        }).toList(),
+                        onChanged: (String? newValue) {
+                          setState(() {
+                            selectedReason = newValue;
+                          });
+                        },
+                        decoration: const InputDecoration(
+                          labelText: '신고 사유 선택',
+                        ),
                       ),
+                      const SizedBox(height: 20.0),
+                      TextField(
+                        minLines: 1,
+                        maxLines: 3,
+                        style: const TextStyle(color: Colors.black),
+                        controller: _dialogTextController,
+                        decoration: const InputDecoration(
+                            hintText: ' 신고 내용을 입력하세요.',
+                            hintStyle: TextStyle(color: Colors.grey),
+                            border: OutlineInputBorder(
+                              borderSide: BorderSide(
+                                  color: Colors.grey, style: BorderStyle.solid),
+                            )),
+                        cursorColor: Colors.grey,
+                        cursorWidth: 8.0,
+                        cursorRadius: Radius.zero,
+                      ),
+                    ],
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      child: const Text('취소'),
                     ),
-                    selectedReason == null
-                        ? const SizedBox()
-                        : TextField(
-                            minLines: 1,
-                            maxLines: 3,
-                            style: const TextStyle(color: Colors.black),
-                            controller: _dialogTextController,
-                            decoration: const InputDecoration(
-                                hintText: ' 신고 내용을 입력하세요.',
-                                hintStyle: TextStyle(color: Colors.grey),
-                                border: InputBorder.none),
-                            cursorColor: Colors.grey,
-                            cursorWidth: 8.0,
-                            cursorRadius: Radius.zero,
-                          ),
+                    TextButton(
+                      onPressed: () {
+                        final report = _dialogTextController.text.trim();
+                        if (selectedReason == null || report.isEmpty) {
+                          return;
+                        } else {
+                          _dialogTextController.clear();
+                          print('신고 완료. $selectedReason / $report');
+                          Navigator.pop(context);
+                        }
+                      },
+                      child: const Text('신고'),
+                    )
                   ],
                 ),
-                actions: [
-                  TextButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    child: const Text('취소'),
-                  ),
-                  TextButton(
-                    onPressed: () {
-                      if (selectedReason == null) {
-                        return;
-                      } else {
-                        final report = _dialogTextController.text.trim();
-                        _dialogTextController.clear();
-                        print('신고 완료. $selectedReason / $report');
-                        Navigator.pop(context);
-                      }
-                    },
-                    child: const Text('신고'),
-                  )
-                ],
               );
             },
           );
