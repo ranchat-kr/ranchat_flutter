@@ -50,7 +50,8 @@ class _ChatScreen extends State<ChatScreen> {
   // 웹소켓 설정
   void _setServer() {
     _connectingservice = widget.connectingservice;
-    _connectingservice.setOnMessageReceivedCallback(_onMessageReceived);
+    _connectingservice.websocketService
+        ?.setOnMessageReceivedCallback(_onMessageReceived);
   }
 
   // UI 설정
@@ -67,7 +68,8 @@ class _ChatScreen extends State<ChatScreen> {
         print(
             'messageDatas length : ${_messageDatas.length}, page : $_currentPage');
         if (_messageDatas.length >= (_currentPage + 1) * _pageSize &&
-            _messageDatas.length < _connectingservice.messageList.totalCount) {
+            _messageDatas.length <
+                _connectingservice.apiService!.messageList.totalCount) {
           // 기준 데이터에 맞으면 업데이트
           _fetchItems();
         }
@@ -80,7 +82,7 @@ class _ChatScreen extends State<ChatScreen> {
   // 메시지 전송
   void _sendMessage(String message) {
     print('chatScreen send message: $message');
-    _connectingservice.sendMessage(message);
+    _connectingservice.websocketService?.sendMessage(message);
   }
 
   // 메시지 수신 (구독한 것에서)
@@ -97,23 +99,23 @@ class _ChatScreen extends State<ChatScreen> {
 
   // 메시지 데이터 가져오기 (화면 처음 열릴 때)
   void _getMessages() async {
-    final messages = await _connectingservice.getMessages(
-        page: _currentPage++, size: _pageSize * 2);
+    final messages = await _connectingservice.apiService
+        ?.getMessages(page: _currentPage++, size: _pageSize * 2);
 
     setState(() {
       print('page : $_currentPage');
-      _messageDatas = messages;
+      _messageDatas = messages!;
     });
   }
 
   // 메시지 데이터 추가 가져오기 (스크롤이 끝에 도달할 때) (API) [페이지네이션]
   Future<void> _fetchItems() async {
-    final messages = await _connectingservice.getMessages(
-        page: ++_currentPage, size: _pageSize);
+    final messages = await _connectingservice.apiService
+        ?.getMessages(page: ++_currentPage, size: _pageSize);
     setState(() {
       print('page : $_currentPage');
       _isLoading = true;
-      _messageDatas.addAll(messages);
+      _messageDatas.addAll(messages!);
       _isLoading = false;
     });
   }
@@ -305,7 +307,8 @@ class _ChatScreen extends State<ChatScreen> {
                       itemCount: _messageDatas.isEmpty
                           ? 0
                           : _messageDatas.length >=
-                                  _connectingservice.messageList.totalCount
+                                  _connectingservice
+                                      .apiService!.messageList.totalCount
                               ? _messageDatas.length
                               : _messageDatas.length - _pageSize,
                       itemBuilder: (context, index) {
@@ -332,7 +335,7 @@ class _ChatScreen extends State<ChatScreen> {
                         GestureDetector(
                           onTap: () {
                             print('now user : ${_connectingservice.userId}');
-                            _connectingservice.changeUser();
+                            // _connectingservice. changeUser();
                           },
                           child: const Icon(
                             Icons.keyboard_arrow_right,

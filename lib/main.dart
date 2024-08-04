@@ -90,7 +90,7 @@ class _HomeScreenState extends State<HomeScreen>
     // 서버 설정
     _connectingservice = Connectingservice(
         onMatchingSuccess: _onMatchingSuccess); // API, WebSocket 연결을 위한 객체 생성
-    _connectingservice.connectToWebSocket(); // WebSocket 연결
+    _connectingservice.websocketService?.connectToWebSocket(); // WebSocket 연결
   }
   // #endregion
 
@@ -117,7 +117,7 @@ class _HomeScreenState extends State<HomeScreen>
     if (!_isLoading) {
       return;
     } else {
-      _connectingservice.cancelMatching();
+      _connectingservice.websocketService?.cancelMatching();
       Navigator.of(context).pop();
       _isLoading = false;
       // Fluttertoast.showToast(
@@ -165,8 +165,9 @@ class _HomeScreenState extends State<HomeScreen>
       // 매칭 성공 시
       final roomId = responseJson['data']['roomId'];
       print('matching success! roomId : $roomId');
-      _connectingservice.setRoomId(roomId.toString());
-      _connectingservice.enterRoom();
+      _connectingservice.websocketService?.setRoomId(roomId.toString());
+      _connectingservice.apiService?.setRoomId(roomId.toString());
+      _connectingservice.websocketService?.enterRoom();
       Navigator.of(context).pop();
       _isLoading = false;
       Navigator.push(
@@ -224,7 +225,7 @@ class _HomeScreenState extends State<HomeScreen>
             children: [
               GestureDetector(
                 onTap: () {
-                  _connectingservice.tempRequestMatching();
+                  _connectingservice.websocketService?.tempRequestMatching();
                 },
                 child: const Text(
                   'Ran-Chat',
@@ -240,7 +241,7 @@ class _HomeScreenState extends State<HomeScreen>
                   : ElevatedButton(
                       // 애니메이션이 종료되었을 때
                       onPressed: () {
-                        _connectingservice.requestMatching();
+                        _connectingservice.websocketService?.requestMatching();
                         _showLoadingDialog(context);
 
                         // Navigator.push(

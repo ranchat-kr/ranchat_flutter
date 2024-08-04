@@ -39,7 +39,7 @@ class _SettingscreenState extends State<Settingscreen> {
             ),
             TextButton(
               onPressed: () {
-                _connectingservice.updateUserName(nickName);
+                _connectingservice.apiService?.updateUserName(nickName);
               },
               child: const Text('변경'),
             )

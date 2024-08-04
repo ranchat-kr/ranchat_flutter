@@ -49,16 +49,17 @@ class _RoomListScreenState extends State<RoomListScreen> {
       _isLoading = true;
     });
     try {
-      final rooms =
-          await _connectingservice.getRooms(page: _roomPage++, size: 10);
+      final rooms = await _connectingservice.apiService
+          ?.getRooms(page: _roomPage++, size: 10);
       print('Rooms: $rooms');
       setState(() {
-        for (var room in rooms) {
+        for (var room in rooms!) {
           _roomItems.add(RoomItem(room));
         }
         _isLoading = false;
       });
     } catch (e) {
+      print('${_connectingservice.userId} ');
       print('getRooms error: $e');
       setState(() {
         _isLoading = false;
@@ -72,7 +73,11 @@ class _RoomListScreenState extends State<RoomListScreen> {
     });
     try {
       _connectingservice.setRoomId(_roomItems[index].room.id.toString());
-      _connectingservice.enterRoom();
+      _connectingservice.websocketService
+          ?.setRoomId(_roomItems[index].room.id.toString());
+      _connectingservice.apiService
+          ?.setRoomId(_roomItems[index].room.id.toString());
+      _connectingservice.websocketService?.enterRoom();
       Navigator.push(
         context,
         MaterialPageRoute(

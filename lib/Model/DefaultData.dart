@@ -1,3 +1,3 @@
 class Defaultdata {
-  static String web_socket_url = 'wss://dev-api.ranchat.net/';
+  static String domain = 'dev-api.ranchat.net';
 }
