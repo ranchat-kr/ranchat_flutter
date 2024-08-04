@@ -2,7 +2,7 @@ import 'dart:ffi';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:ranchat_flutter/ViewModel/ConnectingService.dart';
+import 'package:ranchat_flutter/Service/ConnectingService.dart';
 
 class Settingscreen extends StatefulWidget {
   final Connectingservice connectingservice;

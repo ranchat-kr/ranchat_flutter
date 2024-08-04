@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:ranchat_flutter/View/RoomListScreen.dart';
 import 'package:ranchat_flutter/View/SettingScreen.dart';
-import 'package:ranchat_flutter/ViewModel/ConnectingService.dart';
+import 'package:ranchat_flutter/Service/ConnectingService.dart';
 import 'package:ranchat_flutter/View/ChatScreen.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 

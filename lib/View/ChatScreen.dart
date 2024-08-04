@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:ranchat_flutter/Model/MessageData.dart';
-import 'package:ranchat_flutter/ViewModel/ConnectingService.dart';
+import 'package:ranchat_flutter/Service/ConnectingService.dart';
 
 class ChatScreen extends StatefulWidget {
   final Connectingservice connectingservice;
