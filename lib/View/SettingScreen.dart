@@ -142,11 +142,21 @@ class _SettingscreenState extends State<Settingscreen> {
                   focusNode: _focusNode,
                   controller: _nicknameController,
                   style: const TextStyle(color: Colors.white),
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
+                  cursorColor: Colors.white,
+                  cursorWidth: 8.0,
+                  cursorRadius: Radius.zero,
+                  decoration: InputDecoration(
+                    border: const OutlineInputBorder(),
                     labelText: '닉네임',
-                    hintText: '바꿀 닉네임을 입력해주세요.',
-                    hintStyle: TextStyle(color: Colors.blueGrey),
+                    hintText: ' 바꿀 닉네임을 입력해주세요.',
+                    hintStyle: const TextStyle(color: Colors.blueGrey),
+                    suffixIcon: IconButton(
+                      icon: const Icon(Icons.clear),
+                      color: Colors.white,
+                      onPressed: () {
+                        _nicknameController.clear();
+                      },
+                    ),
                   ),
                 ),
               ),
