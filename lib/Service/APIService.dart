@@ -33,6 +33,10 @@ class ApiService {
     _roomId = roomId;
   }
 
+  void setUserId(String userId) {
+    _userId = userId;
+  }
+
 // 메시지 목록 조회
   Future<List<MessageData>> getMessages({int page = 0, int size = 20}) async {
     final response = await http.get(Uri.parse(
@@ -61,16 +65,19 @@ class ApiService {
   }
 
   // 회원 생성
-  Future<void> createUser() async {
+  Future<void> createUser(String name) async {
+    print('createUser : $_userId, $name');
     final response =
         await http.post(Uri.parse('https://${Defaultdata.domain}/v1/users'),
             headers: <String, String>{
               'Content-Type': 'application/json; charset=UTF-8',
             },
             body: jsonEncode({
-              "userId": _userId,
-              "name": "SIUSIUSIU",
+              "id": _userId,
+              "name": name,
             }));
+    final responseData = jsonDecode(utf8.decode(response.bodyBytes));
+    print('response: $responseData');
     if (response.statusCode == 200) {
       print('createUser : $response');
     } else {

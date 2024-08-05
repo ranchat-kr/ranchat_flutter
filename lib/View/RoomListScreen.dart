@@ -59,7 +59,6 @@ class _RoomListScreenState extends State<RoomListScreen> {
         _isLoading = false;
       });
     } catch (e) {
-      print('${_connectingservice.userId} ');
       print('getRooms error: $e');
       setState(() {
         _isLoading = false;

@@ -36,6 +36,10 @@ class WebsocketService {
     _roomId = roomId;
   }
 
+  void setUserId(String userId) {
+    _userId = userId;
+  }
+
   void connectToWebSocket() async {
     try {
       _stompClient = StompClient(

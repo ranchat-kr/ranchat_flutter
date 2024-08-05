@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:ranchat_flutter/View/RoomListScreen.dart';
@@ -6,6 +7,8 @@ import 'package:ranchat_flutter/View/SettingScreen.dart';
 import 'package:ranchat_flutter/Service/ConnectingService.dart';
 import 'package:ranchat_flutter/View/ChatScreen.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:uuid/uuid.dart';
 
 void main() {
   runApp(const MyApp());
@@ -86,11 +89,79 @@ class _HomeScreenState extends State<HomeScreen>
     _animationController.forward(); // 애니메이션 시작
   }
 
-  void _setServer() {
+  void _setServer() async {
     // 서버 설정
     _connectingservice = Connectingservice(
         onMatchingSuccess: _onMatchingSuccess); // API, WebSocket 연결을 위한 객체 생성
+
+    WidgetsFlutterBinding.ensureInitialized();
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    prefs.clear();
+    String? userId = prefs.getString('userUUID');
+    if (userId == null) {
+      var uuid = const Uuid();
+      var uuidV7 = uuid.v7();
+      await prefs.setString('userUUID', uuidV7);
+      print('uuidV7: $uuidV7');
+      _connectingservice.setUserId(uuidV7);
+      _connectingservice.apiService?.createUser(_getRandomNickname());
+    }
+
     _connectingservice.websocketService?.connectToWebSocket(); // WebSocket 연결
+  }
+
+  String _getRandomNickname() {
+    final random = Random();
+    final List<String> frontNickname = [
+      '행복한',
+      '빛나는',
+      '빠른',
+      '작은',
+      '푸른',
+      '깊은',
+      '웃는',
+      '고요한',
+      '따뜻한',
+      '하얀',
+      '즐거운',
+      '맑은',
+      '예쁜',
+      '강한',
+      '조용한',
+      '푸른',
+      '따뜻한',
+      '밝은',
+      '신비한',
+      '높은',
+    ];
+    final List<String> backNickname = [
+      '고양이',
+      '별',
+      '바람',
+      '새',
+      '하늘',
+      '바다',
+      '사람',
+      '숲',
+      '햇살',
+      '눈',
+      '여행',
+      '강',
+      '꽃',
+      '용',
+      '밤',
+      '나무',
+      '마음',
+      '햇빛',
+      '섬',
+      '산',
+    ];
+
+    print(
+        '랜덤 닉네임 : ${frontNickname[random.nextInt(frontNickname.length)] + backNickname[random.nextInt(backNickname.length)]}');
+    return frontNickname[random.nextInt(frontNickname.length)] +
+        backNickname[random.nextInt(backNickname.length)];
   }
   // #endregion
 

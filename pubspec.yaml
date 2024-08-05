@@ -40,6 +40,8 @@ dependencies:
   stomp_dart_client: ^0.4.4
   fluttertoast: ^8.2.1
   flutter_slidable: ^0.6.0
+  uuid: ^4.4.2
+  shared_preferences: ^2.0.6
 
 dev_dependencies:
   flutter_test:

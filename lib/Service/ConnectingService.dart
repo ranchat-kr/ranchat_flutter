@@ -18,7 +18,7 @@ class Connectingservice {
   String _roomId = "1";
   final String userId1 = "0190964c-af3f-7486-8ac3-d3ff10cc1470";
   final String userId2 = "0190964c-ee3a-7e81-a1f8-231b5d97c2a1";
-  late String userId = userId1;
+  late String _userId = '';
 
   WebsocketService? websocketService;
   ApiService? apiService;
@@ -27,11 +27,18 @@ class Connectingservice {
       {Function(MessageData)? onMessageReceivedCallback,
       Function(dynamic response)? onMatchingSuccess}) {
     websocketService = WebsocketService(
-        userId: userId,
+        userId: _userId,
         roomId: _roomId,
         onMessageReceivedCallback: onMessageReceivedCallback,
         onMatchingSuccess: onMatchingSuccess);
-    apiService = ApiService(userId, _roomId);
+    apiService = ApiService(_userId, _roomId);
+  }
+
+  String get userId => _userId;
+  set userId(String userId) {
+    _userId = userId;
+    websocketService?.setUserId(userId);
+    apiService?.setUserId(userId);
   }
 
   // void setOnMessageReceivedCallback(Function(MessageData) callback) async {
@@ -41,6 +48,12 @@ class Connectingservice {
   void setRoomId(String roomId) async {
     print('set room id: $roomId');
     _roomId = roomId;
+  }
+
+  void setUserId(String userId) {
+    _userId = userId;
+    websocketService?.setUserId(userId);
+    apiService?.setUserId(userId);
   }
 
   // #region WebSocket
