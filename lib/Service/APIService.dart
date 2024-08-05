@@ -5,6 +5,7 @@ import 'package:ranchat_flutter/Model/MessageData.dart';
 import 'package:ranchat_flutter/Model/MessageList.dart';
 import 'package:ranchat_flutter/Model/RoomData.dart';
 import 'package:http/http.dart' as http;
+import 'package:ranchat_flutter/Model/RoomDetailData.dart';
 import 'package:ranchat_flutter/Model/RoomList.dart';
 import 'package:ranchat_flutter/Service/ConnectingService.dart';
 
@@ -47,6 +48,25 @@ class ApiService {
       return messageList.items;
     } else {
       return [];
+    }
+  }
+
+  // 채팅방 상세 조회
+  Future<RoomDetailData> getRoomDetail() async {
+    final response = await http
+        .get(Uri.parse('https://${Defaultdata.domain}/v1/rooms/$_roomId'));
+    if (response.statusCode == 200) {
+      final responseData = jsonDecode(utf8.decode(response.bodyBytes));
+      final roomDetail = RoomDetailData.fromJson(responseData);
+      print('responseData: $responseData');
+      return roomDetail;
+    } else {
+      return RoomDetailData(
+        id: 0,
+        title: '',
+        type: '',
+        participants: [],
+      );
     }
   }
 

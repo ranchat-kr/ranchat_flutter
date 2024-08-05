@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import 'package:ranchat_flutter/Model/MessageData.dart';
+import 'package:ranchat_flutter/Model/ParticipantsData.dart';
+import 'package:ranchat_flutter/Model/RoomDetailData.dart';
 import 'package:ranchat_flutter/Service/ConnectingService.dart';
 
 class ChatScreen extends StatefulWidget {
@@ -23,6 +25,8 @@ class _ChatScreen extends State<ChatScreen> {
   final _focusNode = FocusNode(); // 포커스 노드 (텍스트 필드 포커스 관리를 위한 변수)
   late Connectingservice
       _connectingservice; // API, WebSocket 연결을 위한 객체 (main에서 받아옴)
+  RoomDetailData _roomDetailData =
+      RoomDetailData(id: 0, title: '', type: '', participants: []); // 채팅방 상세 정보
 
   var _isLoading = false; // 로딩 중인지 확인하는 변수
   var _currentPage = 0; // 현재 페이지 (메시지 데이터)
@@ -51,6 +55,7 @@ class _ChatScreen extends State<ChatScreen> {
     _connectingservice = widget.connectingservice;
     _connectingservice.websocketService
         ?.setOnMessageReceivedCallback(_onMessageReceived);
+    getRoomDetailData();
   }
 
   // UI 설정
@@ -116,6 +121,14 @@ class _ChatScreen extends State<ChatScreen> {
       _isLoading = true;
       _messageDatas.addAll(messages!);
       _isLoading = false;
+    });
+  }
+
+  // 채팅방 상세 정보 가져오기
+  void getRoomDetailData() async {
+    final roomDetail = await _connectingservice.apiService?.getRoomDetail();
+    setState(() {
+      _roomDetailData = roomDetail!;
     });
   }
   // #endregion
@@ -261,9 +274,9 @@ class _ChatScreen extends State<ChatScreen> {
               },
               highlightColor: Colors.grey,
             ),
-            title: const Text(
-              'Chat',
-              style: TextStyle(color: Colors.white),
+            title: Text(
+              _roomDetailData.title,
+              style: const TextStyle(color: Colors.white),
             ),
             centerTitle: true,
             actions: <Widget>[
@@ -317,7 +330,7 @@ class _ChatScreen extends State<ChatScreen> {
                           child: Text(
                             "${_connectingservice.userId == _messageDatas[index].userId ? '나' : '상대방'}: ${_messageDatas[index].content}",
                             style: TextStyle(
-                              color: _connectingservice.userId1 ==
+                              color: _connectingservice.userId ==
                                       _messageDatas[index].userId
                                   ? Colors.yellow
                                   : Colors.white,
