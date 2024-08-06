@@ -53,8 +53,8 @@ class ApiService {
 
   // 채팅방 상세 조회
   Future<RoomDetailData> getRoomDetail() async {
-    final response = await http
-        .get(Uri.parse('https://${Defaultdata.domain}/v1/rooms/$_roomId'));
+    final response = await http.get(Uri.parse(
+        'https://${Defaultdata.domain}/v1/rooms/$_roomId?userId=$_userId'));
     if (response.statusCode == 200) {
       final responseData = jsonDecode(utf8.decode(response.bodyBytes));
       final roomDetail = RoomDetailData.fromJson(responseData);
