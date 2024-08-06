@@ -139,6 +139,7 @@ class _ChatScreen extends State<ChatScreen> {
     final List<String> reportReasons = [
       '스팸',
       '욕설 및 비방',
+      '광고',
       '허위 정보',
       '저작권 침해',
       '기타',
@@ -209,6 +210,14 @@ class _ChatScreen extends State<ChatScreen> {
                           return;
                         } else {
                           _dialogTextController.clear();
+                          _connectingservice.apiService?.reportUser(
+                              _roomDetailData.participants
+                                  .firstWhere((element) =>
+                                      element.userId !=
+                                      _connectingservice.userId)
+                                  .userId,
+                              selectedReason!,
+                              report);
                           print('신고 완료. $selectedReason / $report');
                           Navigator.pop(context);
                         }

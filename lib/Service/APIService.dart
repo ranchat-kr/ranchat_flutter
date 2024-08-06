@@ -38,6 +38,54 @@ class ApiService {
     _userId = userId;
   }
 
+  // 신고 하기
+  Future<void> reportUser(
+      String reportedUserId, String selectedReason, String reportReason) async {
+    String reportType = '';
+
+    switch (selectedReason) {
+      case '스팸':
+        reportType = 'SPAM';
+        break;
+      case '욕설 및 비방':
+        reportType = 'HARASSMENT';
+        break;
+      case '광고':
+        reportType = 'ADVERTISEMENT';
+        break;
+      case '허위 정보':
+        reportType = 'MISINFORMATION';
+        break;
+      case '저작권 침해':
+        reportType = 'COPYRIGHT_INFRINGEMENT';
+        break;
+      case '기타':
+        reportType = 'ETC';
+        break;
+    }
+
+    final response = await http.post(
+      Uri.parse('https://${Defaultdata.domain}/v1/reports'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode({
+        "roomId": _roomId,
+        "reporterId": _userId,
+        "reportedUserId": reportedUserId,
+        "reportType": reportType,
+        "reportReason": reportReason,
+      }),
+    );
+    final responseData = jsonDecode(utf8.decode(response.bodyBytes));
+    print('response: $responseData');
+    if (response.statusCode == 200) {
+      print('reportUser : $response');
+    } else {
+      print('report user error : $response');
+    }
+  }
+
 // 메시지 목록 조회
   Future<List<MessageData>> getMessages({int page = 0, int size = 20}) async {
     final response = await http.get(Uri.parse(
