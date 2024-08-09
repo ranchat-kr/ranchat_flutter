@@ -131,6 +131,10 @@ class _ChatScreen extends State<ChatScreen> {
       _roomDetailData = roomDetail!;
     });
   }
+
+  void unSubscribeToRecieveMessage() async {
+    _connectingservice.websocketService?.unSubscribeToRecieveMessage();
+  }
   // #endregion
 
   // #region dialog
@@ -279,6 +283,11 @@ class _ChatScreen extends State<ChatScreen> {
                 color: Colors.white,
               ),
               onPressed: () {
+                setState(() {
+                  _isLoading = true;
+                  unSubscribeToRecieveMessage();
+                  _isLoading = false;
+                });
                 Navigator.pop(context);
               },
               highlightColor: Colors.grey,

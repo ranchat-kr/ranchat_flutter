@@ -37,7 +37,7 @@ dependencies:
   cupertino_icons: ^1.0.6
   http: ^0.13.3
   web_socket_channel: ^2.2.0
-  stomp_dart_client: ^0.4.4
+  stomp_dart_client: ^2.0.0
   fluttertoast: ^8.2.1
   flutter_slidable: ^0.6.0
   uuid: ^4.4.2

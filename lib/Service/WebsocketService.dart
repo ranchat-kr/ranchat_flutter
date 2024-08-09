@@ -4,15 +4,16 @@ import 'package:ranchat_flutter/Model/Message.dart';
 import 'package:ranchat_flutter/Model/MessageData.dart';
 import 'package:ranchat_flutter/Model/DefaultData.dart';
 import 'package:ranchat_flutter/Service/ConnectingService.dart';
-import 'package:stomp_dart_client/stomp.dart';
-import 'package:stomp_dart_client/stomp_config.dart';
-import 'package:stomp_dart_client/stomp_frame.dart';
+import 'package:stomp_dart_client/stomp_dart_client.dart';
 
 class WebsocketService {
   StompClient? _stompClient; // WebSocket client
   late String _userId;
   String userId2 = "0190964c-ee3a-7e81-a1f8-231b5d97c2a1";
   late String _roomId;
+
+  var subscriptionToMatchingSuccess;
+  var subscriptionToRecieveMessage;
   Function(MessageData)? _onMessageReceivedCallback;
   Function(Map<String, dynamic>)? _onMatchingSuccessCallback;
 
@@ -46,7 +47,7 @@ class WebsocketService {
         config: StompConfig(
           url: 'ws://${Defaultdata.domain}/endpoint',
           stompConnectHeaders: {'userId': _userId},
-          onConnect: (StompFrame frame) => subscribeToMatchingSuceess(frame),
+          onConnect: (StompFrame frame) => subscribeToMatchingSuccess(frame),
           onWebSocketError: (dynamic error) => print(error.toString()),
           onWebSocketDone: () => print('WebSocket connect done.'),
           onStompError: (StompFrame frame) =>
@@ -62,19 +63,31 @@ class WebsocketService {
     }
   }
 
-  void subscribeToMatchingSuceess(StompFrame frame) async {
+  void subscribeToMatchingSuccess(StompFrame frame) async {
     print('subscribe to matching success');
-    _stompClient?.subscribe(
+    subscriptionToMatchingSuccess = _stompClient?.subscribe(
       destination: '/user/$_userId/queue/v1/matching/success',
       callback: onMatchingSuccess,
+      headers: {'matchingSuccess': 'true'},
     );
   }
 
   void subscribeToRecieveMessage() async {
-    _stompClient?.subscribe(
+    subscriptionToRecieveMessage = _stompClient?.subscribe(
       destination: '/topic/v1/rooms/$_roomId/messages/new',
       callback: onMessageReceived,
+      headers: {'recieveMessage': 'true'},
     );
+  }
+
+  void unSubscribeToMatchingSuccess() async {
+    subscriptionToMatchingSuccess(
+        unsubscribeHeaders: {'matchingSuccess': 'true'});
+  }
+
+  void unSubscribeToRecieveMessage() async {
+    subscriptionToRecieveMessage(
+        unsubscribeHeaders: {'recieveMessage': 'true'});
   }
 
   // #region recieve
