@@ -98,17 +98,18 @@ class _HomeScreenState extends State<HomeScreen>
     WidgetsFlutterBinding.ensureInitialized();
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
-    prefs.clear();
+    //prefs.clear();
     String? userId = prefs.getString('userUUID');
+    print('main.dart userId: $userId');
     if (userId == null) {
       var uuid = const Uuid();
       var uuidV7 = uuid.v7();
+      userId = uuidV7;
       await prefs.setString('userUUID', uuidV7);
       print('uuidV7: $uuidV7');
-      _connectingservice.setUserId(uuidV7);
       _connectingservice.apiService?.createUser(_getRandomNickname());
     }
-
+    _connectingservice.setUserId(userId);
     _connectingservice.apiService?.checkRoomExist().then((value) {
       setState(() {
         _isRoomExist = value;

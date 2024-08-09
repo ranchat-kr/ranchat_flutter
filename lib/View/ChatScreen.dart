@@ -132,6 +132,12 @@ class _ChatScreen extends State<ChatScreen> {
     });
   }
 
+  // 채팅방 나가기
+  void exitRoom() async {
+    _connectingservice.apiService?.exitRoom();
+  }
+
+  // 메시지 수신 구독 취소
   void unSubscribeToRecieveMessage() async {
     _connectingservice.websocketService?.unSubscribeToRecieveMessage();
   }
@@ -253,6 +259,11 @@ class _ChatScreen extends State<ChatScreen> {
               ),
               TextButton(
                 onPressed: () {
+                  setState(() {
+                    _isLoading = true;
+                    exitRoom();
+                    _isLoading = false;
+                  });
                   Navigator.popUntil(
                       context, (route) => route.isFirst); // 처음 화면으로 이동
                 },

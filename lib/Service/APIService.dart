@@ -145,6 +145,51 @@ class ApiService {
     }
   }
 
+  // 현재 채팅방 퇴장
+  Future<void> exitRoom() async {
+    final response = await http.post(
+      Uri.parse('https://${Defaultdata.domain}/v1/rooms/$_roomId/exit'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(
+        {
+          "userId": _userId,
+        },
+      ),
+    );
+    final responseData = jsonDecode(utf8.decode(response.bodyBytes));
+    print('response: $responseData');
+    if (response.statusCode == 200) {
+      _roomId = '';
+      print('leaveRoom : $response');
+    } else {
+      print('leave room error : $response');
+    }
+  }
+
+  // 특정 채팅방 퇴장
+  Future<void> exitSelectedRoom(String roomId) async {
+    final response = await http.post(
+      Uri.parse('https://${Defaultdata.domain}/v1/rooms/$roomId/exit'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(
+        {
+          "userId": _userId,
+        },
+      ),
+    );
+    final responseData = jsonDecode(utf8.decode(response.bodyBytes));
+    print('response: $responseData');
+    if (response.statusCode == 200) {
+      print('leaveRoom : $response');
+    } else {
+      print('leave room error : $response');
+    }
+  }
+
   // 회원 생성
   Future<void> createUser(String name) async {
     print('createUser : $_userId, $name');

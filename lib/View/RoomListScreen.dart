@@ -99,6 +99,14 @@ class _RoomListScreenState extends State<RoomListScreen> {
     });
   }
 
+  void exitRoom(String roomId) {
+    setState(() {
+      _isLoading = true;
+      _connectingservice.apiService?.exitSelectedRoom(roomId);
+      _isLoading = false;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -147,6 +155,11 @@ class _RoomListScreenState extends State<RoomListScreen> {
                               ),
                               TextButton(
                                 onPressed: () {
+                                  setState(() {
+                                    exitRoom(
+                                        _roomItems[index].room.id.toString());
+                                    _roomItems.removeAt(index);
+                                  });
                                   Navigator.pop(context, true);
                                 },
                                 child: const Text('나가기'),
