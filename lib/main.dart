@@ -110,12 +110,16 @@ class _HomeScreenState extends State<HomeScreen>
       _connectingservice.apiService?.createUser(_getRandomNickname());
     }
     _connectingservice.setUserId(userId);
+    checkRoomExist();
+    _connectingservice.websocketService?.connectToWebSocket(); // WebSocket 연결
+  }
+
+  void checkRoomExist() {
     _connectingservice.apiService?.checkRoomExist().then((value) {
       setState(() {
         _isRoomExist = value;
       });
     });
-    _connectingservice.websocketService?.connectToWebSocket(); // WebSocket 연결
   }
 
   String _getRandomNickname() {
@@ -253,7 +257,9 @@ class _HomeScreenState extends State<HomeScreen>
         MaterialPageRoute(
             builder: (context) =>
                 ChatScreen(connectingservice: _connectingservice)),
-      );
+      ).then((_) {
+        checkRoomExist();
+      });
     }
     print('chatScreen onMessageReceived: $response');
   }
@@ -360,7 +366,9 @@ class _HomeScreenState extends State<HomeScreen>
                                   builder: (context) => RoomListScreen(
                                       connectingservice:
                                           _connectingservice)), // 채팅방 목록 화면으로 이동
-                            );
+                            ).then((_) {
+                              checkRoomExist();
+                            });
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.black,
