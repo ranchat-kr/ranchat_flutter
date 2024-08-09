@@ -42,6 +42,7 @@ class _HomeScreenState extends State<HomeScreen>
   late Connectingservice _connectingservice; // API, WebSocket 연결을 위한 객체
   var _isLoading = false; // 매칭 중 로딩을 위한 변수
   var _isAnimationEnd = false; // 애니메이션 종료를 위한 변수
+  var _isRoomExist = false; // 방이 존재하는지 확인하는 변수
 
   late AnimationController _animationController; // 애니메이션 컨트롤러
   late Animation<Offset> _logoAnimation;
@@ -108,6 +109,11 @@ class _HomeScreenState extends State<HomeScreen>
       _connectingservice.apiService?.createUser(_getRandomNickname());
     }
 
+    _connectingservice.apiService?.checkRoomExist().then((value) {
+      setState(() {
+        _isRoomExist = value;
+      });
+    });
     _connectingservice.websocketService?.connectToWebSocket(); // WebSocket 연결
   }
 
@@ -343,33 +349,38 @@ class _HomeScreenState extends State<HomeScreen>
                       // 애니메이션이 종료되지 않았을 때
                       height: 50.0,
                     )
-                  : ElevatedButton(
-                      // 애니메이션이 종료되었을 때
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => RoomListScreen(
-                                  connectingservice:
-                                      _connectingservice)), // 채팅방 목록 화면으로 이동
-                        );
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.black,
-                        foregroundColor: Colors.white,
-                        shape: const RoundedRectangleBorder(
-                            side: BorderSide(color: Colors.white, width: 5.0)),
-                      ),
-                      child: const SizedBox(
-                        width: 150.0,
-                        height: 50.0,
-                        child: Align(
-                          alignment: Alignment.center,
-                          child: Text('CONTINUE!',
-                              style: TextStyle(fontSize: 30.0)),
+                  : _isRoomExist
+                      ? ElevatedButton(
+                          // 애니메이션이 종료되었을 때
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => RoomListScreen(
+                                      connectingservice:
+                                          _connectingservice)), // 채팅방 목록 화면으로 이동
+                            );
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.black,
+                            foregroundColor: Colors.white,
+                            shape: const RoundedRectangleBorder(
+                                side: BorderSide(
+                                    color: Colors.white, width: 5.0)),
+                          ),
+                          child: const SizedBox(
+                            width: 150.0,
+                            height: 50.0,
+                            child: Align(
+                              alignment: Alignment.center,
+                              child: Text('CONTINUE!',
+                                  style: TextStyle(fontSize: 30.0)),
+                            ),
+                          ),
+                        )
+                      : const SizedBox(
+                          height: 50,
                         ),
-                      ),
-                    ),
             ],
           ),
         ),

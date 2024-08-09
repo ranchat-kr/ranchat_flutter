@@ -132,6 +132,19 @@ class ApiService {
     }
   }
 
+  // 채팅방 존재 여부 확인
+  Future<bool> checkRoomExist() async {
+    final response = await http.get(Uri.parse(
+        'https://${Defaultdata.domain}/v1/rooms/exists-by-userId?userId=$_userId'));
+    final responseData = jsonDecode(utf8.decode(response.bodyBytes));
+    print('response: $responseData');
+    if (response.statusCode == 200) {
+      return responseData['data'];
+    } else {
+      return false;
+    }
+  }
+
   // 회원 생성
   Future<void> createUser(String name) async {
     print('createUser : $_userId, $name');
