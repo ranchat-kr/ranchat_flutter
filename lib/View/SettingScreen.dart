@@ -40,6 +40,7 @@ class _SettingscreenState extends State<Settingscreen> {
             TextButton(
               onPressed: () {
                 _connectingservice.apiService?.updateUserName(nickName);
+                Navigator.pop(context);
               },
               child: const Text('변경'),
             )
