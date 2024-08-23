@@ -137,7 +137,7 @@ class ApiService {
     final response = await http.get(Uri.parse(
         'https://${Defaultdata.domain}/v1/rooms/exists-by-userId?userId=$_userId'));
     final responseData = jsonDecode(utf8.decode(response.bodyBytes));
-    print('response: $responseData');
+    print('checkRoomExist response: $responseData');
     if (response.statusCode == 200) {
       return responseData['data'];
     } else {

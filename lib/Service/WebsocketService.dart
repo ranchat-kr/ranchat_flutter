@@ -73,6 +73,7 @@ class WebsocketService {
   }
 
   void subscribeToRecieveMessage() async {
+    print('subscribe to recieve message');
     subscriptionToRecieveMessage = _stompClient?.subscribe(
       destination: '/topic/v1/rooms/$_roomId/messages/new',
       callback: onMessageReceived,

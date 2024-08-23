@@ -2,11 +2,10 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:ranchat_flutter/View/RoomListScreen.dart';
-import 'package:ranchat_flutter/View/SettingScreen.dart';
 import 'package:ranchat_flutter/Service/ConnectingService.dart';
 import 'package:ranchat_flutter/View/ChatScreen.dart';
-import 'package:fluttertoast/fluttertoast.dart';
+import 'package:ranchat_flutter/View/RoomListScreen.dart';
+import 'package:ranchat_flutter/View/SettingScreen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 
@@ -52,6 +51,7 @@ class _HomeScreenState extends State<HomeScreen>
   void initState() {
     // TODO: implement initState
     super.initState();
+
     _setAnimation(); // 애니메이션 설정
     _setServer(); // 서버 설정
   }
@@ -98,7 +98,7 @@ class _HomeScreenState extends State<HomeScreen>
     WidgetsFlutterBinding.ensureInitialized();
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
-    //prefs.clear();
+    prefs.clear();
     String? userId = prefs.getString('userUUID');
     print('main.dart userId: $userId');
     if (userId == null) {
@@ -107,6 +107,7 @@ class _HomeScreenState extends State<HomeScreen>
       userId = uuidV7;
       await prefs.setString('userUUID', uuidV7);
       print('uuidV7: $uuidV7');
+      _connectingservice.setUserId(userId);
       _connectingservice.apiService?.createUser(_getRandomNickname());
     }
     _connectingservice.setUserId(userId);
