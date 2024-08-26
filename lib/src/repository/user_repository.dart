@@ -15,6 +15,7 @@ class UserRepository {
 
   // 회원 생성
   Future<User> createUser(String userId, String name) async {
+    print('createUser : $userId, $name');
     try {
       final res = await dio.post(
         'https://${Defaultdata.domain}/v1/users',

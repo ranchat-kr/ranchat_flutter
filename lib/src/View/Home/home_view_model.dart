@@ -13,7 +13,9 @@ class HomeViewModel extends BaseViewModel {
     required this.userService,
     required this.roomService,
     required this.websocketService,
-  });
+  }) {
+    setInit();
+  }
 
   final UserService userService;
   final RoomService roomService;

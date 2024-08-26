@@ -22,7 +22,7 @@ class UserService with ChangeNotifier {
 
   /// 유저 생성
   Future<void> createUser(String getRandomNickname) async {
-    _user = await _userRepository.createUser(userId, userName);
+    _user = await _userRepository.createUser(userId, getRandomNickname);
   }
 
   /// 유저 조회
