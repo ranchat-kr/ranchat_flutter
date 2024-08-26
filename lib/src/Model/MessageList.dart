@@ -1,10 +1,10 @@
-import 'package:ranchat_flutter/Model/MessageData.dart';
+import 'package:ranchat_flutter/src/Model/MessageData.dart';
 
 class MessageList {
   final String status;
   final String message;
   final String serverDateTime;
-  final List<MessageData> items;
+  late final List<MessageData> items;
   final int page;
   final int size;
   final int totalCount;
@@ -40,6 +40,30 @@ class MessageList {
       totalCount: json['data']['totalCount'],
       totalPage: json['data']['totalPage'],
       empty: json['data']['empty'],
+    );
+  }
+
+  MessageList copyWith({
+    String? status,
+    String? message,
+    String? serverDateTime,
+    List<MessageData>? items,
+    int? page,
+    int? size,
+    int? totalCount,
+    int? totalPage,
+    bool? empty,
+  }) {
+    return MessageList(
+      status: status ?? this.status,
+      message: message ?? this.message,
+      serverDateTime: serverDateTime ?? this.serverDateTime,
+      items: items ?? this.items,
+      page: page ?? this.page,
+      size: size ?? this.size,
+      totalCount: totalCount ?? this.totalCount,
+      totalPage: totalPage ?? this.totalPage,
+      empty: empty ?? this.empty,
     );
   }
 }

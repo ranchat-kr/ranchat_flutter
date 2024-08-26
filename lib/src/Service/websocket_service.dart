@@ -1,81 +1,67 @@
 import 'dart:convert';
+import 'dart:developer';
 
-import 'package:ranchat_flutter/Model/Message.dart';
-import 'package:ranchat_flutter/Model/MessageData.dart';
-import 'package:ranchat_flutter/Model/DefaultData.dart';
-import 'package:ranchat_flutter/Service/ConnectingService.dart';
+import 'package:flutter/material.dart';
+import 'package:ranchat_flutter/src/Model/DefaultData.dart';
+import 'package:ranchat_flutter/src/Model/Message.dart';
+import 'package:ranchat_flutter/src/Service/message_service.dart';
+import 'package:ranchat_flutter/src/Service/room_service.dart';
+import 'package:ranchat_flutter/src/Service/user_service.dart';
 import 'package:stomp_dart_client/stomp_dart_client.dart';
 
-class WebsocketService {
+class WebsocketService with ChangeNotifier {
   StompClient? _stompClient; // WebSocket client
-  late String _userId;
-  String userId2 = "0190964c-ee3a-7e81-a1f8-231b5d97c2a1";
-  late String _roomId;
+
+  final UserService userService;
+  final RoomService roomService;
+  final MessageService messageService;
 
   var subscriptionToMatchingSuccess;
   var subscriptionToRecieveMessage;
-  Function(MessageData)? _onMessageReceivedCallback;
-  Function(Map<String, dynamic>)? _onMatchingSuccessCallback;
 
-  WebsocketService(
-      {required String userId,
-      required String roomId,
-      Function(MessageData)? onMessageReceivedCallback,
-      Function(Map<String, dynamic>)? onMatchingSuccess}) {
-    _userId = userId;
-    _roomId = roomId;
-    _onMessageReceivedCallback = onMessageReceivedCallback;
-    _onMatchingSuccessCallback = onMatchingSuccess;
-  }
+  bool isMatched = false;
 
-  void setOnMessageReceivedCallback(Function(MessageData) callback) async {
-    _onMessageReceivedCallback = callback;
-  }
-
-  void setRoomId(String roomId) async {
-    print('set room id: $roomId');
-    _roomId = roomId;
-  }
-
-  void setUserId(String userId) {
-    _userId = userId;
-  }
+  WebsocketService({
+    required this.userService,
+    required this.roomService,
+    required this.messageService,
+  });
 
   void connectToWebSocket() async {
     try {
       _stompClient = StompClient(
         config: StompConfig(
           url: 'ws://${Defaultdata.domain}/endpoint',
-          stompConnectHeaders: {'userId': _userId},
+          stompConnectHeaders: {'userId': userService.userId},
           onConnect: (StompFrame frame) => subscribeToMatchingSuccess(frame),
-          onWebSocketError: (dynamic error) => print(error.toString()),
-          onWebSocketDone: () => print('WebSocket connect done.'),
-          onStompError: (StompFrame frame) =>
-              print('Stomp error: ${frame.body}'),
+          onWebSocketError: (dynamic error) => log(error.toString()),
+          onWebSocketDone: () => log('WebSocket connect done.'),
+          onStompError: (StompFrame frame) => log('Stomp error: ${frame.body}'),
           onDisconnect: (StompFrame frame) =>
-              print('Disconnected: ${frame.body}'),
-          onDebugMessage: (String message) => print('Debug: $message'),
+              log('Disconnected: ${frame.body}'),
+          onDebugMessage: (String message) => log('Debug: $message'),
         ),
       );
       _stompClient?.activate();
     } catch (e) {
-      print('error: $e');
+      log('error: $e');
     }
   }
 
   void subscribeToMatchingSuccess(StompFrame frame) async {
     print('subscribe to matching success');
     subscriptionToMatchingSuccess = _stompClient?.subscribe(
-      destination: '/user/$_userId/queue/v1/matching/success',
+      destination: '/user/${userService.userId}/queue/v1/matching/success',
       callback: onMatchingSuccess,
       headers: {'matchingSuccess': 'true'},
     );
   }
 
-  void subscribeToRecieveMessage() async {
+  void subscribeToRecieveMessage(
+      void Function(StompFrame) onMessageReceived) async {
     print('subscribe to recieve message');
     subscriptionToRecieveMessage = _stompClient?.subscribe(
-      destination: '/topic/v1/rooms/$_roomId/messages/new',
+      destination: '/topic/v1/rooms/${roomService.roomDetail.id}/messages/new',
       callback: onMessageReceived,
       headers: {'recieveMessage': 'true'},
     );
@@ -94,21 +80,15 @@ class WebsocketService {
   // #region recieve
   // 메시지 수신
   void onMessageReceived(StompFrame frame) async {
-    print('Received: ${frame.body}');
-    if (_onMessageReceivedCallback != null) {
-      final message = Message.fromJson(jsonDecode(frame.body ?? ''));
+    final message = Message.fromJson(jsonDecode(frame.body ?? ''));
 
-      _onMessageReceivedCallback!(message.messageData);
-    }
+    messageService.addMessage(message.messageData);
   }
 
   // 매칭 성공
   void onMatchingSuccess(StompFrame frame) async {
-    print('Matching Success: ${frame.body}');
-    if (_onMatchingSuccessCallback != null) {
-      final matchingSuccess = jsonDecode(frame.body ?? '');
-      _onMatchingSuccessCallback!(matchingSuccess);
-    }
+    isMatched = true;
+    notifyListeners();
   }
   // #endregion
 
@@ -119,12 +99,15 @@ class WebsocketService {
     if (_stompClient!.connected) {
       try {
         _stompClient?.send(
-            destination: '/v1/rooms/$_roomId/messages/send',
-            body: jsonEncode({
-              "userId": _userId,
+          destination: '/v1/rooms/${roomService.roomDetail.id}/messages/send',
+          body: jsonEncode(
+            {
+              "userId": userService.userId,
               "content": content,
               "contentType": "TEXT",
-            }));
+            },
+          ),
+        );
       } catch (e) {
         print('send Message error: $e');
       }
@@ -139,17 +122,35 @@ class WebsocketService {
     if (_stompClient!.connected) {
       try {
         _stompClient?.send(
-          destination: '/v1/rooms/$_roomId/enter',
+          destination: '/v1/rooms/${roomService.roomDetail.id}}/enter',
           body: jsonEncode({
-            "userId": _userId,
+            "userId": userService.userId,
           }),
         );
-        subscribeToRecieveMessage();
+        subscribeToRecieveMessage(onMessageReceived);
       } catch (e) {
         print('enter room error: $e');
       }
     } else {
       print('enter room error: not connected');
+    }
+  }
+
+  // 방 퇴장
+  void exitRoom() async {
+    if (_stompClient!.connected) {
+      try {
+        _stompClient?.send(
+          destination: '/v1/rooms/${roomService.roomDetail.id}/exit',
+          body: jsonEncode(
+            {
+              "userId": userService.userId,
+            },
+          ),
+        );
+      } catch (e) {
+        log('exit room error: $e');
+      }
     }
   }
 
@@ -159,7 +160,7 @@ class WebsocketService {
       try {
         _stompClient?.send(
           destination: '/v1/matching/apply',
-          body: jsonEncode({"userId": _userId}),
+          body: jsonEncode({"userId": userService.userId}),
         );
       } catch (e) {
         print('request matching error: $e');
@@ -175,7 +176,7 @@ class WebsocketService {
       try {
         _stompClient?.send(
           destination: '/v1/matching/apply',
-          body: jsonEncode({"userId": userId2}),
+          body: jsonEncode({"userId": '0190964c-ee3a-7e81-a1f8-231b5d97c2a1'}),
         );
       } catch (e) {
         print('request matching error: $e');
@@ -192,7 +193,7 @@ class WebsocketService {
       try {
         _stompClient?.send(
           destination: '/v1/matching/cancel',
-          body: jsonEncode({"userId": _userId}),
+          body: jsonEncode({"userId": userService.userId}),
         );
       } catch (e) {
         print('cancel matching error: $e');
@@ -204,6 +205,7 @@ class WebsocketService {
   // #endregion
   // #endregion
 
+  @override
   void dispose() {
     _stompClient?.deactivate();
   }

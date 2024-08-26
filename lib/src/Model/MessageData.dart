@@ -40,4 +40,30 @@ class MessageData {
       createdAt: json['createdAt'],
     );
   }
+
+  MessageData copyWith({
+    int? id,
+    int? roomId,
+    String? userId,
+    int? participantId,
+    String? participantName,
+    String? content,
+    String? messageType,
+    String? contentType,
+    String? senderType,
+    String? createdAt,
+  }) {
+    return MessageData(
+      id: id ?? this.id,
+      roomId: roomId ?? this.roomId,
+      userId: userId ?? this.userId,
+      participantId: participantId ?? this.participantId,
+      participantName: participantName ?? this.participantName,
+      content: content ?? this.content,
+      messageType: messageType ?? this.messageType,
+      contentType: contentType ?? this.contentType,
+      senderType: senderType ?? this.senderType,
+      createdAt: createdAt ?? this.createdAt,
+    );
+  }
 }

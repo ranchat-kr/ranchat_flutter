@@ -1,4 +1,4 @@
-import 'package:ranchat_flutter/Model/ParticipantsData.dart';
+import 'package:ranchat_flutter/src/Model/ParticipantsData.dart';
 
 class RoomDetailData {
   final int id;
@@ -23,6 +23,20 @@ class RoomDetailData {
       title: data['title'],
       type: data['type'],
       participants: participantsList,
+    );
+  }
+
+  RoomDetailData copyWith({
+    int? id,
+    String? title,
+    String? type,
+    List<ParticipantsData>? participants,
+  }) {
+    return RoomDetailData(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      type: type ?? this.type,
+      participants: participants ?? this.participants,
     );
   }
 }

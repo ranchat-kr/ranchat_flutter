@@ -1,4 +1,4 @@
-import 'package:ranchat_flutter/Model/RoomData.dart';
+import 'package:ranchat_flutter/src/Model/RoomData.dart';
 
 class RoomList {
   final String status;
@@ -40,6 +40,30 @@ class RoomList {
       totalCount: json['data']['totalCount'],
       totalPage: json['data']['totalPage'],
       empty: json['data']['empty'],
+    );
+  }
+
+  RoomList copyWith({
+    String? status,
+    String? message,
+    String? serverDateTime,
+    List<RoomData>? items,
+    int? page,
+    int? size,
+    int? totalCount,
+    int? totalPage,
+    bool? empty,
+  }) {
+    return RoomList(
+      status: status ?? this.status,
+      message: message ?? this.message,
+      serverDateTime: serverDateTime ?? this.serverDateTime,
+      items: items ?? this.items,
+      page: page ?? this.page,
+      size: size ?? this.size,
+      totalCount: totalCount ?? this.totalCount,
+      totalPage: totalPage ?? this.totalPage,
+      empty: empty ?? this.empty,
     );
   }
 }

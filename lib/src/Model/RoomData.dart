@@ -21,4 +21,20 @@ class RoomData {
       latestMessageAt: json['latestMessageAt'] ?? '',
     );
   }
+
+  RoomData copyWith({
+    int? id,
+    String? title,
+    String? type,
+    String? latestMessage,
+    String? latestMessageAt,
+  }) {
+    return RoomData(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      type: type ?? this.type,
+      latestMessage: latestMessage ?? this.latestMessage,
+      latestMessageAt: latestMessageAt ?? this.latestMessageAt,
+    );
+  }
 }

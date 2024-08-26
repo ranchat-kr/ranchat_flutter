@@ -12,4 +12,16 @@ class ParticipantsData {
       name: json['name'],
     );
   }
+
+  ParticipantsData copyWith({
+    int? id,
+    String? userId,
+    String? name,
+  }) {
+    return ParticipantsData(
+      id: id ?? this.id,
+      userId: userId ?? this.userId,
+      name: name ?? this.name,
+    );
+  }
 }

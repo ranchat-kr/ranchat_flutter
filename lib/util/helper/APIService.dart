@@ -1,13 +1,13 @@
 import 'dart:convert';
 
-import 'package:ranchat_flutter/Model/DefaultData.dart';
-import 'package:ranchat_flutter/Model/MessageData.dart';
-import 'package:ranchat_flutter/Model/MessageList.dart';
-import 'package:ranchat_flutter/Model/RoomData.dart';
+import 'package:ranchat_flutter/src/Model/DefaultData.dart';
+import 'package:ranchat_flutter/src/Model/MessageData.dart';
+import 'package:ranchat_flutter/src/Model/MessageList.dart';
+import 'package:ranchat_flutter/src/Model/RoomData.dart';
 import 'package:http/http.dart' as http;
-import 'package:ranchat_flutter/Model/RoomDetailData.dart';
-import 'package:ranchat_flutter/Model/RoomList.dart';
-import 'package:ranchat_flutter/Service/ConnectingService.dart';
+import 'package:ranchat_flutter/src/Model/RoomDetailData.dart';
+import 'package:ranchat_flutter/src/Model/RoomList.dart';
+import 'package:ranchat_flutter/util/helper/ConnectingService.dart';
 
 class ApiService {
   late String _userId;

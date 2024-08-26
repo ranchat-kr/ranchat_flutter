@@ -1,15 +1,7 @@
-import 'dart:convert';
+import 'package:ranchat_flutter/src/Service/websocket_service.dart';
+import 'package:ranchat_flutter/util/helper/APIService.dart';
 
-import 'package:http/http.dart' as http;
-import 'package:ranchat_flutter/Model/RoomData.dart';
-import 'package:ranchat_flutter/Service/APIService.dart';
-import 'package:ranchat_flutter/Service/WebsocketService.dart';
-
-import 'package:ranchat_flutter/Model/Message.dart';
-import 'package:ranchat_flutter/Model/MessageList.dart';
-
-import '../Model/MessageData.dart';
-import '../Model/RoomList.dart';
+import '../../src/Model/MessageData.dart';
 
 class Connectingservice {
   String _roomId = "1";

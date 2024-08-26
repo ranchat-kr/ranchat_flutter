@@ -1,4 +1,4 @@
-import 'package:ranchat_flutter/Model/MessageData.dart';
+import 'package:ranchat_flutter/src/Model/MessageData.dart';
 
 class Message {
   final String status;
@@ -21,6 +21,20 @@ class Message {
       message: json['message'],
       serverDatetime: json['serverDatetime'],
       messageData: MessageData.fromJson(json['data']),
+    );
+  }
+
+  Message copyWith({
+    String? status,
+    String? message,
+    String? serverDatetime,
+    MessageData? messageData,
+  }) {
+    return Message(
+      status: status ?? this.status,
+      message: message ?? this.message,
+      serverDatetime: serverDatetime ?? this.serverDatetime,
+      messageData: messageData ?? this.messageData,
     );
   }
 }
