@@ -19,6 +19,8 @@ class WebsocketService with ChangeNotifier {
   var subscriptionToMatchingSuccess;
   var subscriptionToRecieveMessage;
 
+  void Function(dynamic)? _onMatchingSuccessCallback;
+
   bool isMatched = false;
 
   WebsocketService({
@@ -88,7 +90,17 @@ class WebsocketService with ChangeNotifier {
   // 매칭 성공
   void onMatchingSuccess(StompFrame frame) async {
     isMatched = true;
+    print('Matching Success: ${frame.body}');
+    if (frame.body != null) {
+      final matchingSuccess = jsonDecode(frame.body ?? '');
+      print('matchingSuccess: $matchingSuccess');
+      roomService.roomId = matchingSuccess['roomId'];
+    }
     notifyListeners();
+  }
+
+  void setOnMatchingSuccessCallback(void Function(dynamic) callback) {
+    _onMatchingSuccessCallback = callback;
   }
   // #endregion
 

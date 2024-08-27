@@ -37,6 +37,7 @@ class HomeViewModel extends BaseViewModel {
       userService.userId = userId;
       userService.createUser(_getRandomNickname());
     }
+    checkRoomExist(userId);
 
     websocketService.connectToWebSocket();
   }
@@ -92,9 +93,10 @@ class HomeViewModel extends BaseViewModel {
         backNickname[random.nextInt(backNickname.length)];
   }
 
-  bool checkRoomExist() {
+  bool checkRoomExist(String userId) {
     //isLoading = true;
-    roomService.checkRoomExist(userService.userId).then((result) {
+
+    roomService.checkRoomExist(userId).then((result) {
       return result;
     });
     // isLoading = false;
@@ -110,6 +112,6 @@ class HomeViewModel extends BaseViewModel {
   }
 
   void tempRequestMatching() {
-    websocketService.requestMatching();
+    websocketService.tempRequestMatching();
   }
 }

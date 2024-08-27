@@ -7,6 +7,7 @@ class RoomService with ChangeNotifier {
   /// 방 리스트
   List<RoomData> _roomList = [];
   List<RoomData> get roomList => _roomList;
+  String roomId = '';
 
   set roomList(List<RoomData> value) {
     _roomList = value;
