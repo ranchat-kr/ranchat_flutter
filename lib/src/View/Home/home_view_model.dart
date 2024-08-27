@@ -21,6 +21,8 @@ class HomeViewModel extends BaseViewModel {
   final RoomService roomService;
   final WebsocketService websocketService;
 
+  bool isMatched = false;
+
   void setInit() async {
     WidgetsFlutterBinding.ensureInitialized();
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -39,6 +41,7 @@ class HomeViewModel extends BaseViewModel {
     }
     checkRoomExist(userId);
 
+    websocketService.onMatchingSuccessCallback = onMatchingSuccess;
     websocketService.connectToWebSocket();
   }
 
@@ -113,5 +116,11 @@ class HomeViewModel extends BaseViewModel {
 
   void tempRequestMatching() {
     websocketService.tempRequestMatching();
+  }
+
+  void onMatchingSuccess(dynamic response) async {
+    isMatched = true;
+    print('homeviewmodel Matching Success: $response');
+    notifyListeners();
   }
 }
