@@ -1,7 +1,5 @@
-import 'dart:ffi';
-
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
+import 'package:ranchat_flutter/Model/User.dart';
 import 'package:ranchat_flutter/Service/ConnectingService.dart';
 
 class Settingscreen extends StatefulWidget {
@@ -16,11 +14,21 @@ class _SettingscreenState extends State<Settingscreen> {
   final TextEditingController _nicknameController = TextEditingController();
   final FocusNode _focusNode = FocusNode();
   late Connectingservice _connectingservice;
+  User? user;
 
   @override
   void initState() {
     super.initState();
     _connectingservice = widget.connectingservice;
+    setUser();
+  }
+
+  void setUser() async {
+    await _connectingservice.apiService?.getUser().then((value) {
+      setState(() {
+        user = value;
+      });
+    });
   }
 
   void _showReQuestionDialog(String nickName) {
@@ -40,6 +48,10 @@ class _SettingscreenState extends State<Settingscreen> {
             TextButton(
               onPressed: () {
                 _connectingservice.apiService?.updateUserName(nickName);
+                setState(() {
+                  user = user?.copyWith(name: nickName);
+                });
+
                 Navigator.pop(context);
               },
               child: const Text('변경'),
@@ -133,9 +145,9 @@ class _SettingscreenState extends State<Settingscreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              const Text(
-                '기존 닉네임',
-                style: TextStyle(fontSize: 24, color: Colors.white),
+              Text(
+                user?.name ?? '',
+                style: const TextStyle(fontSize: 24, color: Colors.white),
               ),
               Padding(
                 padding: const EdgeInsets.all(15.0),

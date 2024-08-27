@@ -7,6 +7,7 @@ import 'package:ranchat_flutter/Model/MessageList.dart';
 import 'package:ranchat_flutter/Model/RoomData.dart';
 import 'package:ranchat_flutter/Model/RoomDetailData.dart';
 import 'package:ranchat_flutter/Model/RoomList.dart';
+import 'package:ranchat_flutter/Model/User.dart';
 
 class ApiService {
   late String _userId;
@@ -233,6 +234,20 @@ class ApiService {
       print('createUser : $response');
     } else {
       print('create user error');
+    }
+  }
+
+  // 회원 조회
+  Future<User> getUser() async {
+    final response = await http.get(
+      Uri.parse('https://${Defaultdata.domain}/v1/users/$_userId'),
+    );
+    final responseData = jsonDecode(utf8.decode(response.bodyBytes));
+    print('response: $responseData');
+    if (response.statusCode == 200) {
+      return User.fromJson(responseData['data']);
+    } else {
+      return User(id: '', name: '');
     }
   }
 
