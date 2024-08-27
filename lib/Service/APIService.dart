@@ -1,13 +1,12 @@
 import 'dart:convert';
 
+import 'package:http/http.dart' as http;
 import 'package:ranchat_flutter/Model/DefaultData.dart';
 import 'package:ranchat_flutter/Model/MessageData.dart';
 import 'package:ranchat_flutter/Model/MessageList.dart';
 import 'package:ranchat_flutter/Model/RoomData.dart';
-import 'package:http/http.dart' as http;
 import 'package:ranchat_flutter/Model/RoomDetailData.dart';
 import 'package:ranchat_flutter/Model/RoomList.dart';
-import 'package:ranchat_flutter/Service/ConnectingService.dart';
 
 class ApiService {
   late String _userId;
@@ -96,6 +95,32 @@ class ApiService {
       return messageList.items;
     } else {
       return [];
+    }
+  }
+
+  // 방 생성
+  Future<String> createRoom() async {
+    print('createRoom : $_userId');
+    final response = await http.post(
+      Uri.parse('https://${Defaultdata.domain}/v1/rooms'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(
+        {
+          "userIds": [_userId],
+          'roomType': 'GPT', // 임시로 GPT로 설정
+          'title': 'test Room',
+        },
+      ),
+    );
+    final responseData = jsonDecode(utf8.decode(response.bodyBytes));
+    print('createRoom response: $responseData');
+    if (response.statusCode == 200) {
+      final roomId = responseData['data'];
+      return roomId.toString();
+    } else {
+      return '';
     }
   }
 

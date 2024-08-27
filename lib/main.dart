@@ -201,8 +201,22 @@ class _HomeScreenState extends State<HomeScreen>
       return;
     } else {
       _connectingservice.websocketService?.cancelMatching();
-      Navigator.of(context).pop();
       _isLoading = false;
+
+      await _connectingservice.apiService?.createRoom().then((roomId) {
+        _connectingservice.websocketService?.setRoomId(roomId.toString());
+        _connectingservice.apiService?.setRoomId(roomId.toString());
+        _connectingservice.websocketService?.enterRoom();
+      });
+      Navigator.of(context).pop();
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) =>
+                ChatScreen(connectingservice: _connectingservice)),
+      ).then((_) {
+        checkRoomExist();
+      });
       // Fluttertoast.showToast(
       //   msg: '매칭에 실패하였습니다.',
       //   toastLength: Toast.LENGTH_LONG,
@@ -212,12 +226,13 @@ class _HomeScreenState extends State<HomeScreen>
       //   textColor: Colors.white,
       //   fontSize: 16.0,
       // );
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('매칭에 실패하였습니다.'),
-          duration: Duration(seconds: 2),
-        ),
-      );
+
+      // ScaffoldMessenger.of(context).showSnackBar(
+      //   const SnackBar(
+      //     content: Text('매칭에 실패하였습니다.'),
+      //     duration: Duration(seconds: 2),
+      //   ),
+      // );
     }
   }
   // #endregion
