@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-
 import 'package:ranchat_flutter/Model/MessageData.dart';
-import 'package:ranchat_flutter/Model/ParticipantsData.dart';
 import 'package:ranchat_flutter/Model/RoomDetailData.dart';
 import 'package:ranchat_flutter/Service/ConnectingService.dart';
 
@@ -353,16 +351,25 @@ class _ChatScreen extends State<ChatScreen> {
                               ? _messageDatas.length
                               : _messageDatas.length - _pageSize,
                       itemBuilder: (context, index) {
+                        String content;
+                        if (_messageDatas[index].messageType == "ENTER") {
+                          content = _messageDatas[index].content;
+                        } else {
+                          content =
+                              '${_messageDatas[index].userId == _connectingservice.userId ? '나' : '상대방'}: ${_messageDatas[index].content}';
+                        }
                         return Padding(
                           padding: const EdgeInsets.symmetric(
                               vertical: 8.0, horizontal: 16.0),
                           child: Text(
-                            "${_messageDatas[index].messageType == "NOTICE" ? "" : _connectingservice.userId == _messageDatas[index].userId ? '나' : '상대방'}: ${_messageDatas[index].content}",
+                            content,
                             style: TextStyle(
-                              color: _connectingservice.userId ==
-                                      _messageDatas[index].userId
-                                  ? Colors.yellow
-                                  : Colors.white,
+                              color: _messageDatas[index].messageType == "ENTER"
+                                  ? Colors.cyan
+                                  : _connectingservice.userId ==
+                                          _messageDatas[index].userId
+                                      ? Colors.yellow
+                                      : Colors.white,
                             ),
                           ),
                         );
