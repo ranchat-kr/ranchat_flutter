@@ -132,7 +132,8 @@ class _ChatScreen extends State<ChatScreen> {
 
   // 채팅방 나가기
   void exitRoom() async {
-    _connectingservice.apiService?.exitRoom();
+    // _connectingservice.apiService?.exitRoom();
+    _connectingservice.websocketService?.exitRoom();
   }
 
   // 메시지 수신 구독 취소

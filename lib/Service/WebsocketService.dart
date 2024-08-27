@@ -1,9 +1,8 @@
 import 'dart:convert';
 
+import 'package:ranchat_flutter/Model/DefaultData.dart';
 import 'package:ranchat_flutter/Model/Message.dart';
 import 'package:ranchat_flutter/Model/MessageData.dart';
-import 'package:ranchat_flutter/Model/DefaultData.dart';
-import 'package:ranchat_flutter/Service/ConnectingService.dart';
 import 'package:stomp_dart_client/stomp_dart_client.dart';
 
 class WebsocketService {
@@ -35,6 +34,7 @@ class WebsocketService {
   void setRoomId(String roomId) async {
     print('set room id: $roomId');
     _roomId = roomId;
+    print('set room id: $_roomId');
   }
 
   void setUserId(String userId) {
@@ -150,6 +150,26 @@ class WebsocketService {
       }
     } else {
       print('enter room error: not connected');
+    }
+  }
+
+  // 방 나가기
+  void exitRoom({String? roomId}) async {
+    roomId ??= _roomId;
+    print('exit room : $roomId');
+    if (_stompClient!.connected) {
+      try {
+        _stompClient?.send(
+          destination: '/v1/rooms/$roomId/exit',
+          body: jsonEncode({
+            'userId': _userId,
+          }),
+        );
+      } catch (e) {
+        print('exit room error: $e');
+      }
+    } else {
+      print('exit room error: not connected');
     }
   }
 

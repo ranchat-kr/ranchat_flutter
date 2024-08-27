@@ -1,7 +1,4 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/foundation/diagnostics.dart';
-import 'package:flutter/widgets.dart';
 import 'package:ranchat_flutter/Model/RoomData.dart';
 import 'package:ranchat_flutter/Service/ConnectingService.dart';
 
@@ -102,7 +99,8 @@ class _RoomListScreenState extends State<RoomListScreen> {
   void exitRoom(String roomId) {
     setState(() {
       _isLoading = true;
-      _connectingservice.apiService?.exitSelectedRoom(roomId);
+      // _connectingservice.apiService?.exitSelectedRoom(roomId);
+      _connectingservice.websocketService?.exitRoom(roomId: roomId);
       _isLoading = false;
     });
   }
