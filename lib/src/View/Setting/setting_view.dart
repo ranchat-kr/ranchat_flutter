@@ -144,6 +144,9 @@ class _SettingViewState extends State<SettingView> {
                   child: TextField(
                     focusNode: _focusNode,
                     controller: _nicknameController,
+                    onChanged: (value) {
+                      setState(() {});
+                    },
                     style: const TextStyle(color: Colors.white),
                     cursorColor: Colors.white,
                     cursorWidth: 8.0,
@@ -153,13 +156,15 @@ class _SettingViewState extends State<SettingView> {
                       labelText: '닉네임',
                       hintText: ' 바꿀 닉네임을 입력해주세요.',
                       hintStyle: const TextStyle(color: Colors.blueGrey),
-                      suffixIcon: IconButton(
-                        icon: const Icon(Icons.clear),
-                        color: Colors.white,
-                        onPressed: () {
-                          _nicknameController.clear();
-                        },
-                      ),
+                      suffixIcon: _nicknameController.text.isEmpty
+                          ? null
+                          : IconButton(
+                              icon: const Icon(Icons.clear),
+                              color: Colors.white,
+                              onPressed: () {
+                                _nicknameController.clear();
+                              },
+                            ),
                     ),
                   ),
                 ),
