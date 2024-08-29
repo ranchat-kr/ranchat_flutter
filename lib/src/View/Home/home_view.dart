@@ -37,12 +37,6 @@ class _HomeViewState extends State<HomeView>
     _setAnimation();
   }
 
-  @override
-  void didChangeDependencies() {
-    // TODO: implement didChangeDependencies
-    super.didChangeDependencies();
-  }
-
   // #region first setting
   // 애니메이션 설정
   void _setAnimation() {
@@ -100,8 +94,9 @@ class _HomeViewState extends State<HomeView>
     if (isMatched) {
       return;
     } else {
-      context.read<WebsocketService>().cancelMatching();
       Navigator.of(context).pop();
+      context.read<WebsocketService>().cancelMatching();
+      // Navigator.of(context).pop();
 
       // Fluttertoast.showToast(
       //   msg: '매칭에 실패하였습니다.',
@@ -176,6 +171,11 @@ class _HomeViewState extends State<HomeView>
         websocketService: context.read(),
       ),
       builder: (context, viewModel) {
+        if (viewModel.shouldPop) {
+          Navigator.pop(context);
+          viewModel.resetPopState();
+          viewModel.goToChatRoom(context);
+        }
         return Consumer<WebsocketService>(
             builder: (context, websocketService, child) {
           websocketService.onMatchingSuccessCallback =
@@ -255,53 +255,59 @@ class _HomeViewState extends State<HomeView>
                                       color: Colors.white, width: 5.0)),
                             ),
                             child: const SizedBox(
-                                width: 150.0,
-                                height: 50.0,
-                                child: Align(
-                                  alignment: Alignment.center,
-                                  child: Text('START!',
-                                      style: TextStyle(fontSize: 30.0)),
-                                ))),
+                              width: 150.0,
+                              height: 50.0,
+                              child: Align(
+                                alignment: Alignment.center,
+                                child: Text(
+                                  'START!',
+                                  style: TextStyle(fontSize: 30.0),
+                                ),
+                              ),
+                            ),
+                          ),
                     const SizedBox(height: 10.0),
                     !_isAnimationEnd
                         ? const SizedBox(
                             // 애니메이션이 종료되지 않았을 때
                             height: 50.0,
                           )
-                        : viewModel.checkRoomExist(
-                                context.read<UserService>().userId)
-                            ? ElevatedButton(
-                                // 애니메이션이 종료되었을 때
-                                onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) =>
-                                            const RoomListView()), // 채팅방 목록 화면으로 이동
-                                  ).then((_) {
-                                    //checkRoomExist();
-                                  });
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.black,
-                                  foregroundColor: Colors.white,
-                                  shape: const RoundedRectangleBorder(
-                                      side: BorderSide(
-                                          color: Colors.white, width: 5.0)),
-                                ),
-                                child: const SizedBox(
-                                  width: 150.0,
-                                  height: 50.0,
-                                  child: Align(
-                                    alignment: Alignment.center,
-                                    child: Text('CONTINUE!',
-                                        style: TextStyle(fontSize: 30.0)),
-                                  ),
-                                ),
-                              )
-                            : const SizedBox(
-                                height: 50,
-                              ),
+                        : Consumer<UserService>(
+                            builder: (context, userService, child) {
+                            return viewModel.isRoomExist
+                                ? ElevatedButton(
+                                    // 애니메이션이 종료되었을 때
+                                    onPressed: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                const RoomListView()), // 채팅방 목록 화면으로 이동
+                                      ).then((_) {
+                                        //checkRoomExist();
+                                      });
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.black,
+                                      foregroundColor: Colors.white,
+                                      shape: const RoundedRectangleBorder(
+                                          side: BorderSide(
+                                              color: Colors.white, width: 5.0)),
+                                    ),
+                                    child: const SizedBox(
+                                      width: 150.0,
+                                      height: 50.0,
+                                      child: Align(
+                                        alignment: Alignment.center,
+                                        child: Text('CONTINUE!',
+                                            style: TextStyle(fontSize: 30.0)),
+                                      ),
+                                    ),
+                                  )
+                                : const SizedBox(
+                                    height: 50,
+                                  );
+                          }),
                   ],
                 ),
               ),

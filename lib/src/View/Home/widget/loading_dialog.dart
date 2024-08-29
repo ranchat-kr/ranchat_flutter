@@ -49,9 +49,9 @@ class _LoadingDialogState extends State<LoadingDialog> {
   Widget build(BuildContext context) {
     return Consumer<WebsocketService>(
         builder: (context, websocketService, child) {
-      if (websocketService.isMatched) {
-        return const SizedBox.shrink();
-      }
+      // if (websocketService.isMatched) {
+      //   return const SizedBox.shrink();
+      // }
       return Dialog(
         backgroundColor: Colors.white,
         shape: const RoundedRectangleBorder(

@@ -7,23 +7,27 @@ import 'package:ranchat_flutter/src/Service/websocket_service.dart';
 import 'package:ranchat_flutter/src/View/Home/home_view.dart';
 
 void main() {
+  final UserService userService = UserService();
+  final RoomService roomService = RoomService();
+  final MessageService messageService = MessageService();
+
   runApp(
     MultiProvider(
       providers: [
         ChangeNotifierProvider(
-          create: (context) => UserService(),
+          create: (context) => userService,
         ),
         ChangeNotifierProvider(
-          create: (context) => RoomService(),
+          create: (context) => roomService,
         ),
         ChangeNotifierProvider(
-          create: (context) => MessageService(),
+          create: (context) => messageService,
         ),
         ChangeNotifierProvider(
           create: (context) => WebsocketService(
-            userService: context.read<UserService>(),
-            roomService: context.read<RoomService>(),
-            messageService: context.read<MessageService>(),
+            userService: userService,
+            roomService: roomService,
+            messageService: messageService,
           ),
         ),
       ],

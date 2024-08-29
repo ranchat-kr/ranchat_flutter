@@ -54,7 +54,8 @@ class UserRepository {
     try {
       final res =
           await dio.get('https://${Defaultdata.domain}/v1/users/$userId');
-      return User.fromJson(res.data);
+      print('getUser : $res');
+      return User.fromJson(res.data['data']);
     } catch (e, s) {
       log('Failed to get user', error: e, stackTrace: s);
       return User(id: '', name: '');

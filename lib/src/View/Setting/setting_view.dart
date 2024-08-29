@@ -135,9 +135,9 @@ class _SettingViewState extends State<SettingView> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                const Text(
-                  '기존 닉네임',
-                  style: TextStyle(fontSize: 24, color: Colors.white),
+                Text(
+                  viewModel.userName ?? '',
+                  style: const TextStyle(fontSize: 24, color: Colors.white),
                 ),
                 Padding(
                   padding: const EdgeInsets.all(15.0),
