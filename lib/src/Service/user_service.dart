@@ -29,7 +29,8 @@ class UserService with ChangeNotifier {
 
   /// 유저 생성
   Future<void> createUser(String getRandomNickname) async {
-    _user = await _userRepository.createUser(userId, getRandomNickname);
+    await _userRepository.createUser(userId, getRandomNickname);
+    _user = _user.copyWith(name: getRandomNickname);
   }
 
   /// 유저 조회

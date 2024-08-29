@@ -14,7 +14,7 @@ class UserRepository {
   final String baseUrl = Defaultdata.domain;
 
   // 회원 생성
-  Future<User> createUser(String userId, String name) async {
+  Future<void> createUser(String userId, String name) async {
     print('createUser : $userId, $name');
     try {
       final res = await dio.post(
@@ -24,10 +24,11 @@ class UserRepository {
           "name": name,
         },
       );
-      return User.fromJson(res.data);
+      print('createUser res : $res');
+      // return User.fromJson(res.data);
     } catch (e, s) {
       log('Failed to create user', error: e, stackTrace: s);
-      return User(id: '', name: '');
+      // return User(id: '', name: '');
     }
 
     // print('createUser : $_userId, $name');

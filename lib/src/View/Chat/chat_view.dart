@@ -29,11 +29,22 @@ class _ChatView extends State<ChatView> {
   final _currentPage = 0; // 현재 페이지 (메시지 데이터)
   final _pageSize = 50; // 메시지 데이터 페이지 사이즈
 
+  late ChatViewModel chatViewModel;
+
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     // _setServer();
+    chatViewModel = ChatViewModel(
+      messageService: context.read<MessageService>(),
+      roomService: context.read<RoomService>(),
+      userService: context.read<UserService>(),
+      websocketService: context.read<WebsocketService>(),
+    );
+    chatViewModel.setScrollController();
+    chatViewModel.getMessages();
+
     _setUI();
   }
 

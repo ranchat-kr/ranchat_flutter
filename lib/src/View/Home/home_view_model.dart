@@ -15,9 +15,7 @@ class HomeViewModel extends BaseViewModel {
     required this.userService,
     required this.roomService,
     required this.websocketService,
-  }) {
-    setInit();
-  }
+  });
 
   final UserService userService;
   final RoomService roomService;
@@ -42,7 +40,7 @@ class HomeViewModel extends BaseViewModel {
     WidgetsFlutterBinding.ensureInitialized();
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
-    //prefs.clear(); // 임시로 사용
+    prefs.clear(); // 임시로 사용
     String? userId = prefs.getString('userUUID');
 
     if (userId == null) {
@@ -147,9 +145,10 @@ class HomeViewModel extends BaseViewModel {
     websocketService.tempRequestMatching();
   }
 
-  void onMatchingSuccess(String roomId) {
+  void onMatchingSuccess(String roomId) async {
     shouldPop = true;
-    print('onMatchingSuccess: $roomId');
+    isRoomExist = true;
+    await websocketService.enterRoom();
     notifyListeners();
   }
 

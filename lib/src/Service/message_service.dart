@@ -20,12 +20,12 @@ class MessageService with ChangeNotifier {
   final MessageRepository _messageRepository = MessageRepository();
 
   /// 메시지 리스트 조회
-  Future<void> getMessageList(String roomId,
+  Future<List<MessageData>> getMessageList(String roomId,
       {int page = 0, int size = 50}) async {
     List<MessageData> messages = await _messageRepository.getMessages(
         roomId: roomId, page: page, size: size);
     messageList.items.addAll(messages);
-    notifyListeners();
+    return messages;
   }
 
   /// 메시지 추가

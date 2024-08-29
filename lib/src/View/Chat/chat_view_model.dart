@@ -31,9 +31,9 @@ class ChatViewModel extends BaseViewModel {
     required this.roomService,
     required this.websocketService,
     required this.userService,
-  }) {
-    messages = [...messageService.messageList.items];
+  });
 
+  void setScrollController() {
     scrollController.addListener(() {
       // 스크롤 컨트롤러 설정
       print(
@@ -49,11 +49,10 @@ class ChatViewModel extends BaseViewModel {
         }
       }
     });
-    _fetchItems();
-  } // 채팅 메시지 리스트
+  }
 
   void addMessage(MessageData message) {
-    messages.add(message);
+    messages.insert(0, message);
     notifyListeners();
   }
 
@@ -77,18 +76,33 @@ class ChatViewModel extends BaseViewModel {
 
   // 메시지 데이터 추가 가져오기 (스크롤이 끝에 도달할 때) (API) [페이지네이션]
   Future<void> _fetchItems() async {
+    print('fetchItems');
     try {
-      await messageService.getMessageList(
+      final messages = await messageService.getMessageList(
         roomService.roomId.toString(),
         page: ++_currentPage,
         size: _pageSize,
       );
 
-      messages = [...messageService.messageList.items];
+      this.messages = [...this.messages, ...messages];
       notifyListeners();
     } catch (e) {
       log('error: $e');
     }
+  }
+
+  Future<void> getMessages() async {
+    if (this.messages.isNotEmpty) {
+      return;
+    }
+    print('getMessages ddddd');
+    final messages = await messageService.getMessageList(
+      roomService.roomId.toString(),
+      page: _currentPage++,
+      size: _pageSize * 2,
+    );
+    this.messages = [...messages];
+    notifyListeners();
   }
 
   void sendMessage(String message) {

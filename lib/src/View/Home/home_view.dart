@@ -30,10 +30,17 @@ class _HomeViewState extends State<HomeView>
   late Animation<double> _buttonAnimation;
   bool _isLoading = false; // 로딩 중인지 확인하는 변수
 
+  late HomeViewModel homeViewModel;
+
   @override
   void initState() {
     super.initState();
-
+    homeViewModel = HomeViewModel(
+      roomService: context.read(),
+      userService: context.read(),
+      websocketService: context.read(),
+    );
+    homeViewModel.setInit();
     _setAnimation();
   }
 
@@ -92,6 +99,7 @@ class _HomeViewState extends State<HomeView>
     _isLoading = false;
     bool isMatched = context.read<WebsocketService>().isMatched;
     if (isMatched) {
+      context.read<WebsocketService>().toggleMatched();
       return;
     } else {
       Navigator.of(context).pop();

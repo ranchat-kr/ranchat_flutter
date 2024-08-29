@@ -24,6 +24,7 @@ class WebsocketService with ChangeNotifier {
   Function(MessageData)? onReceiveMessageCallback;
 
   bool isMatched = false;
+
   final Set<String> subscribedTopics = {};
 
   WebsocketService({
@@ -32,6 +33,10 @@ class WebsocketService with ChangeNotifier {
     required this.messageService,
     this.onMatchingSuccessCallback,
   });
+  void toggleMatched() {
+    isMatched = !isMatched;
+    notifyListeners();
+  }
 
   void connectToWebSocket() async {
     try {
@@ -116,7 +121,6 @@ class WebsocketService with ChangeNotifier {
       final matchingSuccess = jsonDecode(frame.body ?? '');
       print('matchingSuccess: ${matchingSuccess['data']['roomId']}');
       roomService.roomId = matchingSuccess['data']['roomId'].toString();
-      enterRoom();
       onMatchingSuccessCallback!(matchingSuccess['data']['roomId'].toString());
     } else {
       print('matchingSuccess is null');
@@ -158,7 +162,7 @@ class WebsocketService with ChangeNotifier {
   }
 
   // 방 입장
-  void enterRoom() async {
+  Future<void> enterRoom() async {
     print('enter room / ${userService.userId} / ${roomService.roomId}');
     if (_stompClient!.connected) {
       try {
