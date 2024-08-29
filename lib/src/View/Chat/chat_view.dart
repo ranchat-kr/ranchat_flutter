@@ -296,194 +296,200 @@ class _ChatView extends State<ChatView> {
         onTap: () {
           FocusScope.of(context).requestFocus(FocusNode());
         },
-        child: Scaffold(
-            resizeToAvoidBottomInset: true,
-            backgroundColor: Colors.black,
-            appBar: AppBar(
+        child: Consumer<WebsocketService>(
+            builder: (context, websocketService, child) {
+          websocketService.onReceiveMessageCallback =
+              viewModel.onMessageReceived;
+          return Scaffold(
+              resizeToAvoidBottomInset: true,
               backgroundColor: Colors.black,
-              leading: IconButton(
-                icon: const Icon(
-                  Icons.arrow_back,
-                  color: Colors.white,
-                ),
-                onPressed: () {
-                  setState(() {
-                    _isLoading = true;
-                    viewModel.unSubscribeToReceiveMessage();
-                    _isLoading = false;
-                  });
-                  Navigator.pop(context);
-                },
-                highlightColor: Colors.grey,
-              ),
-              title: Text(
-                _roomDetailData.title,
-                style: const TextStyle(color: Colors.white),
-              ),
-              centerTitle: true,
-              actions: <Widget>[
-                IconButton(
+              appBar: AppBar(
+                backgroundColor: Colors.black,
+                leading: IconButton(
                   icon: const Icon(
-                    Icons.report,
+                    Icons.arrow_back,
                     color: Colors.white,
                   ),
                   onPressed: () {
-                    print('report');
-                    _showReportDialog(
-                        viewModel.dialogTextController, viewModel.reportUser);
+                    setState(() {
+                      _isLoading = true;
+                      viewModel.unSubscribeToReceiveMessage();
+                      _isLoading = false;
+                    });
+                    Navigator.pop(context);
                   },
                   highlightColor: Colors.grey,
                 ),
-                IconButton(
-                  icon: const Icon(
-                    Icons.logout,
-                    color: Colors.white,
+                title: Text(
+                  _roomDetailData.title,
+                  style: const TextStyle(color: Colors.white),
+                ),
+                centerTitle: true,
+                actions: <Widget>[
+                  IconButton(
+                    icon: const Icon(
+                      Icons.report,
+                      color: Colors.white,
+                    ),
+                    onPressed: () {
+                      print('report');
+                      _showReportDialog(
+                          viewModel.dialogTextController, viewModel.reportUser);
+                    },
+                    highlightColor: Colors.grey,
                   ),
-                  onPressed: () {
-                    print('out');
-                    _showOutDialog(viewModel.exitRoom);
-                  },
-                  highlightColor: Colors.grey,
-                ),
-              ],
-            ),
-            body: Stack(
-              children: [
-                Column(
-                  children: [
-                    Expanded(
-                        child: Align(
-                      alignment: Alignment.topCenter,
-                      child: ListView.builder(
-                        padding: const EdgeInsets.only(bottom: 0.0),
-                        controller: viewModel.scrollController,
-                        shrinkWrap: true,
-                        reverse: true,
-                        itemCount:
-                            viewModel.messageService.messageList.items.isEmpty
-                                ? 0
-                                : viewModel.messageService.messageList.items
-                                            .length >=
-                                        viewModel.messageService.messageList
-                                            .totalCount
-                                    // _connectingservice
-                                    //     .apiService!.messageList.totalCount
-                                    ? viewModel
-                                        .messageService.messageList.items.length
-                                    : viewModel.messageService.messageList.items
-                                            .length -
-                                        _pageSize,
-                        itemBuilder: (context, index) {
-                          return Padding(
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 8.0, horizontal: 16.0),
-                            child: Text(
-                              "${viewModel.messageService.messageList.items[index].messageType == "NOTICE" ? "" : viewModel.userService.userId == viewModel.messageService.messageList.items[index].userId ? '나' : '상대방'}: ${viewModel.messageService.messageList.items[index].content}",
-                              style: TextStyle(
-                                color: viewModel.userService.userId ==
-                                        viewModel.messageService.messageList
-                                            .items[index].userId
-                                    ? Colors.yellow
-                                    : Colors.white,
+                  IconButton(
+                    icon: const Icon(
+                      Icons.logout,
+                      color: Colors.white,
+                    ),
+                    onPressed: () {
+                      print('out');
+                      _showOutDialog(viewModel.exitRoom);
+                    },
+                    highlightColor: Colors.grey,
+                  ),
+                ],
+              ),
+              body: Stack(
+                children: [
+                  Column(
+                    children: [
+                      Expanded(
+                          child: Align(
+                        alignment: Alignment.topCenter,
+                        child: ListView.builder(
+                          padding: const EdgeInsets.only(bottom: 0.0),
+                          controller: viewModel.scrollController,
+                          shrinkWrap: true,
+                          reverse: true,
+                          itemCount:
+                              viewModel.messageService.messageList.items.isEmpty
+                                  ? 0
+                                  : viewModel.messageService.messageList.items
+                                              .length >=
+                                          viewModel.messageService.messageList
+                                              .totalCount
+                                      // _connectingservice
+                                      //     .apiService!.messageList.totalCount
+                                      ? viewModel.messageService.messageList
+                                          .items.length
+                                      : viewModel.messageService.messageList
+                                              .items.length -
+                                          _pageSize,
+                          itemBuilder: (context, index) {
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 8.0, horizontal: 16.0),
+                              child: Text(
+                                "${viewModel.messageService.messageList.items[index].messageType == "NOTICE" ? "" : viewModel.userService.userId == viewModel.messageService.messageList.items[index].userId ? '나' : '상대방'}: ${viewModel.messageService.messageList.items[index].content}",
+                                style: TextStyle(
+                                  color: viewModel.userService.userId ==
+                                          viewModel.messageService.messageList
+                                              .items[index].userId
+                                      ? Colors.yellow
+                                      : Colors.white,
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      )),
+                      Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Row(
+                          children: [
+                            GestureDetector(
+                              onTap: () {
+                                // print('now user : ${_connectingservice.userId}');
+                                // _connectingservice. changeUser();
+                              },
+                              child: const Icon(
+                                Icons.keyboard_arrow_right,
+                                color: Colors.white,
                               ),
                             ),
-                          );
-                        },
+                            Expanded(
+                              child: TextField(
+                                minLines: 1,
+                                maxLines: 3,
+                                focusNode: viewModel.focusNode,
+                                style: const TextStyle(color: Colors.white),
+                                controller: viewModel.textController,
+                                decoration: const InputDecoration(
+                                    hintText: ' 입력하세요.',
+                                    hintStyle: TextStyle(color: Colors.white60),
+                                    border: InputBorder.none),
+                                cursorColor: Colors.white,
+                                cursorWidth: 8.0,
+                                cursorRadius: Radius.zero,
+                                // onSubmitted: (value) {
+                                //   final message = _textController.text.trim();
+                                //   if (message.isNotEmpty) {
+                                //     setState(() {
+                                //       // _messageDatas.add(MessageData(
+                                //       //     message: message,
+                                //       //     color: isMe ? Colors.yellow : Colors.white));
+                                //       _textController.clear();
+                                //       _scrollController.animateTo(
+                                //           _scrollController
+                                //               .position.minScrollExtent,
+                                //           duration:
+                                //               const Duration(milliseconds: 300),
+                                //           curve: Curves.fastEaseInToSlowEaseOut);
+                                //     });
+                                //     _sendMessage(message);
+                                //   }
+                                //   FocusScope.of(context).requestFocus(_focusNode);
+                                // },
+                              ),
+                            ),
+                            const SizedBox(width: 16.0),
+                            ElevatedButton(
+                              onPressed: () {
+                                print('chat view : send');
+                                final message =
+                                    viewModel.textController.text.trim();
+                                if (message.isNotEmpty) {
+                                  setState(() {
+                                    // _messages.add(Message(
+                                    //     message: message,
+                                    //     color: isMe ? Colors.yellow : Colors.white));
+                                    viewModel.textController.clear();
+                                    viewModel.scrollController.animateTo(
+                                        viewModel.scrollController.position
+                                            .minScrollExtent,
+                                        duration:
+                                            const Duration(milliseconds: 300),
+                                        curve: Curves.fastEaseInToSlowEaseOut);
+                                  });
+                                  viewModel.sendMessage(message);
+                                }
+                                FocusScope.of(context)
+                                    .requestFocus(viewModel.focusNode);
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.transparent,
+                                foregroundColor: Colors.yellow,
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(0.0),
+                                    side: const BorderSide(
+                                        color: Colors.yellow, width: 2.0)),
+                              ),
+                              child: const Text('보내기'),
+                            ),
+                          ],
+                        ),
                       ),
-                    )),
-                    Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Row(
-                        children: [
-                          GestureDetector(
-                            onTap: () {
-                              // print('now user : ${_connectingservice.userId}');
-                              // _connectingservice. changeUser();
-                            },
-                            child: const Icon(
-                              Icons.keyboard_arrow_right,
-                              color: Colors.white,
-                            ),
-                          ),
-                          Expanded(
-                            child: TextField(
-                              minLines: 1,
-                              maxLines: 3,
-                              focusNode: viewModel.focusNode,
-                              style: const TextStyle(color: Colors.white),
-                              controller: viewModel.textController,
-                              decoration: const InputDecoration(
-                                  hintText: ' 입력하세요.',
-                                  hintStyle: TextStyle(color: Colors.white60),
-                                  border: InputBorder.none),
-                              cursorColor: Colors.white,
-                              cursorWidth: 8.0,
-                              cursorRadius: Radius.zero,
-                              // onSubmitted: (value) {
-                              //   final message = _textController.text.trim();
-                              //   if (message.isNotEmpty) {
-                              //     setState(() {
-                              //       // _messageDatas.add(MessageData(
-                              //       //     message: message,
-                              //       //     color: isMe ? Colors.yellow : Colors.white));
-                              //       _textController.clear();
-                              //       _scrollController.animateTo(
-                              //           _scrollController
-                              //               .position.minScrollExtent,
-                              //           duration:
-                              //               const Duration(milliseconds: 300),
-                              //           curve: Curves.fastEaseInToSlowEaseOut);
-                              //     });
-                              //     _sendMessage(message);
-                              //   }
-                              //   FocusScope.of(context).requestFocus(_focusNode);
-                              // },
-                            ),
-                          ),
-                          const SizedBox(width: 16.0),
-                          ElevatedButton(
-                            onPressed: () {
-                              final message =
-                                  viewModel.textController.text.trim();
-                              if (message.isNotEmpty) {
-                                setState(() {
-                                  // _messages.add(Message(
-                                  //     message: message,
-                                  //     color: isMe ? Colors.yellow : Colors.white));
-                                  viewModel.textController.clear();
-                                  viewModel.scrollController.animateTo(
-                                      viewModel.scrollController.position
-                                          .minScrollExtent,
-                                      duration:
-                                          const Duration(milliseconds: 300),
-                                      curve: Curves.fastEaseInToSlowEaseOut);
-                                });
-                                viewModel.sendMessage();
-                              }
-                              FocusScope.of(context)
-                                  .requestFocus(viewModel.focusNode);
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.transparent,
-                              foregroundColor: Colors.yellow,
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(0.0),
-                                  side: const BorderSide(
-                                      color: Colors.yellow, width: 2.0)),
-                            ),
-                            child: const Text('보내기'),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-                if (_isLoading)
-                  const Center(
-                    child: CircularProgressIndicator(),
+                    ],
                   ),
-              ],
-            )),
+                  if (_isLoading)
+                    const Center(
+                      child: CircularProgressIndicator(),
+                    ),
+                ],
+              ));
+        }),
       ),
     );
   }

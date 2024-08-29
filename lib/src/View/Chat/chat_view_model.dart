@@ -49,9 +49,7 @@ class ChatViewModel extends BaseViewModel {
         }
       }
     });
-    websocketService.subscribeToRecieveMessage((frame) {
-      addMessage(messageService.messageList.items.first);
-    });
+    _fetchItems();
   } // 채팅 메시지 리스트
 
   void addMessage(MessageData message) {
@@ -81,7 +79,7 @@ class ChatViewModel extends BaseViewModel {
   Future<void> _fetchItems() async {
     try {
       await messageService.getMessageList(
-        roomService.roomDetail.id.toString(),
+        roomService.roomId.toString(),
         page: ++_currentPage,
         size: _pageSize,
       );
@@ -93,15 +91,20 @@ class ChatViewModel extends BaseViewModel {
     }
   }
 
-  void sendMessage() {
+  void sendMessage(String message) {
     try {
-      final text = textController.text;
-      if (text.isNotEmpty) {
-        websocketService.sendMessage(text);
+      if (message.isNotEmpty) {
+        websocketService.sendMessage(message);
         textController.clear();
       }
     } catch (e) {
       log('error: $e');
     }
+  }
+
+  void onMessageReceived(MessageData message) {
+    print('onMessageReceived: ${message.content}');
+    addMessage(message);
+    notifyListeners();
   }
 }

@@ -4,6 +4,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:ranchat_flutter/src/Model/DefaultData.dart';
 import 'package:ranchat_flutter/src/Model/Message.dart';
+import 'package:ranchat_flutter/src/Model/MessageData.dart';
 import 'package:ranchat_flutter/src/Service/message_service.dart';
 import 'package:ranchat_flutter/src/Service/room_service.dart';
 import 'package:ranchat_flutter/src/Service/user_service.dart';
@@ -20,8 +21,10 @@ class WebsocketService with ChangeNotifier {
   var subscriptionToRecieveMessage;
 
   Function(String)? onMatchingSuccessCallback;
+  Function(MessageData)? onReceiveMessageCallback;
 
   bool isMatched = false;
+  final Set<String> subscribedTopics = {};
 
   WebsocketService({
     required this.userService,
@@ -53,39 +56,56 @@ class WebsocketService with ChangeNotifier {
 
   void subscribeToMatchingSuccess(StompFrame frame) async {
     print('subscribe to matching success / ${userService.userId}');
+    if (subscribedTopics.contains('matchingSuccess')) {
+      return;
+    }
     subscriptionToMatchingSuccess = _stompClient?.subscribe(
       destination: '/user/${userService.userId}/queue/v1/matching/success',
       callback: onMatchingSuccess,
       headers: {'matchingSuccess': 'true'},
     );
+    subscribedTopics.add('matchingSuccess');
   }
 
-  void subscribeToRecieveMessage(
-      void Function(StompFrame) onMessageReceived) async {
-    print('subscribe to recieve message');
+  void subscribeToRecieveMessage() async {
+    print('subscribe to recieve message / ${roomService.roomId}');
+    if (subscribedTopics.contains('recieveMessage')) {
+      return;
+    }
     subscriptionToRecieveMessage = _stompClient?.subscribe(
       destination: '/topic/v1/rooms/${roomService.roomId}/messages/new',
       callback: onMessageReceived,
       headers: {'recieveMessage': 'true'},
     );
+    subscribedTopics.add('recieveMessage');
   }
 
   void unSubscribeToMatchingSuccess() async {
+    if (!subscribedTopics.contains('matchingSuccess')) {
+      return;
+    }
     subscriptionToMatchingSuccess(
         unsubscribeHeaders: {'matchingSuccess': 'true'});
+    subscribedTopics.remove('matchingSuccess');
   }
 
   void unSubscribeToRecieveMessage() async {
+    if (!subscribedTopics.contains('recieveMessage')) {
+      return;
+    }
     subscriptionToRecieveMessage(
         unsubscribeHeaders: {'recieveMessage': 'true'});
+    subscribedTopics.remove('recieveMessage');
   }
 
   // #region recieve
   // 메시지 수신
   void onMessageReceived(StompFrame frame) async {
     final message = Message.fromJson(jsonDecode(frame.body ?? ''));
+    print('onMessageReceived: message - $message');
 
     messageService.addMessage(message.messageData);
+    onReceiveMessageCallback!(message.messageData);
   }
 
   // 매칭 성공
@@ -106,6 +126,10 @@ class WebsocketService with ChangeNotifier {
 
   void setOnMatchingSuccessCallback(void Function(String) callback) {
     onMatchingSuccessCallback = callback;
+  }
+
+  void setOnReceiveMessageCallback(void Function(MessageData) callback) {
+    onReceiveMessageCallback = callback;
   }
   // #endregion
 
@@ -135,7 +159,7 @@ class WebsocketService with ChangeNotifier {
 
   // 방 입장
   void enterRoom() async {
-    print('enter room');
+    print('enter room / ${userService.userId} / ${roomService.roomId}');
     if (_stompClient!.connected) {
       try {
         _stompClient?.send(
@@ -144,7 +168,7 @@ class WebsocketService with ChangeNotifier {
             "userId": userService.userId,
           }),
         );
-        subscribeToRecieveMessage(onMessageReceived);
+        subscribeToRecieveMessage();
       } catch (e) {
         print('enter room error: $e');
       }

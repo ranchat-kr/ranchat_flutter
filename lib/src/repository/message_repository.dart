@@ -17,6 +17,7 @@ class MessageRepository {
   // 메시지 목록 조회
   Future<List<MessageData>> getMessages(
       {int page = 0, int size = 50, required String roomId}) async {
+    print('getMessages: $roomId');
     try {
       final res = await dio.get(
           'https://${Defaultdata.domain}/v1/rooms/$roomId/messages?page=$page&size=$size');
