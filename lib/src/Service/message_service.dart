@@ -24,7 +24,7 @@ class MessageService with ChangeNotifier {
       {int page = 0, int size = 50}) async {
     List<MessageData> messages = await _messageRepository.getMessages(
         roomId: roomId, page: page, size: size);
-    messageList.items.addAll(messages);
+    messageList = messageList.copyWith(items: messages);
     return messages;
   }
 

@@ -79,7 +79,7 @@ class ChatViewModel extends BaseViewModel {
     print('fetchItems');
     try {
       final messages = await messageService.getMessageList(
-        roomService.roomId.toString(),
+        roomService.roomDetail.id.toString(),
         page: ++_currentPage,
         size: _pageSize,
       );
@@ -92,16 +92,14 @@ class ChatViewModel extends BaseViewModel {
   }
 
   Future<void> getMessages() async {
-    if (this.messages.isNotEmpty) {
-      return;
-    }
-    print('getMessages ddddd');
+    messageService.messageList.items.clear();
+    print('getMessages: ${roomService.roomDetail.id}');
     final messages = await messageService.getMessageList(
-      roomService.roomId.toString(),
+      roomService.roomDetail.id.toString(),
       page: _currentPage++,
       size: _pageSize * 2,
     );
-    this.messages = [...messages];
+    // this.messages = [...messages];
     notifyListeners();
   }
 
@@ -119,6 +117,5 @@ class ChatViewModel extends BaseViewModel {
   void onMessageReceived(MessageData message) {
     print('onMessageReceived: ${message.content}');
     addMessage(message);
-    notifyListeners();
   }
 }

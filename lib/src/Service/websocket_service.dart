@@ -60,47 +60,37 @@ class WebsocketService with ChangeNotifier {
   }
 
   void subscribeToMatchingSuccess(StompFrame frame) async {
-    print('subscribe to matching success / ${userService.userId}');
-    if (subscribedTopics.contains('matchingSuccess')) {
-      return;
-    }
+    unSubscribeToMatchingSuccess();
     subscriptionToMatchingSuccess = _stompClient?.subscribe(
       destination: '/user/${userService.userId}/queue/v1/matching/success',
       callback: onMatchingSuccess,
       headers: {'matchingSuccess': 'true'},
     );
-    subscribedTopics.add('matchingSuccess');
   }
 
   void subscribeToRecieveMessage() async {
-    print('subscribe to recieve message / ${roomService.roomId}');
-    if (subscribedTopics.contains('recieveMessage')) {
-      return;
-    }
+    unSubscribeToRecieveMessage();
+
     subscriptionToRecieveMessage = _stompClient?.subscribe(
-      destination: '/topic/v1/rooms/${roomService.roomId}/messages/new',
+      destination:
+          '/topic/v1/rooms/${roomService.roomDetail.id.toString()}/messages/new',
       callback: onMessageReceived,
       headers: {'recieveMessage': 'true'},
     );
-    subscribedTopics.add('recieveMessage');
   }
 
   void unSubscribeToMatchingSuccess() async {
-    if (!subscribedTopics.contains('matchingSuccess')) {
-      return;
+    if (subscriptionToMatchingSuccess != null) {
+      subscriptionToMatchingSuccess(
+          unsubscribeHeaders: {'matchingSuccess': 'true'});
     }
-    subscriptionToMatchingSuccess(
-        unsubscribeHeaders: {'matchingSuccess': 'true'});
-    subscribedTopics.remove('matchingSuccess');
   }
 
   void unSubscribeToRecieveMessage() async {
-    if (!subscribedTopics.contains('recieveMessage')) {
-      return;
+    if (subscriptionToRecieveMessage != null) {
+      subscriptionToRecieveMessage(
+          unsubscribeHeaders: {'recieveMessage': 'true'});
     }
-    subscriptionToRecieveMessage(
-        unsubscribeHeaders: {'recieveMessage': 'true'});
-    subscribedTopics.remove('recieveMessage');
   }
 
   // #region recieve
@@ -120,8 +110,10 @@ class WebsocketService with ChangeNotifier {
     if (frame.body != null && onMatchingSuccessCallback != null) {
       final matchingSuccess = jsonDecode(frame.body ?? '');
       print('matchingSuccess: ${matchingSuccess['data']['roomId']}');
-      roomService.roomId = matchingSuccess['data']['roomId'].toString();
-      onMatchingSuccessCallback!(matchingSuccess['data']['roomId'].toString());
+      final roomId = matchingSuccess['data']['roomId'].toString();
+      roomService.roomDetail =
+          roomService.roomDetail.copyWith(id: int.parse(roomId));
+      onMatchingSuccessCallback!(roomId);
     } else {
       print('matchingSuccess is null');
     }
@@ -144,7 +136,8 @@ class WebsocketService with ChangeNotifier {
     if (_stompClient!.connected) {
       try {
         _stompClient?.send(
-          destination: '/v1/rooms/${roomService.roomId}/messages/send',
+          destination:
+              '/v1/rooms/${roomService.roomDetail.id.toString()}/messages/send',
           body: jsonEncode(
             {
               "userId": userService.userId,
@@ -163,11 +156,13 @@ class WebsocketService with ChangeNotifier {
 
   // 방 입장
   Future<void> enterRoom() async {
-    print('enter room / ${userService.userId} / ${roomService.roomId}');
+    print(
+        'enter room / ${userService.userId} / ${roomService.roomDetail.id.toString()}');
     if (_stompClient!.connected) {
       try {
         _stompClient?.send(
-          destination: '/v1/rooms/${roomService.roomId}}/enter',
+          destination:
+              '/v1/rooms/${roomService.roomDetail.id.toString()}}/enter',
           body: jsonEncode({
             "userId": userService.userId,
           }),
@@ -186,7 +181,7 @@ class WebsocketService with ChangeNotifier {
     if (_stompClient!.connected) {
       try {
         _stompClient?.send(
-          destination: '/v1/rooms/${roomService.roomId}/exit',
+          destination: '/v1/rooms/${roomService.roomDetail.id.toString()}/exit',
           body: jsonEncode(
             {
               "userId": userService.userId,
@@ -201,6 +196,7 @@ class WebsocketService with ChangeNotifier {
 
   // 매칭 요청
   void requestMatching() async {
+    print('request matching');
     if (_stompClient!.connected) {
       try {
         _stompClient?.send(
@@ -217,6 +213,7 @@ class WebsocketService with ChangeNotifier {
 
   // 임시로 쓰는 매칭 함수
   void tempRequestMatching() async {
+    print('temp request matching');
     if (_stompClient!.connected) {
       try {
         _stompClient?.send(

@@ -97,15 +97,19 @@ class RoomRepository {
   }
 
   // 방 생성
-  Future<void> createRoom(String userId) async {
+  Future<String> createRoom(String userId) async {
+    print('createRoom userId: $userId');
     try {
-      await dio.post('https://${Defaultdata.domain}/v1/rooms', data: {
-        "userId": ['_userId'],
+      final res =
+          await dio.post('https://${Defaultdata.domain}/v1/rooms', data: {
+        "userIds": [userId],
         'roomType': 'GPT',
         'title': 'GPT 방',
       });
+      return res.data['data'].toString();
     } catch (e, s) {
       log('Failed to create room', error: e, stackTrace: s);
     }
+    return '';
   }
 }

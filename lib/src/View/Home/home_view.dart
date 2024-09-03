@@ -102,25 +102,11 @@ class _HomeViewState extends State<HomeView>
       context.read<WebsocketService>().toggleMatched();
       return;
     } else {
-      Navigator.of(context).pop();
       context.read<WebsocketService>().cancelMatching();
-      // Navigator.of(context).pop();
-
-      // Fluttertoast.showToast(
-      //   msg: '매칭에 실패하였습니다.',
-      //   toastLength: Toast.LENGTH_LONG,
-      //   gravity: ToastGravity.CENTER,
-      //   timeInSecForIosWeb: 2,
-      //   backgroundColor: Colors.grey,
-      //   textColor: Colors.white,
-      //   fontSize: 16.0,
-      // );
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('매칭에 실패하였습니다.'),
-          duration: Duration(seconds: 2),
-        ),
-      );
+      await homeViewModel.createRoom();
+      await homeViewModel.enterRoom();
+      Navigator.pop(context);
+      homeViewModel.goToChatRoom(context);
     }
   }
   // #endregion

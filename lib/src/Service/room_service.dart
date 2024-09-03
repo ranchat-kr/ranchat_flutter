@@ -7,7 +7,6 @@ class RoomService with ChangeNotifier {
   /// 방 리스트
   List<RoomData> _roomList = [];
   List<RoomData> get roomList => _roomList;
-  String roomId = '';
 
   set roomList(List<RoomData> value) {
     _roomList = value;
@@ -51,7 +50,8 @@ class RoomService with ChangeNotifier {
   }
 
   /// 방 생성
-  Future<void> createRoom(String userId) async {
-    await _roomRepository.createRoom(userId);
+  Future<String> createRoom(String userId) async {
+    final res = await _roomRepository.createRoom(userId);
+    return res;
   }
 }

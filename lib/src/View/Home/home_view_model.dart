@@ -133,22 +133,35 @@ class HomeViewModel extends BaseViewModel {
     return false;
   }
 
-  void requestMatching() {
+  Future<void> requestMatching() async {
     websocketService.requestMatching();
   }
 
-  void cancelMatching() {
+  Future<void> cancelMatching() async {
     websocketService.cancelMatching();
   }
 
-  void tempRequestMatching() {
+  Future<void> tempRequestMatching() async {
     websocketService.tempRequestMatching();
   }
 
+  Future<void> createRoom() async {
+    final roomId = await roomService.createRoom(userService.userId);
+    roomService.roomDetail =
+        roomService.roomDetail.copyWith(id: int.parse(roomId));
+  }
+
+  Future<void> enterRoom() async {
+    websocketService.enterRoom();
+  }
+
   void onMatchingSuccess(String roomId) async {
+    print('onMatchingSuccess roomId: $roomId');
+    roomService.roomDetail =
+        roomService.roomDetail.copyWith(id: int.parse(roomId));
+    enterRoom();
     shouldPop = true;
     isRoomExist = true;
-    await websocketService.enterRoom();
     notifyListeners();
   }
 

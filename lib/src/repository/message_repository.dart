@@ -22,6 +22,7 @@ class MessageRepository {
       final res = await dio.get(
           'https://${Defaultdata.domain}/v1/rooms/$roomId/messages?page=$page&size=$size');
       final messageList = MessageList.fromJson(res.data);
+      print('messagereopsitory res: $res');
 
       return messageList.items;
     } catch (e, s) {
