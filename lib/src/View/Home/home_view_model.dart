@@ -159,7 +159,7 @@ class HomeViewModel extends BaseViewModel {
     print('onMatchingSuccess roomId: $roomId');
     roomService.roomDetail =
         roomService.roomDetail.copyWith(id: int.parse(roomId));
-    enterRoom();
+    // enterRoom();
     shouldPop = true;
     isRoomExist = true;
     notifyListeners();

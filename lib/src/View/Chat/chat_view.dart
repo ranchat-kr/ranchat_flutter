@@ -42,9 +42,7 @@ class _ChatView extends State<ChatView> {
       userService: context.read<UserService>(),
       websocketService: context.read<WebsocketService>(),
     );
-    chatViewModel.setScrollController();
-    chatViewModel.getMessages();
-
+    _setInit();
     _setUI();
   }
 
@@ -59,6 +57,12 @@ class _ChatView extends State<ChatView> {
   // void _setServer() {
   //   getRoomDetailData();
   // }
+
+  void _setInit() async {
+    await chatViewModel.enterRoom();
+    await chatViewModel.getMessages();
+    chatViewModel.setScrollController();
+  }
 
   // UI 설정
   void _setUI() {
@@ -389,17 +393,34 @@ class _ChatView extends State<ChatView> {
                                               .items.length -
                                           _pageSize,
                           itemBuilder: (context, index) {
+                            String content;
+                            if (viewModel.messageService.messageList
+                                    .items[index].messageType ==
+                                "ENTER") {
+                              content = viewModel.messageService.messageList
+                                  .items[index].content;
+                            } else {
+                              content =
+                                  "${viewModel.userService.userId == viewModel.messageService.messageList.items[index].userId ? '나' : '상대방'}: ${viewModel.messageService.messageList.items[index].content}";
+                            }
                             return Padding(
                               padding: const EdgeInsets.symmetric(
                                   vertical: 8.0, horizontal: 16.0),
                               child: Text(
-                                "${viewModel.messageService.messageList.items[index].messageType == "NOTICE" ? "" : viewModel.userService.userId == viewModel.messageService.messageList.items[index].userId ? '나' : '상대방'}: ${viewModel.messageService.messageList.items[index].content}",
+                                content,
                                 style: TextStyle(
-                                  color: viewModel.userService.userId ==
-                                          viewModel.messageService.messageList
-                                              .items[index].userId
-                                      ? Colors.yellow
-                                      : Colors.white,
+                                  color: viewModel.messageService.messageList
+                                              .items[index].messageType ==
+                                          "ENTER"
+                                      ? Colors.cyan
+                                      : viewModel.userService.userId ==
+                                              viewModel
+                                                  .messageService
+                                                  .messageList
+                                                  .items[index]
+                                                  .userId
+                                          ? Colors.yellow
+                                          : Colors.white,
                                 ),
                               ),
                             );

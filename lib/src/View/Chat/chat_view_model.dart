@@ -56,6 +56,10 @@ class ChatViewModel extends BaseViewModel {
     notifyListeners();
   }
 
+  Future<void> enterRoom() async {
+    await websocketService.enterRoom();
+  }
+
   RoomDetailData getRoomDetailData() {
     return roomService.roomDetail;
   }

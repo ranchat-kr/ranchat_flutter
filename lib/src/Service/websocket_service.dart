@@ -3,7 +3,6 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:ranchat_flutter/src/Model/DefaultData.dart';
-import 'package:ranchat_flutter/src/Model/Message.dart';
 import 'package:ranchat_flutter/src/Model/MessageData.dart';
 import 'package:ranchat_flutter/src/Service/message_service.dart';
 import 'package:ranchat_flutter/src/Service/room_service.dart';
@@ -96,11 +95,11 @@ class WebsocketService with ChangeNotifier {
   // #region recieve
   // 메시지 수신
   void onMessageReceived(StompFrame frame) async {
-    final message = Message.fromJson(jsonDecode(frame.body ?? ''));
-    print('onMessageReceived: message - $message');
+    print('onMessageReceived: frame - ${frame.body}');
+    final messageData = MessageData.fromJson(jsonDecode(frame.body ?? ''));
 
-    messageService.addMessage(message.messageData);
-    onReceiveMessageCallback!(message.messageData);
+    messageService.addMessage(messageData);
+    onReceiveMessageCallback!(messageData);
   }
 
   // 매칭 성공
@@ -162,7 +161,7 @@ class WebsocketService with ChangeNotifier {
       try {
         _stompClient?.send(
           destination:
-              '/v1/rooms/${roomService.roomDetail.id.toString()}}/enter',
+              '/v1/rooms/${roomService.roomDetail.id.toString()}/enter',
           body: jsonEncode({
             "userId": userService.userId,
           }),
