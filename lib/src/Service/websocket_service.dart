@@ -3,6 +3,7 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:ranchat_flutter/src/Model/DefaultData.dart';
+import 'package:ranchat_flutter/src/Model/Message.dart';
 import 'package:ranchat_flutter/src/Model/MessageData.dart';
 import 'package:ranchat_flutter/src/Service/message_service.dart';
 import 'package:ranchat_flutter/src/Service/room_service.dart';
@@ -96,10 +97,10 @@ class WebsocketService with ChangeNotifier {
   // 메시지 수신
   void onMessageReceived(StompFrame frame) async {
     print('onMessageReceived: frame - ${frame.body}');
-    final messageData = MessageData.fromJson(jsonDecode(frame.body ?? ''));
+    final message = Message.fromJson(jsonDecode(frame.body ?? ''));
 
-    messageService.addMessage(messageData);
-    onReceiveMessageCallback!(messageData);
+    messageService.addMessage(message.messageData);
+    onReceiveMessageCallback!(message.messageData);
   }
 
   // 매칭 성공
