@@ -1,4 +1,4 @@
-import 'package:ranchat_flutter/Model/MessageData.dart';
+import 'package:ran_talk/Model/MessageData.dart';
 
 class Message {
   final String status;

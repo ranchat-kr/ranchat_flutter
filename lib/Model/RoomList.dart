@@ -1,4 +1,4 @@
-import 'package:ranchat_flutter/Model/RoomData.dart';
+import 'package:ran_talk/Model/RoomData.dart';
 
 class RoomList {
   final String status;

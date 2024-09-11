@@ -1,4 +1,4 @@
-import 'package:ranchat_flutter/Model/ParticipantsData.dart';
+import 'package:ran_talk/Model/ParticipantsData.dart';
 
 class RoomDetailData {
   final int id;

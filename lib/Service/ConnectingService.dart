@@ -1,6 +1,6 @@
-import 'package:ranchat_flutter/Model/User.dart';
-import 'package:ranchat_flutter/Service/APIService.dart';
-import 'package:ranchat_flutter/Service/WebsocketService.dart';
+import 'package:ran_talk/Model/User.dart';
+import 'package:ran_talk/Service/APIService.dart';
+import 'package:ran_talk/Service/WebsocketService.dart';
 
 import '../Model/MessageData.dart';
 

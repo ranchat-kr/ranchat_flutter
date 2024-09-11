@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:ranchat_flutter/Model/User.dart';
-import 'package:ranchat_flutter/Service/ConnectingService.dart';
+import 'package:ran_talk/Model/User.dart';
+import 'package:ran_talk/Service/ConnectingService.dart';
 
 class Settingscreen extends StatefulWidget {
   final Connectingservice connectingservice;

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:ranchat_flutter/Model/RoomData.dart';
-import 'package:ranchat_flutter/Service/ConnectingService.dart';
+import 'package:ran_talk/Model/RoomData.dart';
+import 'package:ran_talk/Service/ConnectingService.dart';
 
 import 'ChatScreen.dart';
 

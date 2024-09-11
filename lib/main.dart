@@ -2,10 +2,10 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:ranchat_flutter/Service/ConnectingService.dart';
-import 'package:ranchat_flutter/View/ChatScreen.dart';
-import 'package:ranchat_flutter/View/RoomListScreen.dart';
-import 'package:ranchat_flutter/View/SettingScreen.dart';
+import 'package:ran_talk/Service/ConnectingService.dart';
+import 'package:ran_talk/View/ChatScreen.dart';
+import 'package:ran_talk/View/RoomListScreen.dart';
+import 'package:ran_talk/View/SettingScreen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 

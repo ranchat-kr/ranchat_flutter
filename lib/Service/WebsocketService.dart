@@ -1,9 +1,9 @@
 import 'dart:convert';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:ranchat_flutter/Model/DefaultData.dart';
-import 'package:ranchat_flutter/Model/Message.dart';
-import 'package:ranchat_flutter/Model/MessageData.dart';
+import 'package:ran_talk/Model/DefaultData.dart';
+import 'package:ran_talk/Model/Message.dart';
+import 'package:ran_talk/Model/MessageData.dart';
 import 'package:stomp_dart_client/stomp_dart_client.dart';
 
 class WebsocketService {
