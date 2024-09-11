@@ -133,12 +133,47 @@ class _ChatScreen extends State<ChatScreen> {
   // 채팅방 나가기
   void exitRoom() async {
     // _connectingservice.apiService?.exitRoom();
-    _connectingservice.websocketService?.exitRoom();
+    try {
+      await _connectingservice.websocketService?.exitRoom();
+      Navigator.popUntil(context, (route) => route.isFirst); // 처음 화면으로 이동
+    } catch (e) {
+      Navigator.pop(context);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('서버와의 연결에 실패했습니다.'),
+          duration: Duration(seconds: 1),
+        ),
+      );
+    }
   }
 
   // 메시지 수신 구독 취소
   void unSubscribeToRecieveMessage() async {
     _connectingservice.websocketService?.unSubscribeToRecieveMessage();
+  }
+
+  void reportUser(String selectedReason, String report) async {
+    try {
+      await _connectingservice.apiService?.reportUser(
+          _roomDetailData.participants
+              .firstWhere(
+                  (element) => element.userId != _connectingservice.userId)
+              .userId,
+          selectedReason,
+          report);
+      print('신고 완료. $selectedReason / $report');
+      _dialogTextController.clear();
+      Navigator.pop(context);
+    } catch (e) {
+      _dialogTextController.clear();
+      Navigator.pop(context);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('서버와 연결에 실패했습니다.'),
+          duration: Duration(seconds: 1),
+        ),
+      );
+    }
   }
   // #endregion
 
@@ -218,17 +253,7 @@ class _ChatScreen extends State<ChatScreen> {
                         if (selectedReason == null || report.isEmpty) {
                           return;
                         } else {
-                          _dialogTextController.clear();
-                          _connectingservice.apiService?.reportUser(
-                              _roomDetailData.participants
-                                  .firstWhere((element) =>
-                                      element.userId !=
-                                      _connectingservice.userId)
-                                  .userId,
-                              selectedReason!,
-                              report);
-                          print('신고 완료. $selectedReason / $report');
-                          Navigator.pop(context);
+                          reportUser(selectedReason!, report);
                         }
                       },
                       child: const Text('신고'),
@@ -263,8 +288,6 @@ class _ChatScreen extends State<ChatScreen> {
                     exitRoom();
                     _isLoading = false;
                   });
-                  Navigator.popUntil(
-                      context, (route) => route.isFirst); // 처음 화면으로 이동
                 },
                 child: const Text('나가기'),
               )

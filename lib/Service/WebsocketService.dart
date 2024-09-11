@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:ranchat_flutter/Model/DefaultData.dart';
 import 'package:ranchat_flutter/Model/Message.dart';
 import 'package:ranchat_flutter/Model/MessageData.dart';
@@ -27,7 +28,7 @@ class WebsocketService {
     _onMatchingSuccessCallback = onMatchingSuccess;
   }
 
-  void setOnMessageReceivedCallback(Function(MessageData) callback) async {
+  void setOnMessageReceivedCallback(Function(MessageData) callback) {
     _onMessageReceivedCallback = callback;
   }
 
@@ -41,59 +42,101 @@ class WebsocketService {
     _userId = userId;
   }
 
-  void connectToWebSocket() async {
+  Future<void> connectToWebSocket() async {
     try {
-      _stompClient = StompClient(
-        config: StompConfig(
-          url: 'ws://${Defaultdata.domain}/endpoint',
-          stompConnectHeaders: {'userId': _userId},
-          onConnect: (StompFrame frame) => subscribeToMatchingSuccess(frame),
-          onWebSocketError: (dynamic error) => print(error.toString()),
-          onWebSocketDone: () => print('WebSocket connect done.'),
-          onStompError: (StompFrame frame) =>
-              print('Stomp error: ${frame.body}'),
-          onDisconnect: (StompFrame frame) =>
-              print('Disconnected: ${frame.body}'),
-          onDebugMessage: (String message) => print('Debug: $message'),
-        ),
-      );
-      _stompClient?.activate();
+      bool isInternetConnection = await checkInternetConnection();
+      print('isInternetConnection: $isInternetConnection');
+      if (isInternetConnection) {
+        _stompClient = StompClient(
+          config: StompConfig(
+            url: 'ws://${Defaultdata.domain}/endpoint',
+            connectionTimeout: const Duration(seconds: 10),
+            stompConnectHeaders: {'userId': _userId},
+            heartbeatIncoming: const Duration(seconds: 10),
+            heartbeatOutgoing: const Duration(seconds: 10),
+            onConnect: (StompFrame frame) => subscribe(frame),
+            onWebSocketError: (dynamic error) => print(error.toString()),
+            onWebSocketDone: () => onWebSocketDone,
+            onStompError: (StompFrame frame) =>
+                print('Stomp error: ${frame.body}'),
+            onDisconnect: (StompFrame frame) =>
+                print('Disconnected: ${frame.body}'),
+            onDebugMessage: (String message) => print('Debug: $message'),
+          ),
+        );
+        _stompClient?.activate();
+      } else {
+        throw Exception('No Internet Connection');
+      }
     } catch (e) {
       print('error: $e');
     }
   }
 
-  void subscribeToMatchingSuccess(StompFrame frame) async {
+  void onWebSocketDone() {
+    print('WebSocket connection lost. Trying to reconnect....');
+    reconnectToWebSocket();
+  }
+
+  Future<void> reconnectToWebSocket() async {
+    const int reconnectDelay = 5000;
+    await Future.delayed(const Duration(milliseconds: reconnectDelay));
+    await connectToWebSocket();
+    await subscribeToRecieveMessage();
+  }
+
+  void subscribe(StompFrame frame) async {
+    await subscribeToMatchingSuccess(frame);
+    await subscribeToRecieveMessage();
+  }
+
+  Future<void> subscribeToMatchingSuccess(StompFrame frame) async {
     print('subscribe to matching success');
-    subscriptionToMatchingSuccess = _stompClient?.subscribe(
-      destination: '/user/$_userId/queue/v1/matching/success',
-      callback: onMatchingSuccess,
-      headers: {'matchingSuccess': 'true'},
-    );
+    try {
+      subscriptionToMatchingSuccess = _stompClient?.subscribe(
+        destination: '/user/$_userId/queue/v1/matching/success',
+        callback: onMatchingSuccess,
+        headers: {'matchingSuccess': 'true'},
+      );
+    } catch (e) {
+      throw Exception('<subscribeToMatchingSuccess> Fail');
+    }
   }
 
-  void subscribeToRecieveMessage() async {
+  Future<void> subscribeToRecieveMessage() async {
     print('subscribe to recieve message');
-    subscriptionToRecieveMessage = _stompClient?.subscribe(
-      destination: '/topic/v1/rooms/$_roomId/messages/new',
-      callback: onMessageReceived,
-      headers: {'recieveMessage': 'true'},
-    );
+    try {
+      subscriptionToRecieveMessage = _stompClient?.subscribe(
+        destination: '/topic/v1/rooms/$_roomId/messages/new',
+        callback: onMessageReceived,
+        headers: {'recieveMessage': 'true'},
+      );
+    } catch (e) {
+      throw Exception('<subscribeToRecieveMessage> Fail');
+    }
   }
 
-  void unSubscribeToMatchingSuccess() async {
-    subscriptionToMatchingSuccess(
-        unsubscribeHeaders: {'matchingSuccess': 'true'});
+  Future<void> unSubscribeToMatchingSuccess() async {
+    try {
+      await subscriptionToMatchingSuccess(
+          unsubscribeHeaders: {'matchingSuccess': 'true'});
+    } catch (e) {
+      throw Exception('<unSubscribeToMatchingSuccess> Fail');
+    }
   }
 
-  void unSubscribeToRecieveMessage() async {
-    subscriptionToRecieveMessage(
-        unsubscribeHeaders: {'recieveMessage': 'true'});
+  Future<void> unSubscribeToRecieveMessage() async {
+    try {
+      await subscriptionToRecieveMessage(
+          unsubscribeHeaders: {'recieveMessage': 'true'});
+    } catch (e) {
+      throw Exception('<unSubscribeToRecieveMessage> Fail');
+    }
   }
 
   // #region recieve
   // 메시지 수신
-  void onMessageReceived(StompFrame frame) async {
+  Future<void> onMessageReceived(StompFrame frame) async {
     print('Received: ${frame.body}');
     if (_onMessageReceivedCallback != null) {
       final message = Message.fromJson(jsonDecode(frame.body ?? ''));
@@ -103,7 +146,7 @@ class WebsocketService {
   }
 
   // 매칭 성공
-  void onMatchingSuccess(StompFrame frame) async {
+  Future<void> onMatchingSuccess(StompFrame frame) async {
     print('Matching Success: ${frame.body}');
     if (_onMatchingSuccessCallback != null) {
       final matchingSuccess = jsonDecode(frame.body ?? '');
@@ -114,7 +157,7 @@ class WebsocketService {
 
   // #region send
   // 메시지 전송
-  void sendMessage(String content) async {
+  Future<void> sendMessage(String content) async {
     print('send message');
     if (_stompClient!.connected) {
       try {
@@ -126,15 +169,15 @@ class WebsocketService {
               "contentType": "TEXT",
             }));
       } catch (e) {
-        print('send Message error: $e');
+        throw Exception('<sendMessage> Fail');
       }
     } else {
-      print('send message error: not connected');
+      throw Exception('<sendMessage> not connected');
     }
   }
 
   // 방 입장
-  void enterRoom() async {
+  Future<void> enterRoom() async {
     print('enter room');
     if (_stompClient!.connected) {
       try {
@@ -146,18 +189,19 @@ class WebsocketService {
         );
         subscribeToRecieveMessage();
       } catch (e) {
-        print('enter room error: $e');
+        throw Exception('<enterRoom> Fail');
       }
     } else {
-      print('enter room error: not connected');
+      throw Exception('<enterRoom> not connected');
     }
   }
 
   // 방 나가기
-  void exitRoom({String? roomId}) async {
+  Future<void> exitRoom({String? roomId}) async {
     roomId ??= _roomId;
     print('exit room : $roomId');
-    if (_stompClient!.connected) {
+    bool isInternetConnection = await checkInternetConnection();
+    if (_stompClient!.connected && isInternetConnection) {
       try {
         _stompClient?.send(
           destination: '/v1/rooms/$roomId/exit',
@@ -165,16 +209,19 @@ class WebsocketService {
             'userId': _userId,
           }),
         );
+        print('<exitRoom>');
       } catch (e) {
-        print('exit room error: $e');
+        print('<exitRoom> catch');
+        throw Exception('<exitRoom> Fail');
       }
     } else {
-      print('exit room error: not connected');
+      print('<exitRoom> else');
+      throw Exception('<exitRoom> not connected');
     }
   }
 
   // 매칭 요청
-  void requestMatching() async {
+  Future<void> requestMatching() async {
     if (_stompClient!.connected) {
       try {
         _stompClient?.send(
@@ -182,15 +229,15 @@ class WebsocketService {
           body: jsonEncode({"userId": _userId}),
         );
       } catch (e) {
-        print('request matching error: $e');
+        throw Exception('<requestMatching> Fail');
       }
     } else {
-      print('request matching error: not connected');
+      throw Exception('<requestMatching> not connected');
     }
   }
 
   // 임시로 쓰는 매칭 함수
-  void tempRequestMatching() async {
+  Future<void> tempRequestMatching() async {
     if (_stompClient!.connected) {
       try {
         _stompClient?.send(
@@ -198,15 +245,15 @@ class WebsocketService {
           body: jsonEncode({"userId": userId2}),
         );
       } catch (e) {
-        print('request matching error: $e');
+        throw Exception('<tempRequestMatching> Fail');
       }
     } else {
-      print('request matching error: not connected');
+      throw Exception('<tempRequestMatching> not connected');
     }
   }
 
   // 매칭 취소
-  void cancelMatching() async {
+  Future<void> cancelMatching() async {
     print('cancel matching');
     if (_stompClient!.connected) {
       try {
@@ -215,14 +262,31 @@ class WebsocketService {
           body: jsonEncode({"userId": _userId}),
         );
       } catch (e) {
-        print('cancel matching error: $e');
+        throw Exception('<cancelMatching> Fail');
       }
     } else {
-      print('cancel matching error: not connected');
+      throw Exception('<cancelMatching> not connected');
     }
   }
   // #endregion
   // #endregion
+
+  Future<bool> checkInternetConnection() async {
+    print('checkInternetConnection');
+    try {
+      var connectivityResult = await Connectivity().checkConnectivity();
+      print('connectivityResult: $connectivityResult');
+      if (!connectivityResult.contains(ConnectivityResult.none)) {
+        print('connectivityResult: true');
+        return true;
+      } else {
+        return false;
+      }
+    } catch (e) {
+      print('checkInternetConnection error : $e');
+      return false;
+    }
+  }
 
   void dispose() {
     _stompClient?.deactivate();
