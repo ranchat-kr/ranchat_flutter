@@ -380,6 +380,9 @@ class _ChatScreen extends State<ChatScreen> {
                         String content;
                         if (_messageDatas[index].messageType == "ENTER") {
                           content = _messageDatas[index].content;
+                        } else if (_messageDatas[index].messageType ==
+                            "LEAVE") {
+                          content = _messageDatas[index].content;
                         } else {
                           content =
                               '${_messageDatas[index].userId == _connectingservice.userId ? '나' : '상대방'}: ${_messageDatas[index].content}';
@@ -392,10 +395,12 @@ class _ChatScreen extends State<ChatScreen> {
                             style: TextStyle(
                               color: _messageDatas[index].messageType == "ENTER"
                                   ? Colors.cyan
-                                  : _connectingservice.userId ==
-                                          _messageDatas[index].userId
-                                      ? Colors.yellow
-                                      : Colors.white,
+                                  : _messageDatas[index].messageType == "LEAVE"
+                                      ? Colors.red
+                                      : _connectingservice.userId ==
+                                              _messageDatas[index].userId
+                                          ? Colors.yellow
+                                          : Colors.white,
                             ),
                           ),
                         );
