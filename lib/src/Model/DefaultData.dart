@@ -1,3 +1,3 @@
-class Defaultdata {
-  static String domain = 'dev-api.ranchat.net';
+abstract class Defaultdata {
+  static String domain = 'api.ranchat.net';
 }

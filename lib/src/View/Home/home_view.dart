@@ -217,7 +217,7 @@ class _HomeViewState extends State<HomeView>
                         viewModel.tempRequestMatching();
                       },
                       child: const Text(
-                        'Ran-Chat',
+                        'Ran-Talk',
                         style: TextStyle(fontSize: 80.0, color: Colors.white),
                       ),
                     ),
@@ -243,10 +243,10 @@ class _HomeViewState extends State<HomeView>
                             },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.black,
-                              foregroundColor: Colors.white,
+                              foregroundColor: Colors.black,
                               shape: const RoundedRectangleBorder(
                                   side: BorderSide(
-                                      color: Colors.white, width: 5.0)),
+                                      color: Colors.black, width: 5.0)),
                             ),
                             child: const SizedBox(
                               width: 150.0,
