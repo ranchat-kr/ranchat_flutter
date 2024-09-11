@@ -31,6 +31,26 @@ class _SettingscreenState extends State<Settingscreen> {
     });
   }
 
+  void setNickName(String nickName) async {
+    try {
+      await _connectingservice.apiService?.updateUserName(nickName);
+      Navigator.pop(context);
+      setState(() {
+        user = user?.copyWith(name: nickName);
+      });
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text('닉네임 변경이 완료되었습니다.'),
+        duration: Duration(seconds: 1),
+      ));
+    } catch (e) {
+      Navigator.pop(context);
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text('서버와의 연결에 실패했습니다.'),
+        duration: Duration(seconds: 1),
+      ));
+    }
+  }
+
   void _showReQuestionDialog(String nickName) {
     showDialog(
       context: context,
@@ -47,12 +67,7 @@ class _SettingscreenState extends State<Settingscreen> {
             ),
             TextButton(
               onPressed: () {
-                _connectingservice.apiService?.updateUserName(nickName);
-                setState(() {
-                  user = user?.copyWith(name: nickName);
-                });
-
-                Navigator.pop(context);
+                setNickName(nickName);
               },
               child: const Text('변경'),
             )
