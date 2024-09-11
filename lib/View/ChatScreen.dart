@@ -331,17 +331,19 @@ class _ChatScreen extends State<ChatScreen> {
             ),
             centerTitle: true,
             actions: <Widget>[
-              IconButton(
-                icon: const Icon(
-                  Icons.report,
-                  color: Colors.white,
-                ),
-                onPressed: () {
-                  print('report');
-                  _showReportDialog();
-                },
-                highlightColor: Colors.grey,
-              ),
+              _roomDetailData.type == "GPT"
+                  ? Container()
+                  : IconButton(
+                      icon: const Icon(
+                        Icons.report,
+                        color: Colors.white,
+                      ),
+                      onPressed: () {
+                        print('report');
+                        _showReportDialog();
+                      },
+                      highlightColor: Colors.grey,
+                    ),
               IconButton(
                 icon: const Icon(
                   Icons.logout,
