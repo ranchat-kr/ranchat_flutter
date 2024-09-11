@@ -139,9 +139,11 @@ class WebsocketService {
   Future<void> onMessageReceived(StompFrame frame) async {
     print('Received: ${frame.body}');
     if (_onMessageReceivedCallback != null) {
-      final message = Message.fromJson(jsonDecode(frame.body ?? ''));
+      var message = Message.fromJson(jsonDecode(frame.body ?? ''));
 
-      _onMessageReceivedCallback!(message.messageData);
+      if (message.status == 'SUCCESS') {
+        _onMessageReceivedCallback!(message.messageData);
+      }
     }
   }
 

@@ -19,7 +19,7 @@ class Message {
     return Message(
       status: json['status'],
       message: json['message'],
-      serverDatetime: json['serverDatetime'],
+      serverDatetime: json['serverDateTime'],
       messageData: MessageData.fromJson(json['data']),
     );
   }
