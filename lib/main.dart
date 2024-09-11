@@ -328,7 +328,7 @@ class _HomeScreenState extends State<HomeScreen>
                   _connectingservice.websocketService?.tempRequestMatching();
                 },
                 child: const Text(
-                  'Ran-Chat',
+                  'Ran-Talk',
                   style: TextStyle(fontSize: 80.0, color: Colors.white),
                 ),
               ),
