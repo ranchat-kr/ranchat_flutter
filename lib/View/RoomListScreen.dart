@@ -291,7 +291,11 @@ class _RoomItemState extends State<RoomItem> {
         if (int.parse(hour) >= 0 && int.parse(hour) < 12) {
           timeFormat = '오전 $hour:$minute';
         } else {
-          timeFormat = '오후 ${int.parse(hour) - 12}:$minute';
+          if (int.parse(hour) == 12) {
+            timeFormat = '오후 $hour:$minute';
+          } else {
+            timeFormat = '오후 ${int.parse(hour) - 12}:$minute';
+          }
         }
         _timeFormatState = TimeFormatState.today;
       } else if (now - data == 1) {
