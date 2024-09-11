@@ -43,6 +43,7 @@ dependencies:
   uuid: ^4.4.2
   shared_preferences: ^2.0.6
   connectivity_plus: ^6.0.5
+  flutter_launcher_icons: ^0.13.1
 
 dev_dependencies:
   flutter_test:
@@ -55,6 +56,11 @@ dev_dependencies:
   # rules and activating additional ones.
   flutter_lints: ^3.0.0
 
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/icon/ran-talk_logo.png"
+
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 
@@ -64,6 +70,9 @@ flutter:
     - family: DungGeunMo
       fonts:
         - asset: assets/fonts/DungGeunMo.ttf
+
+  assets:
+    - assets/icon/ran-talk_logo.png
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
