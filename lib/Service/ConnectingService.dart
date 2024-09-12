@@ -10,6 +10,7 @@ class Connectingservice {
   final String userId2 = "0190964c-ee3a-7e81-a1f8-231b5d97c2a1";
   late String _userId = '';
   User? user;
+  bool isRoomExist = false;
 
   WebsocketService? websocketService;
   ApiService? apiService;

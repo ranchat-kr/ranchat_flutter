@@ -55,12 +55,11 @@ class WebsocketService {
             heartbeatIncoming: const Duration(seconds: 10),
             heartbeatOutgoing: const Duration(seconds: 10),
             onConnect: (StompFrame frame) => subscribe(frame),
-            onWebSocketError: (dynamic error) => print(error.toString()),
+            onWebSocketError: (dynamic error) => reconnectToWebSocket(),
             onWebSocketDone: () => onWebSocketDone,
             onStompError: (StompFrame frame) =>
                 print('Stomp error: ${frame.body}'),
-            onDisconnect: (StompFrame frame) =>
-                print('Disconnected: ${frame.body}'),
+            onDisconnect: (StompFrame frame) => reconnectToWebSocket(),
             onDebugMessage: (String message) => print('Debug: $message'),
           ),
         );
@@ -82,7 +81,6 @@ class WebsocketService {
     const int reconnectDelay = 5000;
     await Future.delayed(const Duration(milliseconds: reconnectDelay));
     await connectToWebSocket();
-    await subscribeToRecieveMessage();
   }
 
   void subscribe(StompFrame frame) async {

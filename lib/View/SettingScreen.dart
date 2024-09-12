@@ -14,6 +14,7 @@ class _SettingscreenState extends State<Settingscreen> {
   final TextEditingController _nicknameController = TextEditingController();
   final FocusNode _focusNode = FocusNode();
   late Connectingservice _connectingservice;
+  var _isLoading = false;
   User? user;
 
   @override
@@ -24,14 +25,23 @@ class _SettingscreenState extends State<Settingscreen> {
   }
 
   void setUser() async {
+    setState(() {
+      _isLoading = true;
+    });
     await _connectingservice.apiService?.getUser().then((value) {
       setState(() {
         user = value;
       });
     });
+    setState(() {
+      _isLoading = false;
+    });
   }
 
   void setNickName(String nickName) async {
+    setState(() {
+      _isLoading = true;
+    });
     try {
       await _connectingservice.apiService?.updateUserName(nickName);
       Navigator.pop(context);
@@ -49,6 +59,9 @@ class _SettingscreenState extends State<Settingscreen> {
         duration: Duration(seconds: 1),
       ));
     }
+    setState(() {
+      _isLoading = false;
+    });
   }
 
   void _showReQuestionDialog(String nickName) {
@@ -135,92 +148,101 @@ class _SettingscreenState extends State<Settingscreen> {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        _focusNode.unfocus();
-      },
-      child: Scaffold(
-        backgroundColor: Colors.black,
-        appBar: AppBar(
-          leading: IconButton(
-            icon: const Icon(
-              Icons.arrow_back,
-              color: Colors.white,
-            ),
-            onPressed: () {
-              Navigator.pop(context);
-            },
-            highlightColor: Colors.grey,
-          ),
-          title: const Text('Settings'),
-          backgroundColor: Colors.black,
-          foregroundColor: Colors.white,
-        ),
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Text(
-                user?.name ?? '',
-                style: const TextStyle(fontSize: 24, color: Colors.white),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(15.0),
-                child: TextField(
-                  focusNode: _focusNode,
-                  controller: _nicknameController,
-                  onChanged: (value) {
-                    setState(() {});
-                  },
-                  style: const TextStyle(color: Colors.white),
-                  cursorColor: Colors.white,
-                  cursorWidth: 8.0,
-                  cursorRadius: Radius.zero,
-                  decoration: InputDecoration(
-                    border: const OutlineInputBorder(),
-                    labelText: '닉네임',
-                    hintText: ' 바꿀 닉네임을 입력해주세요.',
-                    hintStyle: const TextStyle(color: Colors.blueGrey),
-                    suffixIcon: _nicknameController.text.isEmpty
-                        ? null
-                        : IconButton(
-                            icon: const Icon(Icons.clear),
-                            color: Colors.white,
-                            onPressed: () {
-                              _nicknameController.clear();
-                              setState(() {});
-                            },
-                          ),
-                  ),
+    return Stack(
+      children: [
+        GestureDetector(
+          onTap: () {
+            _focusNode.unfocus();
+          },
+          child: Scaffold(
+            backgroundColor: Colors.black,
+            appBar: AppBar(
+              leading: IconButton(
+                icon: const Icon(
+                  Icons.arrow_back,
+                  color: Colors.white,
                 ),
-              ),
-              ElevatedButton(
                 onPressed: () {
-                  final nickName = _nicknameController.text.trim();
-                  if (_isValidNickName(nickName) && nickName.isNotEmpty) {
-                    setState(() {
-                      // _messages.add(Message(
-                      //     message: message,
-                      //     color: isMe ? Colors.yellow : Colors.white));
-                      _nicknameController.clear();
-                    });
-                    _showReQuestionDialog(nickName);
-                  }
-                  FocusScope.of(context).requestFocus(_focusNode);
+                  Navigator.pop(context);
                 },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.transparent,
-                  foregroundColor: Colors.red,
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(0.0),
-                      side: const BorderSide(color: Colors.red, width: 2.0)),
-                ),
-                child: const Text('변경하기', style: TextStyle(fontSize: 20)),
+                highlightColor: Colors.grey,
               ),
-            ],
+              title: const Text('Settings'),
+              backgroundColor: Colors.black,
+              foregroundColor: Colors.white,
+            ),
+            body: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Text(
+                    user?.name ?? '',
+                    style: const TextStyle(fontSize: 24, color: Colors.white),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(15.0),
+                    child: TextField(
+                      focusNode: _focusNode,
+                      controller: _nicknameController,
+                      onChanged: (value) {
+                        setState(() {});
+                      },
+                      style: const TextStyle(color: Colors.white),
+                      cursorColor: Colors.white,
+                      cursorWidth: 8.0,
+                      cursorRadius: Radius.zero,
+                      decoration: InputDecoration(
+                        border: const OutlineInputBorder(),
+                        labelText: '닉네임',
+                        hintText: ' 바꿀 닉네임을 입력해주세요.',
+                        hintStyle: const TextStyle(color: Colors.blueGrey),
+                        suffixIcon: _nicknameController.text.isEmpty
+                            ? null
+                            : IconButton(
+                                icon: const Icon(Icons.clear),
+                                color: Colors.white,
+                                onPressed: () {
+                                  _nicknameController.clear();
+                                  setState(() {});
+                                },
+                              ),
+                      ),
+                    ),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      final nickName = _nicknameController.text.trim();
+                      if (_isValidNickName(nickName) && nickName.isNotEmpty) {
+                        setState(() {
+                          // _messages.add(Message(
+                          //     message: message,
+                          //     color: isMe ? Colors.yellow : Colors.white));
+                          _nicknameController.clear();
+                        });
+                        _showReQuestionDialog(nickName);
+                      }
+                      FocusScope.of(context).requestFocus(_focusNode);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.transparent,
+                      foregroundColor: Colors.red,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(0.0),
+                          side:
+                              const BorderSide(color: Colors.red, width: 2.0)),
+                    ),
+                    child: const Text('변경하기', style: TextStyle(fontSize: 20)),
+                  ),
+                ],
+              ),
+            ),
           ),
         ),
-      ),
+        if (_isLoading)
+          const Center(
+            child: CircularProgressIndicator(),
+          ),
+      ],
     );
   }
 }

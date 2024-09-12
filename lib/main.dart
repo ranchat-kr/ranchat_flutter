@@ -19,7 +19,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Ranchat',
+      title: 'Ran-Talk',
       theme: ThemeData(
         fontFamily: 'DungGeunMo',
       ),
@@ -39,9 +39,10 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen>
     with SingleTickerProviderStateMixin {
   late Connectingservice _connectingservice; // API, WebSocket 연결을 위한 객체
-  var _isLoading = false; // 매칭 중 로딩을 위한 변수
+  var _isMatchingLoading = false; // 매칭 중 로딩을 위한 변수
+  var _isLoading = false; // 로딩을 위한 변수
   var _isAnimationEnd = false; // 애니메이션 종료를 위한 변수
-  var _isRoomExist = false; // 방이 존재하는지 확인하는 변수
+  final _isRoomExist = false; // 방이 존재하는지 확인하는 변수
 
   late AnimationController _animationController; // 애니메이션 컨트롤러
   late Animation<Offset> _logoAnimation;
@@ -92,6 +93,9 @@ class _HomeScreenState extends State<HomeScreen>
 
   void _setServer() async {
     // 서버 설정
+    setState(() {
+      _isLoading = true;
+    });
     _connectingservice = Connectingservice(
         onMatchingSuccess: _onMatchingSuccess); // API, WebSocket 연결을 위한 객체 생성
 
@@ -108,18 +112,29 @@ class _HomeScreenState extends State<HomeScreen>
       await prefs.setString('userUUID', uuidV7);
       print('uuidV7: $uuidV7');
       _connectingservice.setUserId(userId);
-      _connectingservice.apiService?.createUser(_getRandomNickname());
+      await _connectingservice.apiService?.createUser(_getRandomNickname());
     }
     _connectingservice.setUserId(userId);
     checkRoomExist();
-    _connectingservice.websocketService?.connectToWebSocket(); // WebSocket 연결
+    await _connectingservice.websocketService
+        ?.connectToWebSocket(); // WebSocket 연결
+
+    setState(() {
+      _isLoading = false;
+    });
   }
 
-  void checkRoomExist() {
-    _connectingservice.apiService?.checkRoomExist().then((value) {
+  void checkRoomExist() async {
+    setState(() {
+      _isLoading = true;
+    });
+    await _connectingservice.apiService?.checkRoomExist().then((value) {
       setState(() {
-        _isRoomExist = value;
+        _connectingservice.isRoomExist = value;
       });
+    });
+    setState(() {
+      _isLoading = false;
     });
   }
 
@@ -180,14 +195,15 @@ class _HomeScreenState extends State<HomeScreen>
   // #region dialog
   // 매칭 중 로딩 다이얼로그
   void _showLoadingDialog(BuildContext context) {
-    _isLoading = true;
+    _isMatchingLoading = true;
     showDialog(
         context: context,
         barrierDismissible: false,
         builder: (BuildContext context) {
           return Center(
-            child:
-                _isLoading ? const LoadingDialog() : null, // 로딩 중이면 로딩 다이얼로그 출력
+            child: _isMatchingLoading
+                ? const LoadingDialog()
+                : null, // 로딩 중이면 로딩 다이얼로그 출력
           );
         });
 
@@ -197,11 +213,11 @@ class _HomeScreenState extends State<HomeScreen>
   // 8초 뒤에 매칭 실패 시 다이얼로그 종료
   void _closeLoadingDialog() async {
     await Future.delayed(const Duration(seconds: 8));
-    if (!_isLoading) {
+    if (!_isMatchingLoading) {
       return;
     } else {
       _connectingservice.websocketService?.cancelMatching();
-      _isLoading = false;
+      _isMatchingLoading = false;
 
       await _connectingservice.apiService?.createRoom().then((roomId) {
         _connectingservice.websocketService?.setRoomId(roomId.toString());
@@ -267,7 +283,7 @@ class _HomeScreenState extends State<HomeScreen>
       _connectingservice.apiService?.setRoomId(roomId.toString());
       _connectingservice.websocketService?.enterRoom();
       Navigator.of(context).pop();
-      _isLoading = false;
+      _isMatchingLoading = false;
       Navigator.push(
         context,
         MaterialPageRoute(
@@ -316,75 +332,44 @@ class _HomeScreenState extends State<HomeScreen>
         //   style: TextStyle(fontSize: 40.0),
         // ),
       ),
-      body: SlideTransition(
-        // 애니메이션 적용
-        position: _logoAnimation,
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              GestureDetector(
-                onTap: () {
-                  _connectingservice.websocketService?.tempRequestMatching();
-                },
-                child: const Text(
-                  'Ran-Talk',
-                  style: TextStyle(fontSize: 80.0, color: Colors.white),
-                ),
-              ),
-              const SizedBox(height: 30.0),
-              !_isAnimationEnd
-                  ? const SizedBox(
-                      // 애니메이션이 종료되지 않았을 때
-                      height: 50.0,
-                    )
-                  : ElevatedButton(
-                      // 애니메이션이 종료되었을 때
-                      onPressed: () {
-                        _connectingservice.websocketService?.requestMatching();
-                        _showLoadingDialog(context);
-
-                        // Navigator.push(
-                        //   // 채팅 화면으로 이동
-                        //   context,
-                        //   MaterialPageRoute(
-                        //       builder: (context) => ChatScreen(
-                        //           connectingservice: _connectingservice)),
-                        // );
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.black,
-                        foregroundColor: Colors.white,
-                        shape: const RoundedRectangleBorder(
-                            side: BorderSide(color: Colors.white, width: 5.0)),
-                      ),
-                      child: const SizedBox(
-                          width: 150.0,
+      body: Stack(
+        children: [
+          SlideTransition(
+            // 애니메이션 적용
+            position: _logoAnimation,
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  GestureDetector(
+                    onTap: () {
+                      // _connectingservice.websocketService?.tempRequestMatching();
+                    },
+                    child: const Text(
+                      'Ran-Talk',
+                      style: TextStyle(fontSize: 80.0, color: Colors.white),
+                    ),
+                  ),
+                  const SizedBox(height: 30.0),
+                  !_isAnimationEnd
+                      ? const SizedBox(
+                          // 애니메이션이 종료되지 않았을 때
                           height: 50.0,
-                          child: Align(
-                            alignment: Alignment.center,
-                            child: Text('START!',
-                                style: TextStyle(fontSize: 30.0)),
-                          ))),
-              const SizedBox(height: 10.0),
-              !_isAnimationEnd
-                  ? const SizedBox(
-                      // 애니메이션이 종료되지 않았을 때
-                      height: 50.0,
-                    )
-                  : _isRoomExist
-                      ? ElevatedButton(
+                        )
+                      : ElevatedButton(
                           // 애니메이션이 종료되었을 때
                           onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => RoomListScreen(
-                                      connectingservice:
-                                          _connectingservice)), // 채팅방 목록 화면으로 이동
-                            ).then((_) {
-                              checkRoomExist();
-                            });
+                            _connectingservice.websocketService
+                                ?.requestMatching();
+                            _showLoadingDialog(context);
+
+                            // Navigator.push(
+                            //   // 채팅 화면으로 이동
+                            //   context,
+                            //   MaterialPageRoute(
+                            //       builder: (context) => ChatScreen(
+                            //           connectingservice: _connectingservice)),
+                            // );
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.black,
@@ -394,21 +379,63 @@ class _HomeScreenState extends State<HomeScreen>
                                     color: Colors.white, width: 5.0)),
                           ),
                           child: const SizedBox(
-                            width: 150.0,
-                            height: 50.0,
-                            child: Align(
-                              alignment: Alignment.center,
-                              child: Text('CONTINUE!',
-                                  style: TextStyle(fontSize: 30.0)),
-                            ),
-                          ),
+                              width: 150.0,
+                              height: 50.0,
+                              child: Align(
+                                alignment: Alignment.center,
+                                child: Text('START!',
+                                    style: TextStyle(fontSize: 30.0)),
+                              ))),
+                  const SizedBox(height: 10.0),
+                  !_isAnimationEnd
+                      ? const SizedBox(
+                          // 애니메이션이 종료되지 않았을 때
+                          height: 50.0,
                         )
-                      : const SizedBox(
-                          height: 50,
-                        ),
-            ],
+                      : _connectingservice.isRoomExist
+                          ? ElevatedButton(
+                              // 애니메이션이 종료되었을 때
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => RoomListScreen(
+                                          connectingservice:
+                                              _connectingservice)), // 채팅방 목록 화면으로 이동
+                                ).then((_) {
+                                  checkRoomExist();
+                                });
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.black,
+                                foregroundColor: Colors.white,
+                                shape: const RoundedRectangleBorder(
+                                    side: BorderSide(
+                                        color: Colors.white, width: 5.0)),
+                              ),
+                              child: const SizedBox(
+                                width: 150.0,
+                                height: 50.0,
+                                child: Align(
+                                  alignment: Alignment.center,
+                                  child: Text('CONTINUE!',
+                                      style: TextStyle(fontSize: 30.0)),
+                                ),
+                              ),
+                            )
+                          : const SizedBox(
+                              height: 50,
+                            ),
+                ],
+              ),
+            ),
           ),
-        ),
+          _isLoading
+              ? const Center(
+                  child: CircularProgressIndicator(),
+                )
+              : const SizedBox(),
+        ],
       ),
       bottomNavigationBar: const BottomAppBar(
         color: Colors.black,

@@ -135,6 +135,8 @@ class _ChatScreen extends State<ChatScreen> {
     // _connectingservice.apiService?.exitRoom();
     try {
       await _connectingservice.websocketService?.exitRoom();
+      var isRoomExist = await _connectingservice.apiService?.checkRoomExist();
+      _connectingservice.isRoomExist = isRoomExist!;
       Navigator.popUntil(context, (route) => route.isFirst); // 처음 화면으로 이동
     } catch (e) {
       Navigator.pop(context);
