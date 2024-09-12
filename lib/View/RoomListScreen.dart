@@ -96,11 +96,13 @@ class _RoomListScreenState extends State<RoomListScreen> {
     });
   }
 
-  void exitRoom(String roomId) {
+  void exitRoom(String roomId) async {
     setState(() {
       _isLoading = true;
       // _connectingservice.apiService?.exitSelectedRoom(roomId);
-      _connectingservice.websocketService?.exitRoom(roomId: roomId);
+    });
+    await _connectingservice.websocketService?.exitRoom(roomId: roomId);
+    setState(() {
       _isLoading = false;
     });
   }
@@ -134,12 +136,12 @@ class _RoomListScreenState extends State<RoomListScreen> {
               child: ListView.separated(
                 controller: _scrollController,
                 itemCount: _roomItems.length,
-                itemBuilder: (context, index) {
+                itemBuilder: (listContext, index) {
                   return Dismissible(
                     key: Key(_roomItems[index].room.id.toString()),
                     confirmDismiss: (direction) async {
                       return await showDialog(
-                        context: context,
+                        context: listContext,
                         builder: (BuildContext context) {
                           return AlertDialog(
                             title: const Text('방 나가기'),
@@ -153,12 +155,20 @@ class _RoomListScreenState extends State<RoomListScreen> {
                               ),
                               TextButton(
                                 onPressed: () {
+                                  String roomTitle =
+                                      _roomItems[index].room.title;
                                   setState(() {
                                     exitRoom(
                                         _roomItems[index].room.id.toString());
                                     _roomItems.removeAt(index);
                                   });
                                   Navigator.pop(context, true);
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text('$roomTitle 방에서 나갔습니다.'),
+                                      duration: const Duration(seconds: 2),
+                                    ),
+                                  );
                                 },
                                 child: const Text('나가기'),
                               )
@@ -168,6 +178,7 @@ class _RoomListScreenState extends State<RoomListScreen> {
                       );
                     },
                     onDismissed: (direction) {
+                      print('ondismissed');
                       setState(() {
                         _roomItems.removeAt(index);
                       });

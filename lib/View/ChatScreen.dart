@@ -366,47 +366,58 @@ class _ChatScreen extends State<ChatScreen> {
                   Expanded(
                       child: Align(
                     alignment: Alignment.topCenter,
-                    child: ListView.builder(
-                      padding: const EdgeInsets.only(bottom: 0.0),
-                      controller: _scrollController,
-                      shrinkWrap: true,
-                      reverse: true,
-                      itemCount: _messageDatas.isEmpty
-                          ? 0
-                          : _messageDatas.length >=
-                                  _connectingservice
-                                      .apiService!.messageList.totalCount
-                              ? _messageDatas.length
-                              : _messageDatas.length - _pageSize,
-                      itemBuilder: (context, index) {
-                        String content;
-                        if (_messageDatas[index].messageType == "ENTER") {
-                          content = _messageDatas[index].content;
-                        } else if (_messageDatas[index].messageType ==
-                            "LEAVE") {
-                          content = _messageDatas[index].content;
-                        } else {
-                          content =
-                              '${_messageDatas[index].userId == _connectingservice.userId ? '나' : '상대방'}: ${_messageDatas[index].content}';
-                        }
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 8.0, horizontal: 16.0),
-                          child: Text(
-                            content,
-                            style: TextStyle(
-                              color: _messageDatas[index].messageType == "ENTER"
-                                  ? Colors.cyan
-                                  : _messageDatas[index].messageType == "LEAVE"
-                                      ? Colors.red
-                                      : _connectingservice.userId ==
-                                              _messageDatas[index].userId
-                                          ? Colors.yellow
-                                          : Colors.white,
-                            ),
-                          ),
-                        );
-                      },
+                    child: ScrollbarTheme(
+                      data: ScrollbarThemeData(
+                        thumbColor: WidgetStateProperty.all(Colors.white),
+                        thumbVisibility: WidgetStateProperty.all(true),
+                      ),
+                      child: Scrollbar(
+                        controller: _scrollController,
+                        child: ListView.builder(
+                          padding: const EdgeInsets.only(bottom: 0.0),
+                          controller: _scrollController,
+                          shrinkWrap: true,
+                          reverse: true,
+                          itemCount: _messageDatas.isEmpty
+                              ? 0
+                              : _messageDatas.length >=
+                                      _connectingservice
+                                          .apiService!.messageList.totalCount
+                                  ? _messageDatas.length
+                                  : _messageDatas.length - _pageSize,
+                          itemBuilder: (context, index) {
+                            String content;
+                            if (_messageDatas[index].messageType == "ENTER") {
+                              content = _messageDatas[index].content;
+                            } else if (_messageDatas[index].messageType ==
+                                "LEAVE") {
+                              content = _messageDatas[index].content;
+                            } else {
+                              content =
+                                  '${_messageDatas[index].userId == _connectingservice.userId ? '나' : '상대방'}: ${_messageDatas[index].content}';
+                            }
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 8.0, horizontal: 16.0),
+                              child: Text(
+                                content,
+                                style: TextStyle(
+                                  color: _messageDatas[index].messageType ==
+                                          "ENTER"
+                                      ? Colors.cyan
+                                      : _messageDatas[index].messageType ==
+                                              "LEAVE"
+                                          ? Colors.red
+                                          : _connectingservice.userId ==
+                                                  _messageDatas[index].userId
+                                              ? Colors.yellow
+                                              : Colors.white,
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
                     ),
                   )),
                   Padding(
