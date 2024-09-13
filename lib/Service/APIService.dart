@@ -121,8 +121,7 @@ class ApiService {
         body: jsonEncode(
           {
             "userIds": [_userId],
-            'roomType': 'GPT', // 임시로 GPT로 설정
-            'title': 'test Room',
+            'roomType': 'GPT',
           },
         ),
       );
