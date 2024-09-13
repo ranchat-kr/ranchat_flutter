@@ -102,7 +102,6 @@ class _HomeScreenState extends State<HomeScreen>
     WidgetsFlutterBinding.ensureInitialized();
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
-    prefs.clear();
     String? userId = prefs.getString('userUUID');
     print('main.dart userId: $userId');
     if (userId == null) {
@@ -213,43 +212,31 @@ class _HomeScreenState extends State<HomeScreen>
   // 8초 뒤에 매칭 실패 시 다이얼로그 종료
   void _closeLoadingDialog() async {
     await Future.delayed(const Duration(seconds: 8));
-    print('closeLoadingDialog');
-    if (!_isMatchingLoading) {
-      return;
-    } else {
-      _connectingservice.websocketService?.cancelMatching();
-      _isMatchingLoading = false;
 
-      await _connectingservice.apiService?.createRoom().then((roomId) {
-        _connectingservice.websocketService?.setRoomId(roomId.toString());
-        _connectingservice.apiService?.setRoomId(roomId.toString());
-        _connectingservice.websocketService?.enterRoom();
-      });
+    try {
+      if (!_isMatchingLoading) {
+        return;
+      } else {
+        _connectingservice.websocketService?.cancelMatching();
+        _isMatchingLoading = false;
+
+        await _connectingservice.apiService?.createRoom().then((roomId) {
+          _connectingservice.websocketService?.setRoomId(roomId.toString());
+          _connectingservice.apiService?.setRoomId(roomId.toString());
+          _connectingservice.websocketService?.enterRoom();
+        });
+        Navigator.of(context).pop();
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) =>
+                  ChatScreen(connectingservice: _connectingservice)),
+        ).then((_) {
+          checkRoomExist();
+        });
+      }
+    } catch (e) {
       Navigator.of(context).pop();
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (context) =>
-                ChatScreen(connectingservice: _connectingservice)),
-      ).then((_) {
-        checkRoomExist();
-      });
-      // Fluttertoast.showToast(
-      //   msg: '매칭에 실패하였습니다.',
-      //   toastLength: Toast.LENGTH_LONG,
-      //   gravity: ToastGravity.CENTER,
-      //   timeInSecForIosWeb: 2,
-      //   backgroundColor: Colors.grey,
-      //   textColor: Colors.white,
-      //   fontSize: 16.0,
-      // );
-
-      // ScaffoldMessenger.of(context).showSnackBar(
-      //   const SnackBar(
-      //     content: Text('매칭에 실패하였습니다.'),
-      //     duration: Duration(seconds: 2),
-      //   ),
-      // );
     }
   }
   // #endregion
