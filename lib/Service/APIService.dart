@@ -164,6 +164,7 @@ class ApiService {
       print('response: ${response.body}');
       if (response.statusCode == 200) {
         final responseData = jsonDecode(utf8.decode(response.bodyBytes));
+        print('responseData: $responseData');
         final roomList = RoomList.fromJson(responseData);
         return roomList.items;
       } else {

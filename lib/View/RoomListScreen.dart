@@ -133,91 +133,108 @@ class _RoomListScreenState extends State<RoomListScreen> {
         body: Stack(
           children: [
             Center(
-              child: ListView.separated(
-                controller: _scrollController,
-                itemCount: _roomItems.length,
-                itemBuilder: (listContext, index) {
-                  return Dismissible(
-                    key: Key(_roomItems[index].room.id.toString()),
-                    confirmDismiss: (direction) async {
-                      return await showDialog(
-                        context: listContext,
-                        builder: (BuildContext context) {
-                          return AlertDialog(
-                            title: const Text('방 나가기'),
-                            content: const Text('이 방에서 나가시겠습니까?'),
-                            actions: [
-                              TextButton(
-                                onPressed: () {
-                                  Navigator.pop(context, false);
-                                },
-                                child: const Text('취소'),
-                              ),
-                              TextButton(
-                                onPressed: () {
-                                  String roomTitle =
-                                      _roomItems[index].room.title;
-                                  setState(() {
-                                    exitRoom(
-                                        _roomItems[index].room.id.toString());
-                                    _roomItems.removeAt(index);
-                                  });
-                                  Navigator.pop(context, true);
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text('$roomTitle 방에서 나갔습니다.'),
-                                      duration: const Duration(seconds: 2),
+              child: ScrollbarTheme(
+                data: ScrollbarThemeData(
+                  thumbColor: WidgetStateProperty.all(Colors.white),
+                  thumbVisibility: WidgetStateProperty.all(true),
+                ),
+                child: Scrollbar(
+                  controller: _scrollController,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    child: ListView.separated(
+                      controller: _scrollController,
+                      itemCount: _roomItems.length,
+                      itemBuilder: (listContext, index) {
+                        return Dismissible(
+                          key: Key(_roomItems[index].room.id.toString()),
+                          confirmDismiss: (direction) async {
+                            return await showDialog(
+                              context: listContext,
+                              builder: (BuildContext context) {
+                                return AlertDialog(
+                                  title: const Text('방 나가기'),
+                                  content: const Text('이 방에서 나가시겠습니까?'),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () {
+                                        Navigator.pop(context, false);
+                                      },
+                                      child: const Text('취소'),
                                     ),
-                                  );
-                                },
-                                child: const Text('나가기'),
-                              )
-                            ],
-                          );
-                        },
-                      );
-                    },
-                    onDismissed: (direction) {
-                      print('ondismissed');
-                      setState(() {
-                        _roomItems.removeAt(index);
-                      });
+                                    TextButton(
+                                      onPressed: () {
+                                        String roomTitle =
+                                            _roomItems[index].room.title;
+                                        setState(() {
+                                          exitRoom(_roomItems[index]
+                                              .room
+                                              .id
+                                              .toString());
+                                          _roomItems.removeAt(index);
+                                        });
+                                        Navigator.pop(context, true);
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(
+                                          SnackBar(
+                                            content:
+                                                Text('$roomTitle 방에서 나갔습니다.'),
+                                            duration:
+                                                const Duration(seconds: 2),
+                                          ),
+                                        );
+                                      },
+                                      child: const Text('나가기'),
+                                    )
+                                  ],
+                                );
+                              },
+                            );
+                          },
+                          onDismissed: (direction) {
+                            print('ondismissed');
+                            setState(() {
+                              _roomItems.removeAt(index);
+                            });
 
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('방에서 나갔습니다.'),
-                          duration: Duration(seconds: 2),
-                        ),
-                      );
-                    },
-                    background: Container(
-                      color: Colors.red,
-                      alignment: Alignment.centerRight,
-                      child: const Padding(
-                        padding: EdgeInsets.only(right: 16.0),
-                        child: Text(
-                          '나가기',
-                          style: TextStyle(color: Colors.white),
-                        ),
-                      ),
-                    ),
-                    child: InkWell(
-                      onTap: () {
-                        _enterRoom(index);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('방에서 나갔습니다.'),
+                                duration: Duration(seconds: 2),
+                              ),
+                            );
+                          },
+                          background: Container(
+                            color: Colors.red,
+                            alignment: Alignment.centerRight,
+                            child: const Padding(
+                              padding: EdgeInsets.only(right: 16.0),
+                              child: Text(
+                                '나가기',
+                                style: TextStyle(color: Colors.white),
+                              ),
+                            ),
+                          ),
+                          child: InkWell(
+                            onTap: () {
+                              _enterRoom(index);
+                            },
+                            highlightColor: Colors.grey,
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: _roomItems[index],
+                            ),
+                          ),
+                        );
                       },
-                      highlightColor: Colors.grey,
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: _roomItems[index],
-                      ),
+                      separatorBuilder: (context, index) {
+                        return const Divider(
+                          color: Colors.grey,
+                        );
+                      },
                     ),
-                  );
-                },
-                separatorBuilder: (context, index) {
-                  return const Divider(
-                    color: Colors.grey,
-                  );
-                },
+                  ),
+                ),
               ),
             ),
             Center(
@@ -326,7 +343,7 @@ class _RoomItemState extends State<RoomItem> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(8.0),
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Column(
         children: [
           Row(
@@ -339,7 +356,7 @@ class _RoomItemState extends State<RoomItem> {
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
-              const Spacer(),
+              //const Spacer(),
               Align(
                 alignment: Alignment.topRight,
                 child: Text(
