@@ -213,6 +213,7 @@ class _HomeScreenState extends State<HomeScreen>
   // 8초 뒤에 매칭 실패 시 다이얼로그 종료
   void _closeLoadingDialog() async {
     await Future.delayed(const Duration(seconds: 8));
+    print('closeLoadingDialog');
     if (!_isMatchingLoading) {
       return;
     } else {

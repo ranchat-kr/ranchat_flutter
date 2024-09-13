@@ -134,6 +134,7 @@ class _ChatScreen extends State<ChatScreen> {
   void exitRoom() async {
     // _connectingservice.apiService?.exitRoom();
     try {
+      await unSubscribeToRecieveMessage();
       await _connectingservice.websocketService?.exitRoom();
       var isRoomExist = await _connectingservice.apiService?.checkRoomExist();
       _connectingservice.isRoomExist = isRoomExist!;
@@ -150,8 +151,8 @@ class _ChatScreen extends State<ChatScreen> {
   }
 
   // 메시지 수신 구독 취소
-  void unSubscribeToRecieveMessage() async {
-    _connectingservice.websocketService?.unSubscribeToRecieveMessage();
+  Future<void> unSubscribeToRecieveMessage() async {
+    await _connectingservice.websocketService?.unSubscribeToRecieveMessage();
   }
 
   void reportUser(String selectedReason, String report) async {
