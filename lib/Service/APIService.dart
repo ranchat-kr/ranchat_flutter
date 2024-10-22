@@ -309,4 +309,58 @@ class ApiService {
       throw Exception('<updateUserName> API 통신 실패: $e');
     }
   }
+
+  // 앱 알림 생성
+  Future<void> createAppNotifications(bool allowsNotification, String agentId,
+      String osType, String deviceName, String userId) async {
+    print(
+        'createAppNotifications - url: http://${Defaultdata.domain}/v1/app-notifications, allowsNotification: $allowsNotification, agentId: $agentId, osType: $osType, deviceName: $deviceName, userId: $userId');
+    try {
+      final response = await http.post(
+        Uri.parse('https://${Defaultdata.domain}/v1/app-notifications'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode({
+          "allowsNotification": allowsNotification,
+          "agentId": agentId,
+          "osType": osType,
+          "deviceName": deviceName,
+          "userId": userId,
+        }),
+      );
+      if (response.statusCode == 200) {
+        print('createAppNotifications : $response');
+      } else {
+        throw Exception('<createUser> Failed to load data');
+      }
+    } catch (e) {
+      throw Exception('<createAppNotifications> API 통신 실패: $e');
+    }
+  }
+
+  // 앱 알림 수정
+  Future<void> updateAppNotifications(
+      String userId, String agentId, bool allowsNotification) async {
+    try {
+      final response = await http.put(
+        Uri.parse('https://${Defaultdata.domain}/v1/app-notifications'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode({
+          "userId": userId,
+          "agentId": agentId,
+          "allowsNotification": allowsNotification,
+        }),
+      );
+      if (response.statusCode == 200) {
+        print('updateAppNotifications : $response');
+      } else {
+        throw Exception('<updateUserName> Failed to load data');
+      }
+    } catch (e) {
+      throw Exception('<updateAppNotifications> API 통신 실패: $e');
+    }
+  }
 }

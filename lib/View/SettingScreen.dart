@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:ran_talk/Messaging.dart';
+import 'package:ran_talk/Model/DefaultData.dart';
 import 'package:ran_talk/Model/User.dart';
 import 'package:ran_talk/Service/ConnectingService.dart';
 
@@ -15,6 +17,7 @@ class _SettingscreenState extends State<Settingscreen> {
   final FocusNode _focusNode = FocusNode();
   late Connectingservice _connectingservice;
   var _isLoading = false;
+  final _isAlarmSwitched = Defaultdata.allowsNotification;
   User? user;
 
   @override
@@ -146,6 +149,23 @@ class _SettingscreenState extends State<Settingscreen> {
     return true;
   }
 
+  void setNotification() async {
+    if (Defaultdata.allowsNotification != _isAlarmSwitched) {
+      try {
+        await _connectingservice.apiService?.updateAppNotifications(
+          user?.id ?? '',
+          Defaultdata.agentId,
+          Defaultdata.allowsNotification,
+        );
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text('서버와의 연결에 실패했습니다.'),
+          duration: Duration(seconds: 1),
+        ));
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Stack(
@@ -163,6 +183,7 @@ class _SettingscreenState extends State<Settingscreen> {
                   color: Colors.white,
                 ),
                 onPressed: () {
+                  setNotification();
                   Navigator.pop(context);
                 },
                 highlightColor: Colors.grey,
@@ -175,6 +196,33 @@ class _SettingscreenState extends State<Settingscreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        '알림',
+                        style: TextStyle(
+                            color: Messaging.checkPermission()
+                                ? Colors.white
+                                : Colors.blueGrey,
+                            fontSize: 24),
+                      ),
+                      const SizedBox(width: 10),
+                      Switch(
+                        value: Defaultdata.allowsNotification,
+                        activeColor: Colors.red,
+                        inactiveThumbColor: Colors.blueGrey,
+                        onChanged: Messaging.checkPermission()
+                            ? (value) {
+                                setState(() {
+                                  Defaultdata.allowsNotification = value;
+                                });
+                              }
+                            : null,
+                      ),
+                    ],
+                  ),
+                  const Divider(),
                   Text(
                     user?.name ?? '',
                     style: const TextStyle(fontSize: 24, color: Colors.white),

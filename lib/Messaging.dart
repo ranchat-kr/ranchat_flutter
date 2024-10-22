@@ -6,6 +6,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app_badger/flutter_app_badger.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:ran_talk/Model/DefaultData.dart';
 import 'package:ran_talk/firebase_options.dart';
 
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
@@ -94,6 +95,8 @@ class Messaging {
 
   static Future<void> _showMessage(
       String id, String? title, String? body) async {
+    if (!Defaultdata.allowsNotification) return;
+
     const NotificationDetails notificationDetail = NotificationDetails(
         android: AndroidNotificationDetails(
       _androidChannelId,
@@ -126,6 +129,8 @@ class Messaging {
     Map<String, dynamic> data = message.data;
 
     if (data.isEmpty) return;
+
+    if (!Defaultdata.allowsNotification) return;
 
     if (Platform.isIOS && data['badge'] != null) {
       int badgeCount = int.parse(data['badge']);

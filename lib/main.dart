@@ -1,10 +1,13 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:math';
 
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:ran_talk/Messaging.dart';
+import 'package:ran_talk/Model/DefaultData.dart';
 import 'package:ran_talk/Service/ConnectingService.dart';
 import 'package:ran_talk/View/ChatScreen.dart';
 import 'package:ran_talk/View/RoomListScreen.dart';
@@ -16,11 +19,12 @@ Future<void> requestAlarmPermission() async {
   var isGranted = Messaging.checkPermission();
   var token = await Messaging.getPushToken();
 
-  print('token: $token');
+  Defaultdata.isGranted = isGranted;
+  Defaultdata.agentId = token ?? '';
+  print('isGranted: $isGranted, token: $token');
   if (isGranted) {
   } else {
     var result = await Permission.notification.request();
-
     if (result.isGranted) {
       print('Permission granted');
     } else {
@@ -129,6 +133,7 @@ class _HomeScreenState extends State<HomeScreen>
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
     String? userId = prefs.getString('userUUID');
+    bool? isAppFirst = prefs.getBool('isAppFirst');
     print('main.dart userId: $userId');
     if (userId == null) {
       var uuid = const Uuid();
@@ -143,6 +148,32 @@ class _HomeScreenState extends State<HomeScreen>
     checkRoomExist();
     await _connectingservice.websocketService
         ?.connectToWebSocket(); // WebSocket 연결
+
+    if (isAppFirst == null || !isAppFirst) {
+      DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+      String deviceName = '';
+      if (Platform.isAndroid) {
+        AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
+        deviceName = androidInfo.model;
+      } else if (Platform.isIOS) {
+        IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
+        deviceName = iosInfo.utsname.machine;
+      }
+      // 알림 설정  (알림을 받기 위한 설정)
+      try {
+        await _connectingservice.apiService?.createAppNotifications(
+          Defaultdata.isGranted,
+          Defaultdata.agentId,
+          Platform.isAndroid ? 'ANDROID' : 'IOS',
+          deviceName,
+          userId,
+        );
+        await prefs.setBool('isAppFirst', true);
+        Defaultdata.allowsNotification = true;
+      } catch (e) {
+        print('createAppNotifications error: $e');
+      }
+    }
 
     setState(() {
       _isLoading = false;
