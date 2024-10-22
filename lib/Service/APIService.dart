@@ -81,7 +81,7 @@ class ApiService {
         }),
       );
       final responseData = jsonDecode(utf8.decode(response.bodyBytes));
-      print('response: $responseData');
+      print('report response: $responseData');
       if (response.statusCode == 200) {
         print('reportUser : $response');
       } else {
@@ -164,7 +164,7 @@ class ApiService {
       print('response: ${response.body}');
       if (response.statusCode == 200) {
         final responseData = jsonDecode(utf8.decode(response.bodyBytes));
-        print('responseData: $responseData');
+        print('get Rooms responseData: $responseData');
         final roomList = RoomList.fromJson(responseData);
         return roomList.items;
       } else {

@@ -78,7 +78,7 @@ class WebsocketService {
   }
 
   Future<void> reconnectToWebSocket() async {
-    const int reconnectDelay = 5000;
+    const int reconnectDelay = 1000;
     await Future.delayed(const Duration(milliseconds: reconnectDelay));
     await connectToWebSocket();
   }
@@ -124,6 +124,7 @@ class WebsocketService {
   }
 
   Future<void> unSubscribeToRecieveMessage() async {
+    print('unsubscribe to recieve message');
     try {
       await subscriptionToRecieveMessage(
           unsubscribeHeaders: {'recieveMessage': 'true'});

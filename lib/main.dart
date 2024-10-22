@@ -3,6 +3,8 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:ran_talk/Messaging.dart';
 import 'package:ran_talk/Service/ConnectingService.dart';
 import 'package:ran_talk/View/ChatScreen.dart';
 import 'package:ran_talk/View/RoomListScreen.dart';
@@ -10,7 +12,29 @@ import 'package:ran_talk/View/SettingScreen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 
-void main() {
+Future<void> requestAlarmPermission() async {
+  var isGranted = Messaging.checkPermission();
+  var token = await Messaging.getPushToken();
+
+  print('token: $token');
+  if (isGranted) {
+  } else {
+    var result = await Permission.notification.request();
+
+    if (result.isGranted) {
+      print('Permission granted');
+    } else {
+      print('Permission denied');
+    }
+  }
+}
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Messaging.init();
+  await requestAlarmPermission();
+  Messaging.registerBackgroundMessageHandler();
+
   runApp(const MyApp());
 }
 
@@ -25,6 +49,7 @@ class MyApp extends StatelessWidget {
         fontFamily: 'DungGeunMo',
       ),
       themeMode: ThemeMode.system,
+      debugShowCheckedModeBanner: false,
       home: const HomeScreen(),
     );
   }
@@ -361,6 +386,11 @@ class _HomeScreenState extends State<HomeScreen>
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
+                    // SelectableText(
+                    //   token ?? "",
+                    //   style:
+                    //       const TextStyle(fontSize: 20.0, color: Colors.white),
+                    // ),
                     GestureDetector(
                       onTap: () {
                         // _connectingservice.websocketService?.tempRequestMatching();

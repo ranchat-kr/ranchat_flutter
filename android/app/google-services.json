@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1055882219919",
+    "project_id": "ran-talk",
+    "storage_bucket": "ran-talk.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1055882219919:android:8a604f415d1a0ec8917bfa",
+        "android_client_info": {
+          "package_name": "com.kihyeonkim.rantalk"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD6XCQ0r9cDdgv54IWkXKB9f-Q2txeZTdo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
