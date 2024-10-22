@@ -3,6 +3,7 @@ import 'package:ran_talk/Messaging.dart';
 import 'package:ran_talk/Model/DefaultData.dart';
 import 'package:ran_talk/Model/User.dart';
 import 'package:ran_talk/Service/ConnectingService.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Settingscreen extends StatefulWidget {
   final Connectingservice connectingservice;
@@ -157,6 +158,9 @@ class _SettingscreenState extends State<Settingscreen> {
           Defaultdata.agentId,
           Defaultdata.allowsNotification,
         );
+        WidgetsFlutterBinding.ensureInitialized();
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        prefs.setBool('allowsNotification', Defaultdata.allowsNotification);
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
           content: Text('서버와의 연결에 실패했습니다.'),

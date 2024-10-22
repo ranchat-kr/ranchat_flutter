@@ -134,6 +134,7 @@ class _HomeScreenState extends State<HomeScreen>
 
     String? userId = prefs.getString('userUUID');
     bool? isAppFirst = prefs.getBool('isAppFirst');
+    bool? allowsNotification = prefs.getBool('allowsNotification');
     print('main.dart userId: $userId');
     if (userId == null) {
       var uuid = const Uuid();
@@ -173,6 +174,12 @@ class _HomeScreenState extends State<HomeScreen>
       } catch (e) {
         print('createAppNotifications error: $e');
       }
+    }
+
+    if (allowsNotification != null) {
+      Defaultdata.allowsNotification = allowsNotification;
+    } else {
+      Defaultdata.allowsNotification = true;
     }
 
     setState(() {
