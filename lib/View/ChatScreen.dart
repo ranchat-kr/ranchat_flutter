@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:ran_talk/Model/MessageData.dart';
 import 'package:ran_talk/Model/RoomDetailData.dart';
@@ -25,6 +27,7 @@ class _ChatScreen extends State<ChatScreen> {
       _connectingservice; // API, WebSocket 연결을 위한 객체 (main에서 받아옴)
   RoomDetailData _roomDetailData =
       RoomDetailData(id: 0, title: '', type: '', participants: []); // 채팅방 상세 정보
+  Timer? _timer;
 
   var _isLoading = false; // 로딩 중인지 확인하는 변수
   var _currentPage = 0; // 현재 페이지 (메시지 데이터)
@@ -44,6 +47,8 @@ class _ChatScreen extends State<ChatScreen> {
     // TODO: implement dispose
     _textController.dispose();
     _scrollController.dispose();
+    activateParticipant();
+    _timer?.cancel();
     super.dispose();
   }
 
@@ -54,6 +59,10 @@ class _ChatScreen extends State<ChatScreen> {
     _connectingservice.websocketService
         ?.setOnMessageReceivedCallback(_onMessageReceived);
     getRoomDetailData();
+
+    _timer = Timer.periodic(const Duration(seconds: 3), (timer) {
+      activateParticipant();
+    });
   }
 
   // UI 설정
@@ -170,6 +179,20 @@ class _ChatScreen extends State<ChatScreen> {
     } catch (e) {
       _dialogTextController.clear();
       Navigator.pop(context);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('서버와 연결에 실패했습니다.'),
+          duration: Duration(seconds: 1),
+        ),
+      );
+    }
+  }
+
+  Future<void> activateParticipant() async {
+    try {
+      await _connectingservice.websocketService?.activateParticipant();
+      print('참여자 활성화 완료');
+    } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('서버와 연결에 실패했습니다.'),

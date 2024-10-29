@@ -269,6 +269,24 @@ class WebsocketService {
       throw Exception('<cancelMatching> not connected');
     }
   }
+
+  // 참여자 확인
+  Future<void> activateParticipant() async {
+    print('activate participant');
+    if (_stompClient!.connected) {
+      try {
+        _stompClient?.send(
+          destination: '/v1/rooms/$_roomId/activate-participant',
+          body: jsonEncode({"userId": _userId}),
+        );
+      } catch (e) {
+        throw Exception('<activateParticipant> Fail');
+      }
+    } else {
+      throw Exception('<activateParticipant> not connected');
+    }
+  }
+
   // #endregion
   // #endregion
 
