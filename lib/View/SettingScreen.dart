@@ -151,22 +151,20 @@ class _SettingscreenState extends State<Settingscreen> {
   }
 
   void setNotification() async {
-    if (Defaultdata.allowsNotification != _isAlarmSwitched) {
-      try {
-        await _connectingservice.apiService?.updateAppNotifications(
-          user?.id ?? '',
-          Defaultdata.agentId,
-          Defaultdata.allowsNotification,
-        );
-        WidgetsFlutterBinding.ensureInitialized();
-        SharedPreferences prefs = await SharedPreferences.getInstance();
-        prefs.setBool('allowsNotification', Defaultdata.allowsNotification);
-      } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text('서버와의 연결에 실패했습니다.'),
-          duration: Duration(seconds: 1),
-        ));
-      }
+    try {
+      await _connectingservice.apiService?.updateAppNotifications(
+        user?.id ?? '',
+        Defaultdata.agentId,
+        Defaultdata.allowsNotification,
+      );
+      WidgetsFlutterBinding.ensureInitialized();
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      prefs.setBool('allowsNotification', Defaultdata.allowsNotification);
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text('서버와의 연결에 실패했습니다.'),
+        duration: Duration(seconds: 1),
+      ));
     }
   }
 
@@ -187,7 +185,6 @@ class _SettingscreenState extends State<Settingscreen> {
                   color: Colors.white,
                 ),
                 onPressed: () {
-                  setNotification();
                   Navigator.pop(context);
                 },
                 highlightColor: Colors.grey,
@@ -216,13 +213,12 @@ class _SettingscreenState extends State<Settingscreen> {
                         value: Defaultdata.allowsNotification,
                         activeColor: Colors.red,
                         inactiveThumbColor: Colors.blueGrey,
-                        onChanged: Messaging.checkPermission()
-                            ? (value) {
-                                setState(() {
-                                  Defaultdata.allowsNotification = value;
-                                });
-                              }
-                            : null,
+                        onChanged: (value) {
+                          setState(() {
+                            Defaultdata.allowsNotification = value;
+                          });
+                          setNotification();
+                        },
                       ),
                     ],
                   ),
