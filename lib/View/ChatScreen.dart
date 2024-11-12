@@ -48,6 +48,7 @@ class _ChatScreen extends State<ChatScreen> {
     _textController.dispose();
     _scrollController.dispose();
     activateParticipant();
+    _connectingservice.websocketService?.unSubscribeToRecieveMessage();
     _timer?.cancel();
     super.dispose();
   }
